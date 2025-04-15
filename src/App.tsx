@@ -1,5 +1,5 @@
-import { HashRouter as Router, Routes, Route, Link, Navigate } from 'react-router-dom';
-import { useState, useEffect } from 'react';
+import { HashRouter as Router, Routes, Route, Link, Navigate, useLocation } from 'react-router-dom';
+import { useState } from 'react';
 import { FaBars, FaTimes } from 'react-icons/fa';
 import ProjectsAndAwards from './components/ProjectsAndAwards';
 import ProjectsManager from './components/ProjectsManager';
@@ -7,6 +7,7 @@ import WorkExperienceManager from './components/WorkExperienceManager';
 import CertificationsManager from './components/CertificationsManager';
 import EducationManager from './components/EducationManager';
 import ViewerDemo from './pages/ViewerDemo';
+import AdminLogin from './pages/AdminLogin';
 
 import Home from './components/Home';
 import Education from './components/Education';
@@ -15,32 +16,28 @@ import SchoolExperience from './components/SchoolExperience';
 import Certifications from './components/Certifications';
 import Contact from './components/Contact';
 import { LanguageProvider, useLanguage } from './contexts/LanguageContext';
-
-// 管理员模式状态上下文
-const useAdminMode = () => {
-  const [isAdminMode, setIsAdminMode] = useState(false);
-
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.ctrlKey && e.shiftKey && e.key === 'A') {
-        console.log('全局管理员模式已激活');
-        setIsAdminMode(true);
-      }
-    };
-    
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, []);
-
-  return isAdminMode;
-};
+import { AdminProvider, useAdmin } from './contexts/AdminContext';
 
 // 受保护路由高阶组件
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
-  const isAdminMode = useAdminMode();
+  const { isAdminMode, isAuthenticated } = useAdmin();
+  const location = useLocation();
   
+  // 如果既不是管理员模式也没有认证，重定向到登录页面
   if (!isAdminMode) {
-    console.log('未授权访问管理页面，重定向到首页');
+    console.log('未授权访问管理页面，重定向到登录页面');
+    // 保存当前页面路径，以便登录后返回
+    return <Navigate to="/admin-login" replace state={{ from: location.pathname }} />;
+  }
+  
+  return <>{children}</>;
+};
+
+// 如果已认证，重定向到首页
+const UnauthenticatedRoute = ({ children }: { children: React.ReactNode }) => {
+  const { isAuthenticated } = useAdmin();
+  
+  if (isAuthenticated) {
     return <Navigate to="/" replace />;
   }
   
@@ -50,6 +47,7 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
 function AppContent() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { language, setLanguage, t } = useLanguage();
+  const { isAdminMode, logout } = useAdmin();
 
   return (
     <Router>
@@ -81,6 +79,14 @@ function AppContent() {
                 <Link to="/certifications" className="text-sm font-medium text-gray-600 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white transition-colors">{t('nav.certifications')}</Link>
                 <Link to="/contact" className="text-sm font-medium text-gray-600 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white transition-colors">{t('nav.contact')}</Link>
                 <Link to="/projects" className="text-sm font-medium text-gray-600 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white transition-colors">{t('nav.projects')}</Link>
+                {isAdminMode && (
+                  <button
+                    onClick={logout}
+                    className="text-sm font-medium text-red-500 hover:text-red-700 transition-colors"
+                  >
+                    {t('nav.logout') || '登出'}
+                  </button>
+                )}
                 <button
                   onClick={() => setLanguage(language === 'en' ? 'zh' : 'en')}
                   className="text-sm font-medium text-[var(--apple-blue)] hover:text-[var(--apple-blue-hover)] transition-colors"
@@ -100,6 +106,14 @@ function AppContent() {
                 <Link to="/certifications" className="block px-3 py-2 text-sm font-medium text-gray-600 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white transition-colors">{t('nav.certifications')}</Link>
                 <Link to="/contact" className="block px-3 py-2 text-sm font-medium text-gray-600 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white transition-colors">{t('nav.contact')}</Link>
                 <Link to="/projects" className="block px-3 py-2 text-sm font-medium text-gray-600 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white transition-colors">{t('nav.projects')}</Link>
+                {isAdminMode && (
+                  <button
+                    onClick={logout}
+                    className="block w-full text-left px-3 py-2 text-sm font-medium text-red-500 hover:text-red-700 transition-colors"
+                  >
+                    {t('nav.logout') || '登出'}
+                  </button>
+                )}
                 <button
                   onClick={() => setLanguage(language === 'en' ? 'zh' : 'en')}
                   className="block w-full text-left px-3 py-2 text-sm font-medium text-[var(--apple-blue)] hover:text-[var(--apple-blue-hover)] transition-colors"
@@ -121,6 +135,14 @@ function AppContent() {
             <Route path="/contact" element={<Contact />} />
             <Route path="/certifications" element={<Certifications />} />
             <Route path="/projects" element={<ProjectsAndAwards />} />
+            <Route path="/viewer-demo" element={<ViewerDemo />} />
+            
+            {/* 登录页面路由 */}
+            <Route path="/admin-login" element={
+              <UnauthenticatedRoute>
+                <AdminLogin />
+              </UnauthenticatedRoute>
+            } />
             
             {/* 受保护的管理页面路由 */}
             <Route path="/projects-manager" element={
@@ -143,7 +165,6 @@ function AppContent() {
                 <CertificationsManager />
               </ProtectedRoute>
             } />
-            <Route path="/viewer-demo" element={<ViewerDemo />} />
           </Routes>
         </main>
         </div>
@@ -154,7 +175,9 @@ function AppContent() {
 function App() {
   return (
     <LanguageProvider>
-      <AppContent />
+      <AdminProvider>
+        <AppContent />
+      </AdminProvider>
     </LanguageProvider>
   );
 }

@@ -104,6 +104,10 @@ export const translations: Translations = {
     zh: '市场营销, 管理学, 批判性分析, 运营与供应链管理, 经济学, 财务与管理会计, 金融市场, 商业法',
     en: 'Marketing, Management, Critical Analysis, Operation & Supply Chain Management, Economics, Financial & Management Accounting, Financial Market, Business Law',
   },
+  'education.manage': {
+    zh: '管理教育经历',
+    en: 'Manage Education',
+  },
   
   // 工作经历
   'work.title': {
@@ -347,6 +351,40 @@ export const translations: Translations = {
   'optional': {
     zh: '可选',
     en: 'optional',
+  },
+  
+  // 管理员登录相关
+  'nav.logout': {
+    zh: '登出',
+    en: 'Logout',
+  },
+  'admin.login.title': {
+    zh: '管理员登录',
+    en: 'Admin Login',
+  },
+  'admin.login.subtitle': {
+    zh: '请输入管理员密码以继续',
+    en: 'Please enter the admin password to continue',
+  },
+  'admin.login.password': {
+    zh: '密码',
+    en: 'Password',
+  },
+  'admin.login.submit': {
+    zh: '登录',
+    en: 'Login',
+  },
+  'admin.login.processing': {
+    zh: '正在处理...',
+    en: 'Processing...',
+  },
+  'admin.login.error': {
+    zh: '密码不正确',
+    en: 'Incorrect password',
+  },
+  'admin.login.back_to_home': {
+    zh: '返回首页',
+    en: 'Back to Home',
   },
   
   // 证书管理页面

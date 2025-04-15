@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useLanguage } from '../contexts/LanguageContext';
+import { useAdmin } from '../contexts/AdminContext';
 
 interface WorkExperience {
   id?: string;
@@ -38,23 +39,9 @@ const sortByDate = (a: WorkExperience, b: WorkExperience): number => {
 
 export default function WorkExperience() {
   const { t } = useLanguage();
+  const { isAdminMode } = useAdmin();
+  const [workExperiences, setWorkExperiences] = useState<WorkExperience[]>([]);
   const [isLoaded, setIsLoaded] = useState(false);
-  const [experiences, setExperiences] = useState<WorkExperience[]>([]);
-  // 添加管理按钮显示状态
-  const [showAdmin, setShowAdmin] = useState(false);
-
-  // 添加特殊按键组合监听，用于显示管理按钮
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.ctrlKey && e.shiftKey && e.key === 'A') {
-        console.log('工作经验管理员模式已激活');
-        setShowAdmin(true);
-      }
-    };
-    
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, []);
 
   useEffect(() => {
     setIsLoaded(true);
@@ -64,7 +51,7 @@ export default function WorkExperience() {
     if (savedExperiences) {
       // 加载后自动排序
       const parsed = JSON.parse(savedExperiences);
-      setExperiences(parsed.sort(sortByDate));
+      setWorkExperiences(parsed.sort(sortByDate));
     }
   }, []);
 
@@ -74,19 +61,16 @@ export default function WorkExperience() {
         <div className={`transition-opacity duration-500 ${isLoaded ? 'opacity-100' : 'opacity-0'}`}>
           <div className="flex justify-between items-center mb-8">
             <h2 className="text-3xl font-bold text-gray-900 dark:text-white">{t('work.title')}</h2>
-            {/* 只在管理员模式激活时显示管理按钮 */}
-            {showAdmin && (
-              <Link 
-                to="/work-experience-manager" 
-                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-              >
-                {t('work.manage') || '管理工作经历'}
+            {/* 使用全局isAdminMode来显示管理按钮 */}
+            {isAdminMode && (
+              <Link to="/work-experience-manager" className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+                {t('work.manage')}
               </Link>
             )}
           </div>
           
-          {experiences.length > 0 ? (
-            experiences.map((experience) => (
+          {workExperiences.length > 0 ? (
+            workExperiences.map((experience) => (
               <div key={experience.id} className="mb-8 bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
                 <div className="flex justify-between items-start mb-4">
                   <div>

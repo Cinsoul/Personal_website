@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useLanguage } from '../contexts/LanguageContext';
+import { useAdmin } from '../contexts/AdminContext';
 import { getFileIcon } from '../utils/fileUtils';
 import ImageViewer from './ImageViewer';
 import DocumentViewer from './DocumentViewer';
@@ -46,14 +47,12 @@ interface Award {
 
 export default function ProjectsAndAwards() {
   const { t } = useLanguage();
+  const { isAuthenticated, isAdminMode } = useAdmin();
   const [projects, setProjects] = useState<Project[]>([]);
   const [awards, setAwards] = useState<Award[]>([]);
   const navigate = useNavigate();
   const location = useLocation();
   const [isLoaded, setIsLoaded] = useState(false);  // 保留此状态用于控制加载动画
-  
-  // 添加管理按钮显示状态
-  const [showAdmin, setShowAdmin] = useState(false);
   
   // 图片预览状态
   const [viewingImage, setViewingImage] = useState<string | null>(null);
@@ -65,19 +64,6 @@ export default function ProjectsAndAwards() {
     fileName: string;
     fileType: string;
   } | null>(null);
-
-  // 添加特殊按键组合监听，用于显示管理按钮
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.ctrlKey && e.shiftKey && e.key === 'A') {
-        console.log('管理员模式已激活');
-        setShowAdmin(true);
-      }
-    };
-    
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, []);
 
   // 处理图片点击
   const handleImageClick = (imageUrl: string, title: string, e: React.MouseEvent) => {
@@ -363,20 +349,18 @@ export default function ProjectsAndAwards() {
     <div className="min-h-screen bg-gray-100 dark:bg-gray-900 py-24">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-16">
-          <h1 className="text-5xl font-semibold text-gray-900 dark:text-white mb-6" style={{ letterSpacing: '-0.025em' }}>{t('projects.title')}</h1>
-          <p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto" style={{ fontWeight: 300 }}>{t('projects.subtitle')}</p>
-          
-          {/* 只在管理员模式激活时显示管理按钮 */}
-          {showAdmin && (
-            <div className="mt-6">
+          <div className="flex justify-between items-center mb-8">
+            <h2 className="text-3xl font-bold text-gray-900 dark:text-white">{t('projects.title')}</h2>
+            {isAuthenticated && (
               <Link 
                 to="/projects-manager" 
-                className="inline-flex items-center px-4 py-2 bg-[var(--apple-blue)] text-white rounded-md hover:bg-[var(--apple-blue-hover)] transition-colors duration-300"
+                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
               >
                 {t('projects.manage')}
               </Link>
-            </div>
-          )}
+            )}
+          </div>
+          <p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto" style={{ fontWeight: 300 }}>{t('projects.subtitle')}</p>
         </div>
         <div className={`transition-opacity duration-500 ${isLoaded ? 'opacity-100' : 'opacity-0'}`}>
           {/* Projects Section */}
@@ -387,7 +371,7 @@ export default function ProjectsAndAwards() {
                 {projects.map((project, index) => (
                   <div key={index} className="bg-white dark:bg-gray-800 rounded-2xl overflow-hidden transition-all duration-500 ease-out hover:shadow-2xl hover:scale-105 border border-gray-100 dark:border-gray-700 relative">
                     {/* 只在管理员模式激活时显示编辑按钮 */}
-                    {showAdmin && <EditButton onClick={(e) => handleEditProject(project, e)} />}
+                    {isAdminMode && <EditButton onClick={(e) => handleEditProject(project, e)} />}
                     {project.image && (
                       <div className="h-56 overflow-hidden cursor-pointer" onClick={(e) => handleImageClick(project.image || '', project.title, e)}>
                         <img 
@@ -467,7 +451,7 @@ export default function ProjectsAndAwards() {
                 {awards.map((award, index) => (
                   <div key={index} className="bg-white dark:bg-gray-800 rounded-2xl overflow-hidden transition-all duration-500 ease-out hover:shadow-2xl hover:scale-105 border border-gray-100 dark:border-gray-700 relative">
                     {/* 只在管理员模式激活时显示编辑按钮 */}
-                    {showAdmin && <EditButton onClick={(e) => handleEditAward(award, e)} />}
+                    {isAdminMode && <EditButton onClick={(e) => handleEditAward(award, e)} />}
                     <div className="flex items-center p-8 border-b border-gray-100 dark:border-gray-700">
                       {award.image && (
                         <div className="w-16 h-16 mr-5 flex-shrink-0 cursor-pointer" onClick={(e) => handleImageClick(award.image || '', award.title, e)}>
