@@ -52,6 +52,9 @@ export default function ProjectsAndAwards() {
   const location = useLocation();
   const [isLoaded, setIsLoaded] = useState(false);  // 保留此状态用于控制加载动画
   
+  // 添加管理按钮显示状态
+  const [showAdmin, setShowAdmin] = useState(false);
+  
   // 图片预览状态
   const [viewingImage, setViewingImage] = useState<string | null>(null);
   const [viewingImageTitle, setViewingImageTitle] = useState<string>('');
@@ -62,6 +65,19 @@ export default function ProjectsAndAwards() {
     fileName: string;
     fileType: string;
   } | null>(null);
+
+  // 添加特殊按键组合监听，用于显示管理按钮
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.ctrlKey && e.shiftKey && e.key === 'A') {
+        console.log('管理员模式已激活');
+        setShowAdmin(true);
+      }
+    };
+    
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
 
   // 处理图片点击
   const handleImageClick = (imageUrl: string, title: string, e: React.MouseEvent) => {
@@ -349,14 +365,18 @@ export default function ProjectsAndAwards() {
         <div className="text-center mb-16">
           <h1 className="text-5xl font-semibold text-gray-900 dark:text-white mb-6" style={{ letterSpacing: '-0.025em' }}>{t('projects.title')}</h1>
           <p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto" style={{ fontWeight: 300 }}>{t('projects.subtitle')}</p>
-          <div className="mt-6">
-            <Link 
-              to="/projects-manager" 
-              className="inline-flex items-center px-4 py-2 bg-[var(--apple-blue)] text-white rounded-md hover:bg-[var(--apple-blue-hover)] transition-colors duration-300"
-            >
-              {t('projects.manage')}
-            </Link>
-          </div>
+          
+          {/* 只在管理员模式激活时显示管理按钮 */}
+          {showAdmin && (
+            <div className="mt-6">
+              <Link 
+                to="/projects-manager" 
+                className="inline-flex items-center px-4 py-2 bg-[var(--apple-blue)] text-white rounded-md hover:bg-[var(--apple-blue-hover)] transition-colors duration-300"
+              >
+                {t('projects.manage')}
+              </Link>
+            </div>
+          )}
         </div>
         <div className={`transition-opacity duration-500 ${isLoaded ? 'opacity-100' : 'opacity-0'}`}>
           {/* Projects Section */}
@@ -366,7 +386,8 @@ export default function ProjectsAndAwards() {
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
                 {projects.map((project, index) => (
                   <div key={index} className="bg-white dark:bg-gray-800 rounded-2xl overflow-hidden transition-all duration-500 ease-out hover:shadow-2xl hover:scale-105 border border-gray-100 dark:border-gray-700 relative">
-                    <EditButton onClick={(e) => handleEditProject(project, e)} />
+                    {/* 只在管理员模式激活时显示编辑按钮 */}
+                    {showAdmin && <EditButton onClick={(e) => handleEditProject(project, e)} />}
                     {project.image && (
                       <div className="h-56 overflow-hidden cursor-pointer" onClick={(e) => handleImageClick(project.image || '', project.title, e)}>
                         <img 
@@ -445,7 +466,8 @@ export default function ProjectsAndAwards() {
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
                 {awards.map((award, index) => (
                   <div key={index} className="bg-white dark:bg-gray-800 rounded-2xl overflow-hidden transition-all duration-500 ease-out hover:shadow-2xl hover:scale-105 border border-gray-100 dark:border-gray-700 relative">
-                    <EditButton onClick={(e) => handleEditAward(award, e)} />
+                    {/* 只在管理员模式激活时显示编辑按钮 */}
+                    {showAdmin && <EditButton onClick={(e) => handleEditAward(award, e)} />}
                     <div className="flex items-center p-8 border-b border-gray-100 dark:border-gray-700">
                       {award.image && (
                         <div className="w-16 h-16 mr-5 flex-shrink-0 cursor-pointer" onClick={(e) => handleImageClick(award.image || '', award.title, e)}>
