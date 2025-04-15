@@ -40,6 +40,21 @@ export default function WorkExperience() {
   const { t } = useLanguage();
   const [isLoaded, setIsLoaded] = useState(false);
   const [experiences, setExperiences] = useState<WorkExperience[]>([]);
+  // 添加管理按钮显示状态
+  const [showAdmin, setShowAdmin] = useState(false);
+
+  // 添加特殊按键组合监听，用于显示管理按钮
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.ctrlKey && e.shiftKey && e.key === 'A') {
+        console.log('工作经验管理员模式已激活');
+        setShowAdmin(true);
+      }
+    };
+    
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
 
   useEffect(() => {
     setIsLoaded(true);
@@ -59,12 +74,15 @@ export default function WorkExperience() {
         <div className={`transition-opacity duration-500 ${isLoaded ? 'opacity-100' : 'opacity-0'}`}>
           <div className="flex justify-between items-center mb-8">
             <h2 className="text-3xl font-bold text-gray-900 dark:text-white">{t('work.title')}</h2>
-            <Link 
-              to="/work-experience-manager" 
-              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-            >
-              {t('work.manage') || '管理工作经历'}
-            </Link>
+            {/* 只在管理员模式激活时显示管理按钮 */}
+            {showAdmin && (
+              <Link 
+                to="/work-experience-manager" 
+                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+              >
+                {t('work.manage') || '管理工作经历'}
+              </Link>
+            )}
           </div>
           
           {experiences.length > 0 ? (

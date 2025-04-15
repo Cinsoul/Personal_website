@@ -29,6 +29,9 @@ export default function Certifications() {
   // 从本地存储获取自定义证书数据
   const [certifications, setCertifications] = useState<Certification[]>([]);
   
+  // 添加管理按钮显示状态
+  const [showAdmin, setShowAdmin] = useState(false);
+  
   // 图片预览状态
   const [viewingImage, setViewingImage] = useState<string | null>(null);
   const [viewingImageTitle, setViewingImageTitle] = useState<string>('');
@@ -39,6 +42,19 @@ export default function Certifications() {
     fileName: string;
     fileType: string;
   } | null>(null);
+
+  // 添加特殊按键组合监听，用于显示管理按钮
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.ctrlKey && e.shiftKey && e.key === 'A') {
+        console.log('证书管理员模式已激活');
+        setShowAdmin(true);
+      }
+    };
+    
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
 
   // 处理图片点击
   const handleImageClick = (imageUrl: string, title: string, e: React.MouseEvent) => {
@@ -95,7 +111,7 @@ export default function Certifications() {
     }
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // 提取加载数据的逻辑到独立函数
+  // 提取加载数据逻辑到独立函数
   const loadCertificationsData = () => {
     console.log('从localStorage加载证书数据...');
     setIsLoaded(false);
@@ -210,9 +226,12 @@ export default function Certifications() {
         <div className={`transition-opacity duration-500 ${isLoaded ? 'opacity-100' : 'opacity-0'}`}>
           <div className="flex justify-between items-center mb-8">
             <h2 className="text-3xl font-bold text-gray-900 dark:text-white">{t('nav.certifications')}</h2>
-            <Link to="/certifications-manager" className="px-4 py-2 bg-blue-500 rounded-lg text-white hover:bg-blue-600 transition-colors">
-              {t('certifications.manager.edit')}
-            </Link>
+            {/* 只在管理员模式激活时显示管理按钮 */}
+            {showAdmin && (
+              <Link to="/certifications-manager" className="px-4 py-2 bg-blue-500 rounded-lg text-white hover:bg-blue-600 transition-colors">
+                {t('certifications.manager.edit')}
+              </Link>
+            )}
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {certifications.length > 0 ? (

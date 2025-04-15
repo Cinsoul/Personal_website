@@ -1,5 +1,5 @@
-import { HashRouter as Router, Routes, Route, Link } from 'react-router-dom';
-import { useState } from 'react';
+import { HashRouter as Router, Routes, Route, Link, Navigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
 import { FaBars, FaTimes } from 'react-icons/fa';
 import ProjectsAndAwards from './components/ProjectsAndAwards';
 import ProjectsManager from './components/ProjectsManager';
@@ -15,6 +15,37 @@ import SchoolExperience from './components/SchoolExperience';
 import Certifications from './components/Certifications';
 import Contact from './components/Contact';
 import { LanguageProvider, useLanguage } from './contexts/LanguageContext';
+
+// 管理员模式状态上下文
+const useAdminMode = () => {
+  const [isAdminMode, setIsAdminMode] = useState(false);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.ctrlKey && e.shiftKey && e.key === 'A') {
+        console.log('全局管理员模式已激活');
+        setIsAdminMode(true);
+      }
+    };
+    
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
+
+  return isAdminMode;
+};
+
+// 受保护路由高阶组件
+const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
+  const isAdminMode = useAdminMode();
+  
+  if (!isAdminMode) {
+    console.log('未授权访问管理页面，重定向到首页');
+    return <Navigate to="/" replace />;
+  }
+  
+  return <>{children}</>;
+};
 
 function AppContent() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -90,10 +121,28 @@ function AppContent() {
             <Route path="/contact" element={<Contact />} />
             <Route path="/certifications" element={<Certifications />} />
             <Route path="/projects" element={<ProjectsAndAwards />} />
-            <Route path="/projects-manager" element={<ProjectsManager />} />
-            <Route path="/work-experience-manager" element={<WorkExperienceManager />} />
-            <Route path="/education-manager" element={<EducationManager />} />
-            <Route path="/certifications-manager" element={<CertificationsManager />} />
+            
+            {/* 受保护的管理页面路由 */}
+            <Route path="/projects-manager" element={
+              <ProtectedRoute>
+                <ProjectsManager />
+              </ProtectedRoute>
+            } />
+            <Route path="/work-experience-manager" element={
+              <ProtectedRoute>
+                <WorkExperienceManager />
+              </ProtectedRoute>
+            } />
+            <Route path="/education-manager" element={
+              <ProtectedRoute>
+                <EducationManager />
+              </ProtectedRoute>
+            } />
+            <Route path="/certifications-manager" element={
+              <ProtectedRoute>
+                <CertificationsManager />
+              </ProtectedRoute>
+            } />
             <Route path="/viewer-demo" element={<ViewerDemo />} />
           </Routes>
         </main>
