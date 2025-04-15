@@ -1,5 +1,5 @@
 import { HashRouter as Router, Routes, Route, Link, Navigate, useLocation } from 'react-router-dom';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { FaBars, FaTimes } from 'react-icons/fa';
 import ProjectsAndAwards from './components/ProjectsAndAwards';
 import ProjectsManager from './components/ProjectsManager';
@@ -20,13 +20,11 @@ import { AdminProvider, useAdmin } from './contexts/AdminContext';
 
 // 受保护路由高阶组件
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
-  const { isAdminMode, isAuthenticated } = useAdmin();
+  const { isAuthenticated } = useAdmin();
   const location = useLocation();
   
-  // 如果既不是管理员模式也没有认证，重定向到登录页面
-  if (!isAdminMode && !isAuthenticated) {
+  if (!isAuthenticated) {
     console.log('未授权访问管理页面，重定向到登录页面');
-    // 保存当前页面路径，以便登录后返回
     return <Navigate to="/admin-login" replace state={{ from: location.pathname }} />;
   }
   
@@ -48,6 +46,22 @@ function AppContent() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { language, setLanguage, t } = useLanguage();
   const { isAdminMode, logout } = useAdmin();
+
+  useEffect(() => {
+    // 调试输出
+    console.log("ProjectsManager权限状态:", { 
+      isAuthenticated: useAdmin().isAuthenticated,
+      isAdminMode: useAdmin().isAdminMode 
+    });
+    
+    // 检查localStorage访问
+    try {
+      const savedProjects = localStorage.getItem('projects');
+      console.log("读取项目数据:", savedProjects ? "成功" : "失败或为空");
+    } catch (error) {
+      console.error("localStorage访问错误:", error);
+    }
+  }, []);
 
   return (
     <Router>
