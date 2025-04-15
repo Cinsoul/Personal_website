@@ -47,7 +47,7 @@ interface Award {
 
 export default function ProjectsAndAwards() {
   const { t } = useLanguage();
-  const { isAuthenticated, isAdminMode } = useAdmin();
+  const { isAuthenticated } = useAdmin();
   const [projects, setProjects] = useState<Project[]>([]);
   const [awards, setAwards] = useState<Award[]>([]);
   const navigate = useNavigate();
@@ -178,7 +178,79 @@ export default function ProjectsAndAwards() {
     let projectsLoaded = false;
     let awardsLoaded = false;
     
-    // 创建一个延迟任务，确保在数据加载完成后设置isLoaded状态
+    // 立即设置默认数据，确保即使localStorage加载失败也有内容显示
+    const defaultProjects: Project[] = [
+      {
+        id: 'project-1',
+        title: 'Personal Website',
+        description: 'A responsive personal portfolio website built with React and Tailwind CSS, featuring dark mode support, responsive design, and smooth animations',
+        technologies: ['React', 'TypeScript', 'Tailwind CSS', 'Vite'],
+        link: 'https://github.com/yourusername/personal-website',
+        image: '/project-images/personal-website.png'
+      },
+      {
+        id: 'project-2',
+        title: 'LVMH Digital Innovation',
+        description: 'Developed innovative digital solutions for luxury retail, focusing on enhancing customer experience through AR/VR technology',
+        technologies: ['React Native', 'AR Kit', 'Node.js', 'AWS'],
+        image: '/project-images/lvmh-project.svg'
+      },
+      {
+        id: 'project-3',
+        title: 'Bloomberg Market Analysis',
+        description: 'Created a comprehensive market analysis tool using Bloomberg API, enabling real-time financial data visualization and analysis',
+        technologies: ['Python', 'Bloomberg API', 'Pandas', 'Plotly'],
+        image: '/project-images/bloomberg-project.svg'
+      },
+      {
+        id: 'project-4',
+        title: 'Investment Banking Analytics',
+        description: 'Developed financial models and analytics tools for investment banking operations, focusing on M&A analysis',
+        technologies: ['Excel', 'VBA', 'Python', 'Financial Modeling'],
+        image: '/project-images/jpmorgan-project.svg'
+      }
+    ];
+    
+    const defaultAwards: Award[] = [
+      {
+        id: 'award-1',
+        title: 'Dean\'s List',
+        organization: 'Bayes Business School',
+        date: '2023',
+        description: 'Awarded for outstanding academic achievement and maintaining a high GPA throughout the academic year',
+        image: '/project-images/bayes-award.svg'
+      },
+      {
+        id: 'award-2',
+        title: 'LVMH Inside Program Completion',
+        organization: 'LVMH',
+        date: 'Nov 2024',
+        description: 'Successfully completed the exclusive LVMH Inside program, gaining comprehensive insights into luxury retail and digital innovation',
+        image: '/logos/lvmh.svg'
+      },
+      {
+        id: 'award-3',
+        title: 'Bloomberg Market Concepts',
+        organization: 'Bloomberg',
+        date: 'Sep 2021',
+        description: 'Completed advanced financial market analysis certification, covering economics, currencies, fixed income, and equities',
+        image: '/logos/bloomberg.svg'
+      },
+      {
+        id: 'award-4',
+        title: 'Investment Banking Excellence',
+        organization: 'JPMorgan Chase',
+        date: 'Apr 2021',
+        description: 'Recognized for outstanding performance in investment banking simulation program, focusing on M&A analysis and financial modeling',
+        image: '/logos/jpmorgan.svg'
+      }
+    ];
+    
+    // 先设置默认数据，确保页面有内容显示
+    setProjects(defaultProjects);
+    setAwards(defaultAwards);
+    
+    // 创建一个延迟任务，尝试从localStorage加载数据
     setTimeout(() => {
       // 加载项目数据
       try {
@@ -201,12 +273,21 @@ export default function ProjectsAndAwards() {
               
               if (validProjects.length > 0) {
                 // 验证图片路径，确保显示正常
-                const validatedProjects = validProjects.map((project: any) => ({
-                  ...project,
-                  id: project.id || crypto.randomUUID(),
-                  image: project.image || '/vite.svg', // 确保有默认图片
-                  technologies: Array.isArray(project.technologies) ? project.technologies : []
-                }));
+                const validatedProjects = validProjects.map((project: any) => {
+                  // 检查图片路径是否有效
+                  let imagePath = project.image;
+                  if (!imagePath || imagePath.trim() === '') {
+                    imagePath = '/vite.svg';
+                    console.log(`项目 ${project.title} 没有图片路径，使用默认图片`);
+                  }
+                  
+                  return {
+                    ...project,
+                    id: project.id || crypto.randomUUID(),
+                    image: imagePath,
+                    technologies: Array.isArray(project.technologies) ? project.technologies : []
+                  };
+                });
                 
                 console.log('设置项目状态，数量:', validatedProjects.length);
                 setProjects(validatedProjects);
@@ -250,12 +331,21 @@ export default function ProjectsAndAwards() {
               
               if (validAwards.length > 0) {
                 // 验证图片路径，确保显示正常
-                const validatedAwards = validAwards.map((award: any) => ({
-                  ...award,
-                  id: award.id || crypto.randomUUID(),
-                  image: award.image || '/vite.svg', // 确保有默认图片
-                  organization: award.organization || ''
-                }));
+                const validatedAwards = validAwards.map((award: any) => {
+                  // 检查图片路径是否有效
+                  let imagePath = award.image;
+                  if (!imagePath || imagePath.trim() === '') {
+                    imagePath = '/vite.svg';
+                    console.log(`奖项 ${award.title} 没有图片路径，使用默认图片`);
+                  }
+                  
+                  return {
+                    ...award,
+                    id: award.id || crypto.randomUUID(),
+                    image: imagePath,
+                    organization: award.organization || ''
+                  };
+                });
                 
                 console.log('设置奖项状态，数量:', validatedAwards.length);
                 setAwards(validatedAwards);
@@ -363,10 +453,15 @@ export default function ProjectsAndAwards() {
         console.log('已保存默认奖项到localStorage');
       }
       
-      // 加载完成，设置状态
+      // 无论是否成功加载localStorage数据，都确保设置isLoaded状态为true
       setIsLoaded(true);
       console.log('数据加载完成，已设置isLoaded = true');
-    }, 100); // 短暂延迟，确保localStorage数据同步
+      
+      // 如果没有成功加载任何数据，确保使用默认数据
+      if (!projectsLoaded && !awardsLoaded) {
+        console.log('从localStorage加载数据失败，使用默认数据');
+      }
+    }, 300); // 增加延迟时间，确保localStorage数据有足够时间同步
   };
 
   return (
@@ -396,43 +491,39 @@ export default function ProjectsAndAwards() {
                   <div key={index} className="bg-white dark:bg-gray-800 rounded-2xl overflow-hidden transition-all duration-500 ease-out hover:shadow-2xl hover:scale-105 border border-gray-100 dark:border-gray-700 relative">
                     {/* 只在管理员模式激活时显示编辑按钮 */}
                     {isAuthenticated && <EditButton onClick={(e) => handleEditProject(project, e)} />}
-                    {project.image && (
-                      <div className="h-56 overflow-hidden cursor-pointer" onClick={(e) => handleImageClick(project.image || '', project.title, e)}>
-                        <img 
-                          src={project.image} 
-                          alt={project.title} 
-                          className="w-full h-full object-cover transition-transform duration-700 hover:scale-105"
-                          loading="lazy"
-                          onError={(e) => {
-                            console.error('项目图片加载失败:', project.title);
-                            
-                            // 检查图片路径是否为dataURL
-                            if (project.image && project.image.startsWith('data:')) {
-                              console.warn('数据URL图片加载失败，可能数据损坏');
-                              // 对于dataURL，直接使用备用图片
-                              e.currentTarget.src = '/vite.svg';
-                            } else {
-                              // 对于普通URL，尝试加载备用图片
-                              e.currentTarget.src = '/vite.svg';
-                              console.log('已切换到备用图片');
+                    <div className="h-56 overflow-hidden cursor-pointer" onClick={(e) => handleImageClick(project.image || '/vite.svg', project.title, e)}>
+                      <img 
+                        src={project.image || '/vite.svg'} 
+                        alt={project.title} 
+                        className="w-full h-full object-cover transition-transform duration-700 hover:scale-105"
+                        loading="lazy"
+                        onError={(e) => {
+                          console.error('项目图片加载失败:', project.title);
+                          
+                          // 检查图片路径是否为dataURL
+                          if (project.image && project.image.startsWith('data:')) {
+                            console.warn('数据URL图片加载失败，可能数据损坏');
+                          }
+                          
+                          // 尝试加载备用图片
+                          e.currentTarget.src = '/vite.svg';
+                          console.log('已切换到备用图片');
+                          
+                          // 如果默认图也加载失败，则使用内联SVG作为最终备用
+                          e.currentTarget.onerror = () => {
+                            console.error('备用图片也加载失败，使用内联SVG');
+                            const parent = e.currentTarget.parentElement;
+                            if (parent) {
+                              // 创建简单的占位SVG
+                              parent.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid meet">
+                                <rect width="100%" height="100%" fill="#f0f0f0" />
+                                <text x="50%" y="50%" font-family="Arial" font-size="14" fill="#888" text-anchor="middle" dominant-baseline="middle">${project.title}</text>
+                              </svg>`;
                             }
-                            
-                            // 如果默认图也加载失败，则使用内联SVG作为最终备用
-                            e.currentTarget.onerror = () => {
-                              console.error('备用图片也加载失败，使用内联SVG');
-                              const parent = e.currentTarget.parentElement;
-                              if (parent) {
-                                // 创建简单的占位SVG
-                                parent.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid meet">
-                                  <rect width="100%" height="100%" fill="#f0f0f0" />
-                                  <text x="50%" y="50%" font-family="Arial" font-size="14" fill="#888" text-anchor="middle" dominant-baseline="middle">${project.title}</text>
-                                </svg>`;
-                              }
-                            };
-                          }}
-                        />
-                      </div>
-                    )}
+                          };
+                        }}
+                      />
+                    </div>
                     <div className="p-8">
                       <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-3" style={{ letterSpacing: '-0.01em' }}>{project.title}</h3>
                       <p className="text-gray-600 dark:text-gray-300 mb-6" style={{ fontWeight: 300, lineHeight: 1.6 }}>{project.description}</p>
@@ -460,8 +551,19 @@ export default function ProjectsAndAwards() {
                         <div className="mt-2">
                           <Link 
                             to="/projects-manager" 
-                            state={{ editProject: project }}
+                            state={{ editProject: project, timestamp: new Date().getTime() }}
                             className="text-sm text-blue-500 hover:underline"
+                            onClick={(e) => {
+                              e.preventDefault();
+                              e.stopPropagation();
+                              navigate('/projects-manager', { 
+                                state: { 
+                                  editProject: project,
+                                  timestamp: new Date().getTime() 
+                                },
+                                replace: false 
+                              });
+                            }}
                           >
                             直接编辑
                           </Link>
@@ -488,33 +590,39 @@ export default function ProjectsAndAwards() {
                     {/* 只在管理员模式激活时显示编辑按钮 */}
                     {isAuthenticated && <EditButton onClick={(e) => handleEditAward(award, e)} />}
                     <div className="flex items-center p-8 border-b border-gray-100 dark:border-gray-700">
-                      {award.image && (
-                        <div className="w-16 h-16 mr-5 flex-shrink-0 cursor-pointer" onClick={(e) => handleImageClick(award.image || '', award.title, e)}>
-                          <img 
-                            src={award.image} 
-                            alt={award.organization} 
-                            className="w-full h-full object-contain transition-transform duration-500 hover:scale-110"
-                            loading="lazy"
-                            onError={(e) => {
-                              console.error('奖项图片加载失败:', award.title);
-                              // 设置一个默认图片
-                              e.currentTarget.src = '/vite.svg';
-                              // 如果默认图也加载失败，则使用内联SVG作为最终备用
-                              e.currentTarget.onerror = () => {
-                                console.error('备用图片也加载失败，使用内联SVG');
-                                const parent = e.currentTarget.parentElement;
-                                if (parent) {
-                                  // 创建简单的占位SVG，显示组织名称
-                                  parent.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid meet">
-                                    <rect width="100%" height="100%" fill="#f0f0f0" />
-                                    <text x="50%" y="50%" font-family="Arial" font-size="12" fill="#888" text-anchor="middle" dominant-baseline="middle">${award.organization}</text>
-                                  </svg>`;
-                                }
-                              };
-                            }}
-                          />
-                        </div>
-                      )}
+                      <div className="w-16 h-16 mr-5 flex-shrink-0 cursor-pointer" onClick={(e) => handleImageClick(award.image || '/vite.svg', award.title, e)}>
+                        <img 
+                          src={award.image || '/vite.svg'} 
+                          alt={award.organization} 
+                          className="w-full h-full object-contain transition-transform duration-500 hover:scale-110"
+                          loading="lazy"
+                          onError={(e) => {
+                            console.error('奖项图片加载失败:', award.title);
+                            
+                            // 检查图片路径是否为dataURL
+                            if (award.image && award.image.startsWith('data:')) {
+                              console.warn('数据URL图片加载失败，可能数据损坏');
+                            }
+                            
+                            // 尝试加载备用图片
+                            e.currentTarget.src = '/vite.svg';
+                            console.log('已切换到备用图片');
+                            
+                            // 如果默认图也加载失败，则使用内联SVG作为最终备用
+                            e.currentTarget.onerror = () => {
+                              console.error('备用图片也加载失败，使用内联SVG');
+                              const parent = e.currentTarget.parentElement;
+                              if (parent) {
+                                // 创建简单的占位SVG，显示组织名称
+                                parent.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid meet">
+                                  <rect width="100%" height="100%" fill="#f0f0f0" />
+                                  <text x="50%" y="50%" font-family="Arial" font-size="12" fill="#888" text-anchor="middle" dominant-baseline="middle">${award.organization}</text>
+                                </svg>`;
+                              }
+                            };
+                          }}
+                        />
+                      </div>
                       <div>
                         <h3 className="text-xl font-semibold text-gray-900 dark:text-white" style={{ letterSpacing: '-0.01em' }}>{award.title}</h3>
                         <p className="text-gray-600 dark:text-gray-300" style={{ fontWeight: 300 }}>{award.organization}</p>
@@ -539,8 +647,19 @@ export default function ProjectsAndAwards() {
                         <div className="mt-2">
                           <Link 
                             to="/projects-manager" 
-                            state={{ editAward: award }}
+                            state={{ editAward: award, timestamp: new Date().getTime() }}
                             className="text-sm text-blue-500 hover:underline"
+                            onClick={(e) => {
+                              e.preventDefault();
+                              e.stopPropagation();
+                              navigate('/projects-manager', { 
+                                state: { 
+                                  editAward: award,
+                                  timestamp: new Date().getTime() 
+                                },
+                                replace: false 
+                              });
+                            }}
                           >
                             直接编辑
                           </Link>
