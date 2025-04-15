@@ -19,10 +19,17 @@ export const AdminProvider: React.FC<{ children: ReactNode }> = ({ children }) =
 
   // 从localStorage加载认证状态
   useEffect(() => {
+    // 添加调试日志
+    console.log('AdminContext初始化，检查存储的认证状态');
     const savedAuthState = localStorage.getItem('adminAuthenticated');
+    console.log('localStorage中的认证状态:', savedAuthState);
+    
     if (savedAuthState === 'true') {
       setAuthenticated(true);
       setAdminMode(true);
+      console.log('从localStorage恢复认证状态: 已登录');
+    } else {
+      console.log('未找到有效的认证状态');
     }
   }, []);
 

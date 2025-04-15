@@ -103,18 +103,42 @@ export default function ProjectsAndAwards() {
 
   // 处理编辑项目
   const handleEditProject = (project: Project, e: React.MouseEvent) => {
+    console.log('编辑项目请求:', project.title);
     e.preventDefault();
     e.stopPropagation();
-    console.log('编辑项目:', project.title);
-    navigate('/projects-manager', { state: { editProject: project } });
+    
+    // 检查认证状态
+    const authState = localStorage.getItem('adminAuthenticated');
+    console.log('编辑前认证状态:', authState);
+    
+    // 设置更详细的状态传递
+    navigate('/projects-manager', { 
+      state: { 
+        editProject: project,
+        timestamp: new Date().getTime() // 添加时间戳避免缓存问题
+      },
+      replace: false // 确保不替换历史记录
+    });
   };
   
   // 处理编辑奖项
   const handleEditAward = (award: Award, e: React.MouseEvent) => {
+    console.log('编辑奖项请求:', award.title);
     e.preventDefault();
     e.stopPropagation();
-    console.log('编辑奖项:', award.title);
-    navigate('/projects-manager', { state: { editAward: award } });
+    
+    // 检查认证状态
+    const authState = localStorage.getItem('adminAuthenticated');
+    console.log('编辑前认证状态:', authState);
+    
+    // 设置更详细的状态传递
+    navigate('/projects-manager', { 
+      state: { 
+        editAward: award,
+        timestamp: new Date().getTime()
+      },
+      replace: false
+    });
   };
 
   // 检测location.state中的refresh标志，用于强制重新加载数据
@@ -371,7 +395,7 @@ export default function ProjectsAndAwards() {
                 {projects.map((project, index) => (
                   <div key={index} className="bg-white dark:bg-gray-800 rounded-2xl overflow-hidden transition-all duration-500 ease-out hover:shadow-2xl hover:scale-105 border border-gray-100 dark:border-gray-700 relative">
                     {/* 只在管理员模式激活时显示编辑按钮 */}
-                    {isAdminMode && <EditButton onClick={(e) => handleEditProject(project, e)} />}
+                    {isAuthenticated && <EditButton onClick={(e) => handleEditProject(project, e)} />}
                     {project.image && (
                       <div className="h-56 overflow-hidden cursor-pointer" onClick={(e) => handleImageClick(project.image || '', project.title, e)}>
                         <img 
@@ -432,6 +456,17 @@ export default function ProjectsAndAwards() {
                           {t('projects.view')} <span className="ml-1">→</span>
                         </a>
                       )}
+                      {isAuthenticated && (
+                        <div className="mt-2">
+                          <Link 
+                            to="/projects-manager" 
+                            state={{ editProject: project }}
+                            className="text-sm text-blue-500 hover:underline"
+                          >
+                            直接编辑
+                          </Link>
+                        </div>
+                      )}
                     </div>
                   </div>
                 ))}
@@ -451,7 +486,7 @@ export default function ProjectsAndAwards() {
                 {awards.map((award, index) => (
                   <div key={index} className="bg-white dark:bg-gray-800 rounded-2xl overflow-hidden transition-all duration-500 ease-out hover:shadow-2xl hover:scale-105 border border-gray-100 dark:border-gray-700 relative">
                     {/* 只在管理员模式激活时显示编辑按钮 */}
-                    {isAdminMode && <EditButton onClick={(e) => handleEditAward(award, e)} />}
+                    {isAuthenticated && <EditButton onClick={(e) => handleEditAward(award, e)} />}
                     <div className="flex items-center p-8 border-b border-gray-100 dark:border-gray-700">
                       {award.image && (
                         <div className="w-16 h-16 mr-5 flex-shrink-0 cursor-pointer" onClick={(e) => handleImageClick(award.image || '', award.title, e)}>
@@ -498,6 +533,18 @@ export default function ProjectsAndAwards() {
                           <span className="mr-2">{getFileIcon(award.document.fileType)}</span>
                           {t('awards.view_or_download')} {award.document.fileName}
                         </button>
+                      )}
+
+                      {isAuthenticated && (
+                        <div className="mt-2">
+                          <Link 
+                            to="/projects-manager" 
+                            state={{ editAward: award }}
+                            className="text-sm text-blue-500 hover:underline"
+                          >
+                            直接编辑
+                          </Link>
+                        </div>
                       )}
                     </div>
                   </div>

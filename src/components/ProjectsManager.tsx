@@ -206,12 +206,15 @@ const loadAwardsFromLocalStorage = (): Award[] => {
   }
 };
 
+import { useAdmin } from '../contexts/AdminContext'; // 确保导入useAdmin
+
 export default function ProjectsManager() {
   // 获取语言上下文
   const { t } = useLanguage();
   // 获取路由位置信息，用于接收编辑状态
   const location = useLocation();
   const navigate = useNavigate();
+  const { isAuthenticated, isAdminMode } = useAdmin(); // 获取认证状态
   
   // 添加路由守卫，防止数据丢失
   const handleNavigation = (path: string) => {
@@ -312,17 +315,24 @@ export default function ProjectsManager() {
 
   // 检查是否有从其他页面传递过来的编辑状态
   useEffect(() => {
-    // 检查location.state中是否包含editProject或editAward
+    console.log('ProjectsManager加载，location.state:', location.state);
+    
+    // 检查认证状态
+    const authState = localStorage.getItem('adminAuthenticated');
+    console.log('ProjectsManager认证状态 (localStorage):', authState);
+    console.log('ProjectsManager权限状态 (useAdmin):', { isAuthenticated, isAdminMode });
+    
     if (location.state) {
       if (location.state.editProject) {
-        console.log('从ProjectsAndAwards接收到编辑项目请求:', location.state.editProject.title);
+        console.log('接收到编辑项目请求:', location.state.editProject.title);
         editProject(location.state.editProject);
       } else if (location.state.editAward) {
-        console.log('从ProjectsAndAwards接收到编辑奖项请求:', location.state.editAward.title);
+        console.log('接收到编辑奖项请求:', location.state.editAward.title);
         editAward(location.state.editAward);
       }
     }
-  }, [location.state]);
+    // 将isAdminMode和isAuthenticated添加到依赖项数组中，以便在它们变化时重新运行此效果
+  }, [location.state, isAdminMode, isAuthenticated]);
 
   // 从本地存储加载数据
   useEffect(() => {
