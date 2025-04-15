@@ -354,7 +354,7 @@ export default function ProjectsManager() {
       
       // 如果没有有效的数据，设置默认项目
       setDefaultProjects();
-    } catch (error) {
+      } catch (error) {
       console.error('加载项目数据出错:', error);
       setDefaultProjects();
     }
@@ -369,12 +369,12 @@ export default function ProjectsManager() {
       if (loadedAwards.length > 0) {
         console.log('从localStorage加载奖项列表，数量:', loadedAwards.length);
         setAwards(loadedAwards);
-        return;
-      }
-      
+          return;
+        }
+        
       // 如果没有有效的数据，设置默认奖项
       setDefaultAwards();
-    } catch (error) {
+      } catch (error) {
       console.error('加载奖项数据出错:', error);
       setDefaultAwards();
     }
@@ -727,7 +727,7 @@ export default function ProjectsManager() {
       return;
     }
     
-    setProjectImageFile(file);
+      setProjectImageFile(file);
     setProjectUploadProgress(0);
     
     try {
@@ -780,7 +780,7 @@ export default function ProjectsManager() {
       return;
     }
     
-    setAwardImageFile(file);
+      setAwardImageFile(file);
     setAwardUploadProgress(0);
     
     try {
@@ -809,19 +809,19 @@ export default function ProjectsManager() {
               clearInterval(interval);
               setUploading(false);
               
-              if (compressedDataUrl && compressedDataUrl.startsWith('data:')) {
-                setAwardImagePreview(compressedDataUrl);
-                // 清除之前可能存在的文档数据并更新当前奖项的图片字段
-                setCurrentAward(prev => ({
-                  ...prev,
-                  document: undefined,
-                  image: compressedDataUrl
-                }));
-                console.log('奖项图片预览已设置，数据长度:', compressedDataUrl.length);
-              } else {
-                console.error('奖项图片压缩后数据无效');
-                setAwardImagePreview('');
-              }
+          if (compressedDataUrl && compressedDataUrl.startsWith('data:')) {
+            setAwardImagePreview(compressedDataUrl);
+            // 清除之前可能存在的文档数据并更新当前奖项的图片字段
+            setCurrentAward(prev => ({
+              ...prev,
+              document: undefined,
+              image: compressedDataUrl
+            }));
+            console.log('奖项图片预览已设置，数据长度:', compressedDataUrl.length);
+          } else {
+            console.error('奖项图片压缩后数据无效');
+            setAwardImagePreview('');
+          }
             }
           }, 100);
         },
@@ -836,18 +836,18 @@ export default function ProjectsManager() {
               clearInterval(interval);
               setUploading(false);
               
-              // 清除图片预览
-              setAwardImagePreview('');
-              // 保存文档信息到当前奖项
-              setCurrentAward(prev => ({
-                ...prev,
-                document: {
-                  dataUrl,
-                  fileName,
-                  fileType
-                }
-              }));
-              console.log('奖项文档已处理:', fileName, '类型:', fileType);
+          // 清除图片预览
+          setAwardImagePreview('');
+          // 保存文档信息到当前奖项
+          setCurrentAward(prev => ({
+            ...prev,
+            document: {
+              dataUrl,
+              fileName,
+              fileType
+            }
+          }));
+          console.log('奖项文档已处理:', fileName, '类型:', fileType);
             }
           }, 100);
         }
@@ -989,8 +989,8 @@ export default function ProjectsManager() {
           } else {
           console.error('localStorage中的项目数据不是数组格式');
         }
-          }
-        } catch (error) {
+      }
+    } catch (error) {
       console.error('从localStorage读取项目数据出错:', error);
     }
     
@@ -1016,20 +1016,20 @@ export default function ProjectsManager() {
         console.warn('未找到要更新的项目，将添加为新项目');
         updatedProjects = [...currentProjects, updatedProject];
       }
-      } else {
-        // 添加新项目
+    } else {
+      // 添加新项目
       updatedProjects = [...currentProjects, updatedProject];
       console.log('添加新项目到列表，更新后长度:', updatedProjects.length);
     }
     
     // 更新React状态
-    setProjects(updatedProjects);
+      setProjects(updatedProjects);
     
-    // 立即保存到localStorage
-    localStorage.setItem('projects', JSON.stringify(updatedProjects));
+      // 立即保存到localStorage
+      localStorage.setItem('projects', JSON.stringify(updatedProjects));
     console.log('已更新projects到localStorage，项目数量:', updatedProjects.length);
-    
-    // 显示成功消息
+      
+      // 显示成功消息
     showSuccessMessage(isEditingProject ? '项目已成功更新！' : '新项目已成功添加！');
     
     // 询问用户是否继续编辑其他项目
@@ -1141,13 +1141,13 @@ export default function ProjectsManager() {
     }
     
     // 更新React状态
-    setAwards(updatedAwards);
+      setAwards(updatedAwards);
     
-    // 立即保存到localStorage
-    localStorage.setItem('awards', JSON.stringify(updatedAwards));
+      // 立即保存到localStorage
+      localStorage.setItem('awards', JSON.stringify(updatedAwards));
     console.log('已更新awards到localStorage，奖项数量:', updatedAwards.length);
-    
-    // 显示成功消息
+      
+      // 显示成功消息
     showSuccessMessage(isEditingAward ? '奖项已成功更新！' : '新奖项已成功添加！');
     
     // 询问用户是否继续编辑其他奖项
@@ -1328,8 +1328,8 @@ export default function ProjectsManager() {
             console.error('localStorage中的奖项数据不是数组格式，重置为空数组');
             currentStoredAwards = [];
           }
-          }
-        } catch (error) {
+        }
+      } catch (error) {
         console.error('从localStorage读取奖项数据出错:', error);
         currentStoredAwards = [];
       }
@@ -1393,18 +1393,18 @@ export default function ProjectsManager() {
 
   // 更新renderProjectsList函数以支持拖拽排序和批量选择
   const renderProjectsList = () => {
-    return (
+  return (
       <div className="mb-8">
         <div className="flex justify-between items-center mb-4">
           <h3 className="text-xl font-semibold text-gray-900 dark:text-white">{t('projects.manager.projectsList')}</h3>
           <div className="flex gap-2">
-            <button
+              <button 
               type="button"
               onClick={() => setSelectMode(!selectMode)}
               className="px-3 py-1.5 text-sm bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-md hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
-            >
+              >
               {selectMode ? t('projects.manager.cancelSelect') : t('projects.manager.selectItems')}
-            </button>
+              </button>
             {selectMode && (
               <>
                 <button
@@ -1431,8 +1431,8 @@ export default function ProjectsManager() {
                 </button>
               </>
             )}
+            </div>
           </div>
-        </div>
         
         {selectMode ? (
           <div className="space-y-2">
@@ -1447,7 +1447,7 @@ export default function ProjectsManager() {
                 <div className="flex-1">
                   <h3 className="text-lg font-medium text-gray-900 dark:text-white">{project.title}</h3>
                   <p className="text-sm text-gray-500 dark:text-gray-400 line-clamp-1">{project.description}</p>
-                </div>
+              </div>
               </div>
             ))}
           </div>
@@ -1524,8 +1524,8 @@ export default function ProjectsManager() {
                 <div className="flex-1">
                   <h3 className="text-lg font-medium text-gray-900 dark:text-white">{award.title}</h3>
                   <p className="text-sm text-gray-500 dark:text-gray-400 line-clamp-1">{award.organization} - {award.date}</p>
-                </div>
               </div>
+            </div>
             ))}
           </div>
         ) : (
@@ -1542,7 +1542,7 @@ export default function ProjectsManager() {
             </SortableContext>
           </DndContext>
         )}
-      </div>
+            </div>
     );
   };
 
@@ -1557,8 +1557,8 @@ export default function ProjectsManager() {
           <p className="mb-6 text-gray-600 dark:text-gray-300">{t('projects.manager.export.description')}</p>
           
           <div className="flex justify-end space-x-3">
-            <button
-              type="button"
+                <button
+                  type="button"
               onClick={() => setShowExportModal(false)}
               className="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-md hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
             >
@@ -1570,8 +1570,8 @@ export default function ProjectsManager() {
               className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
             >
               {t('projects.manager.export.confirm')}
-            </button>
-          </div>
+                </button>
+              </div>
         </div>
       </div>
     );
@@ -1599,8 +1599,8 @@ export default function ProjectsManager() {
           </div>
           
           <div className="flex justify-end space-x-3">
-            <button
-              type="button"
+                    <button
+                      type="button"
               onClick={() => {
                 setShowImportModal(false);
                 setImportData('');
@@ -1618,20 +1618,20 @@ export default function ProjectsManager() {
               disabled={!importData}
             >
               {t('projects.manager.import.confirm')}
-            </button>
-          </div>
-        </div>
-      </div>
+                    </button>
+                  </div>
+              </div>
+            </div>
     );
   };
-
+            
   // 更新项目图片上传区域
   const renderProjectImageUploader = () => {
     return (
       <div className="mb-6">
-        <label className="block text-gray-700 dark:text-gray-300 mb-2">
+              <label className="block text-gray-700 dark:text-gray-300 mb-2">
           {t('projects.manager.projectImage')}
-        </label>
+              </label>
         
         <div 
           className={`border-2 border-dashed rounded-lg p-6 text-center mb-4 ${
@@ -1645,11 +1645,11 @@ export default function ProjectsManager() {
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v14a2 2 0 002 2z" />
           </svg>
           <p className="mt-2 text-gray-600 dark:text-gray-400">{t('projects.manager.dragOrClick')}</p>
-          <input
-            type="file"
+              <input
+                type="file"
             id="projectImage"
             accept={VALID_IMAGE_TYPES.join(',')}
-            onChange={handleProjectImageChange}
+                onChange={handleProjectImageChange}
             className="hidden"
           />
           <label
@@ -1668,7 +1668,7 @@ export default function ProjectsManager() {
             <div className="flex justify-between text-xs mb-1">
               <span>{t('projects.manager.uploading')}</span>
               <span>{projectUploadProgress}%</span>
-            </div>
+                </div>
             <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
               <div 
                 className="bg-blue-600 h-2 rounded-full transition-all duration-300 ease-in-out" 
@@ -1685,8 +1685,8 @@ export default function ProjectsManager() {
               alt={t('projects.manager.preview')}
               className="h-24 w-24 object-cover rounded-md border border-gray-300 dark:border-gray-700"
             />
-            <button
-              type="button"
+              <button
+                type="button"
               onClick={() => {
                 setProjectImagePreview('');
                 setCurrentProject({...currentProject, image: ''});
@@ -1697,7 +1697,7 @@ export default function ProjectsManager() {
               <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
               </svg>
-            </button>
+              </button>
           </div>
         )}
       </div>
@@ -1722,7 +1722,7 @@ export default function ProjectsManager() {
         >
           <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 mx-auto text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 13h6m-3-3v6m5 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-          </svg>
+                </svg>
           <p className="mt-2 text-gray-600 dark:text-gray-400">{t('projects.manager.dragOrClick')}</p>
           <input
             type="file"
@@ -1740,7 +1740,7 @@ export default function ProjectsManager() {
           <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">
             {t('projects.manager.supportedFiles')}: 图片或文档 (最大 5MB)
           </p>
-        </div>
+            </div>
         
         {uploading && (
           <div className="mb-4">
@@ -1764,7 +1764,7 @@ export default function ProjectsManager() {
               alt={t('projects.manager.preview')}
               className="h-24 w-24 object-cover rounded-md border border-gray-300 dark:border-gray-700"
             />
-            <button
+                      <button
               type="button"
               onClick={() => {
                 setAwardImagePreview('');
@@ -1776,7 +1776,7 @@ export default function ProjectsManager() {
               <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
               </svg>
-            </button>
+                      </button>
           </div>
         )}
         
@@ -1788,7 +1788,7 @@ export default function ProjectsManager() {
             <span className="text-sm text-gray-700 dark:text-gray-300 flex-1">
               {currentAward.document.fileName}
             </span>
-            <button
+                      <button
               type="button"
               onClick={() => {
                 setCurrentAward({...currentAward, document: undefined});
@@ -1799,10 +1799,10 @@ export default function ProjectsManager() {
               <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
               </svg>
-            </button>
-          </div>
+                      </button>
+                    </div>
         )}
-      </div>
+                  </div>
     );
   };
 
@@ -1822,8 +1822,8 @@ export default function ProjectsManager() {
             onChange={handleProjectChange}
             className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
             required
-          />
-        </div>
+                      />
+                    </div>
         
         <div className="mb-4">
           <label className="block text-gray-700 dark:text-gray-300 mb-2" htmlFor="description">
@@ -1838,7 +1838,7 @@ export default function ProjectsManager() {
             className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
             required
           ></textarea>
-        </div>
+                  </div>
         
         <div className="mb-4">
           <label className="block text-gray-700 dark:text-gray-300 mb-2" htmlFor="link">
@@ -1872,9 +1872,9 @@ export default function ProjectsManager() {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                   </svg>
                 </button>
-              </div>
-            ))}
-          </div>
+                </div>
+              ))}
+            </div>
           <div className="flex">
             <input
               type="text"
@@ -1928,86 +1928,86 @@ export default function ProjectsManager() {
     return (
       <form onSubmit={saveAward} id="awardForm">
         <div className="mb-4">
-          <label className="block text-gray-700 dark:text-gray-300 mb-2" htmlFor="awardTitle">
+                <label className="block text-gray-700 dark:text-gray-300 mb-2" htmlFor="awardTitle">
             {t('projects.manager.awardTitle')}
-          </label>
-          <input
-            type="text"
-            id="awardTitle"
-            name="title"
-            value={currentAward.title}
-            onChange={handleAwardChange}
-            className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-            required
-          />
-        </div>
-        
+                </label>
+                <input
+                  type="text"
+                  id="awardTitle"
+                  name="title"
+                  value={currentAward.title}
+                  onChange={handleAwardChange}
+                  className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                  required
+                />
+              </div>
+              
         <div className="mb-4">
           <label className="block text-gray-700 dark:text-gray-300 mb-2" htmlFor="organization">
-            {t('projects.manager.organization')}
-          </label>
-          <input
-            type="text"
+                  {t('projects.manager.organization')}
+                </label>
+                <input
+                  type="text"
             id="organization"
-            name="organization"
-            value={currentAward.organization}
-            onChange={handleAwardChange}
-            className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-            required
-          />
-        </div>
-        
+                  name="organization"
+                  value={currentAward.organization}
+                  onChange={handleAwardChange}
+                  className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                  required
+                />
+            </div>
+            
         <div className="mb-4">
           <label className="block text-gray-700 dark:text-gray-300 mb-2" htmlFor="date">
-            {t('projects.manager.date')}
-          </label>
-          <input
-            type="text"
+                {t('projects.manager.date')}
+              </label>
+              <input
+                type="text"
             id="date"
-            name="date"
-            value={currentAward.date}
-            onChange={handleAwardChange}
+                name="date"
+                value={currentAward.date}
+                onChange={handleAwardChange}
             placeholder="YYYY/MM"
-            className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-            required
-          />
-        </div>
-        
+                className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                required
+              />
+            </div>
+            
         <div className="mb-4">
-          <label className="block text-gray-700 dark:text-gray-300 mb-2" htmlFor="awardDescription">
-            {t('projects.manager.description')}
-          </label>
-          <textarea
-            id="awardDescription"
-            name="description"
-            value={currentAward.description}
-            onChange={handleAwardChange}
-            rows={4}
+              <label className="block text-gray-700 dark:text-gray-300 mb-2" htmlFor="awardDescription">
+                {t('projects.manager.description')}
+              </label>
+              <textarea
+                id="awardDescription"
+                name="description"
+                value={currentAward.description}
+                onChange={handleAwardChange}
+                rows={4}
             className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-            required
+                required
           ></textarea>
-        </div>
-        
+            </div>
+            
         {/* 使用新的文件上传区域组件 */}
         {renderAwardFileUploader()}
         
         <div className="flex justify-between">
-          <button
-            type="button"
-            onClick={resetAwardForm}
+              <button
+                type="button"
+                onClick={resetAwardForm}
             className="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-md hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
-          >
+              >
             {t('projects.manager.cancel')}
-          </button>
-          <button
-            type="submit"
+              </button>
+              <button
+                type="submit"
             className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
             disabled={uploading}
-          >
+              >
             {isEditingAward ? t('projects.manager.saveChanges') : t('projects.manager.addAward')}
-          </button>
-        </div>
-      </form>
+              </button>
+            </div>
+          </form>
     );
   };
 
@@ -2159,24 +2159,24 @@ export default function ProjectsManager() {
       {successMessage && (
         <div className="fixed top-4 left-1/2 transform -translate-x-1/2 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg z-50 transition-opacity duration-300 ease-in-out">
           {successMessage}
-        </div>
-      )}
+                          </div>
+                        )}
       
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="mb-8 flex justify-between items-center">
-          <div>
+                        <div>
             <h1 className="text-3xl font-semibold text-gray-900 dark:text-white mb-2">{t('projects.manager.title')}</h1>
             <p className="text-gray-600 dark:text-gray-300">{t('projects.manager.subtitle')}</p>
-          </div>
+                        </div>
           <div className="flex space-x-3">
-            <button
+                        <button
               type="button"
               onClick={() => handleNavigation('/projects')}
               className="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-md hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
-            >
+                        >
               {t('projects.manager.backToProjects')}
-            </button>
-            <button
+                        </button>
+                        <button
               type="button"
               onClick={() => setShowImportModal(true)}
               className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors"
@@ -2189,9 +2189,9 @@ export default function ProjectsManager() {
               className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
             >
               {t('projects.manager.export.button')}
-            </button>
-          </div>
-        </div>
+                        </button>
+                      </div>
+                    </div>
         
         {/* 主要内容容器 */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
@@ -2201,7 +2201,7 @@ export default function ProjectsManager() {
               
               {/* 项目表单 - 使用新的渲染函数 */}
               {renderProjectForm()}
-            </div>
+                  </div>
             
             {/* 项目列表 */}
             <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-md">
@@ -2215,7 +2215,7 @@ export default function ProjectsManager() {
               
               {/* 奖项表单 - 使用新的渲染函数 */}
               {renderAwardForm()}
-            </div>
+      </div>
             
             {/* 奖项列表 */}
             <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-md">
