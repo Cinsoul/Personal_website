@@ -24,7 +24,7 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const location = useLocation();
   
   // 如果既不是管理员模式也没有认证，重定向到登录页面
-  if (!isAdminMode) {
+  if (!isAdminMode && !isAuthenticated) {
     console.log('未授权访问管理页面，重定向到登录页面');
     // 保存当前页面路径，以便登录后返回
     return <Navigate to="/admin-login" replace state={{ from: location.pathname }} />;
