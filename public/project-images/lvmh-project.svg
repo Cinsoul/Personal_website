@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="400" height="300" viewBox="0 0 400 300">
+  <!-- Background -->
+  <rect width="400" height="300" fill="#f8f8f8"/>
+  
+  <!-- Luxury Store Front -->
+  <rect x="50" y="80" width="300" height="180" fill="#333" rx="5"/>
+  <rect x="60" y="90" width="280" height="160" fill="#fff" rx="3"/>
+  
+  <!-- Store Window -->
+  <rect x="80" y="110" width="120" height="120" fill="#f5f5f5" stroke="#ddd" stroke-width="2"/>
+  
+  <!-- Luxury Products -->
+  <rect x="100" y="130" width="30" height="40" fill="#d4af37"/> <!-- Gold product -->
+  <rect x="140" y="150" width="40" height="20" fill="#c0c0c0"/> <!-- Silver product -->
+  <circle cx="120" cy="190" r="15" fill="#b9f2ff"/> <!-- Jewelry -->
+  
+  <!-- AR/VR Overlay -->
+  <rect x="220" y="110" width="100" height="120" fill="#e6f7ff" stroke="#0099cc" stroke-width="2" stroke-dasharray="5,5"/>
+  
+  <!-- Digital Elements -->
+  <circle cx="250" cy="140" r="15" fill="#0099cc" opacity="0.7"/>
+  <rect x="235" y="170" width="70" height="40" rx="5" fill="#0099cc" opacity="0.5"/>
+  
+  <!-- AR Glasses Icon -->
+  <path d="M270,130 L290,130 L295,140 L265,140 Z" fill="#333"/>
+  <rect x="265" y="140" width="30" height="10" rx="2" fill="#333"/>
+  
+  <!-- LVMH Text -->
+  <text x="200" y="250" font-family="Arial" font-size="16" font-weight="bold" text-anchor="middle" fill="#333">LVMH Digital Innovation</text>
+</svg>

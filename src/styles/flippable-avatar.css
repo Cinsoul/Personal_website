@@ -1,0 +1,99 @@
+/* 翻转容器设置 */
+.flip-container {
+  perspective: 1000px;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  overflow: hidden;
+  cursor: pointer;
+  position: relative;
+}
+
+/* 翻转动画 */
+.flip-container.flipped .flipper {
+  transform: rotateY(180deg);
+}
+
+/* 翻转器 */
+.flipper {
+  transition: transform 0.8s;
+  transform-style: preserve-3d;
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+/* 正面和反面共同样式 */
+.front,
+.back {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  backface-visibility: hidden;
+  overflow: hidden;
+  border-radius: 50%;
+}
+
+/* 正面样式（默认显示） */
+.front {
+  z-index: 2;
+  transform: rotateY(0deg);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* 反面样式（初始隐藏） */
+.back {
+  transform: rotateY(180deg);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* 图片样式 */
+.avatar-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  transition: transform 0.3s ease;
+}
+
+/* 背面图片特殊样式 - 显示全身 */
+.back .avatar-image {
+  object-fit: contain;
+  background-color: #000; /* 添加黑色背景以填充空白区域 */
+}
+
+/* 加载占位符 */
+.loading-placeholder {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: rgba(0, 0, 0, 0.1);
+  z-index: 3;
+}
+
+/* 加载动画 */
+.spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  border-top-color: #fff;
+  animation: spin 1s ease-in-out infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+} 

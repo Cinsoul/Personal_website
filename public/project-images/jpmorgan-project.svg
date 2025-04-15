@@ -1,0 +1,80 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="400" height="300" viewBox="0 0 400 300">
+  <!-- Background -->
+  <rect width="400" height="300" fill="#f5f9ff"/>
+  
+  <!-- Financial Document -->
+  <rect x="50" y="50" width="300" height="200" fill="#fff" stroke="#ccc" stroke-width="1" rx="5"/>
+  
+  <!-- Document Header -->
+  <rect x="70" y="70" width="260" height="30" fill="#0f3b5f"/>
+  <text x="200" y="90" font-family="Arial" font-size="14" font-weight="bold" text-anchor="middle" fill="#fff">M&A FINANCIAL ANALYSIS</text>
+  
+  <!-- Financial Table -->
+  <rect x="70" y="110" width="260" height="100" fill="#f9f9f9" stroke="#ddd" stroke-width="1"/>
+  
+  <!-- Table Headers -->
+  <rect x="70" y="110" width="65" height="20" fill="#eee" stroke="#ddd" stroke-width="1"/>
+  <rect x="135" y="110" width="65" height="20" fill="#eee" stroke="#ddd" stroke-width="1"/>
+  <rect x="200" y="110" width="65" height="20" fill="#eee" stroke="#ddd" stroke-width="1"/>
+  <rect x="265" y="110" width="65" height="20" fill="#eee" stroke="#ddd" stroke-width="1"/>
+  
+  <!-- Table Header Text -->
+  <text x="102.5" y="125" font-family="Arial" font-size="10" text-anchor="middle" fill="#333">Metrics</text>
+  <text x="167.5" y="125" font-family="Arial" font-size="10" text-anchor="middle" fill="#333">Year 1</text>
+  <text x="232.5" y="125" font-family="Arial" font-size="10" text-anchor="middle" fill="#333">Year 2</text>
+  <text x="297.5" y="125" font-family="Arial" font-size="10" text-anchor="middle" fill="#333">Year 3</text>
+  
+  <!-- Table Rows -->
+  <rect x="70" y="130" width="65" height="20" fill="#fff" stroke="#ddd" stroke-width="1"/>
+  <rect x="135" y="130" width="65" height="20" fill="#fff" stroke="#ddd" stroke-width="1"/>
+  <rect x="200" y="130" width="65" height="20" fill="#fff" stroke="#ddd" stroke-width="1"/>
+  <rect x="265" y="130" width="65" height="20" fill="#fff" stroke="#ddd" stroke-width="1"/>
+  
+  <rect x="70" y="150" width="65" height="20" fill="#fff" stroke="#ddd" stroke-width="1"/>
+  <rect x="135" y="150" width="65" height="20" fill="#fff" stroke="#ddd" stroke-width="1"/>
+  <rect x="200" y="150" width="65" height="20" fill="#fff" stroke="#ddd" stroke-width="1"/>
+  <rect x="265" y="150" width="65" height="20" fill="#fff" stroke="#ddd" stroke-width="1"/>
+  
+  <rect x="70" y="170" width="65" height="20" fill="#fff" stroke="#ddd" stroke-width="1"/>
+  <rect x="135" y="170" width="65" height="20" fill="#fff" stroke="#ddd" stroke-width="1"/>
+  <rect x="200" y="170" width="65" height="20" fill="#fff" stroke="#ddd" stroke-width="1"/>
+  <rect x="265" y="170" width="65" height="20" fill="#fff" stroke="#ddd" stroke-width="1"/>
+  
+  <rect x="70" y="190" width="65" height="20" fill="#fff" stroke="#ddd" stroke-width="1"/>
+  <rect x="135" y="190" width="65" height="20" fill="#fff" stroke="#ddd" stroke-width="1"/>
+  <rect x="200" y="190" width="65" height="20" fill="#fff" stroke="#ddd" stroke-width="1"/>
+  <rect x="265" y="190" width="65" height="20" fill="#fff" stroke="#ddd" stroke-width="1"/>
+  
+  <!-- Table Row Text -->
+  <text x="102.5" y="145" font-family="Arial" font-size="10" text-anchor="middle" fill="#333">Revenue</text>
+  <text x="167.5" y="145" font-family="Arial" font-size="10" text-anchor="middle" fill="#333">$24.5M</text>
+  <text x="232.5" y="145" font-family="Arial" font-size="10" text-anchor="middle" fill="#333">$32.8M</text>
+  <text x="297.5" y="145" font-family="Arial" font-size="10" text-anchor="middle" fill="#333">$41.2M</text>
+  
+  <text x="102.5" y="165" font-family="Arial" font-size="10" text-anchor="middle" fill="#333">EBITDA</text>
+  <text x="167.5" y="165" font-family="Arial" font-size="10" text-anchor="middle" fill="#333">$8.2M</text>
+  <text x="232.5" y="165" font-family="Arial" font-size="10" text-anchor="middle" fill="#333">$12.4M</text>
+  <text x="297.5" y="165" font-family="Arial" font-size="10" text-anchor="middle" fill="#333">$16.8M</text>
+  
+  <text x="102.5" y="185" font-family="Arial" font-size="10" text-anchor="middle" fill="#333">FCF</text>
+  <text x="167.5" y="185" font-family="Arial" font-size="10" text-anchor="middle" fill="#333">$5.1M</text>
+  <text x="232.5" y="185" font-family="Arial" font-size="10" text-anchor="middle" fill="#333">$7.8M</text>
+  <text x="297.5" y="185" font-family="Arial" font-size="10" text-anchor="middle" fill="#333">$10.5M</text>
+  
+  <text x="102.5" y="205" font-family="Arial" font-size="10" text-anchor="middle" fill="#333">Valuation</text>
+  <text x="167.5" y="205" font-family="Arial" font-size="10" text-anchor="middle" fill="#333">$120M</text>
+  <text x="232.5" y="205" font-family="Arial" font-size="10" text-anchor="middle" fill="#333">$165M</text>
+  <text x="297.5" y="205" font-family="Arial" font-size="10" text-anchor="middle" fill="#333">$210M</text>
+  
+  <!-- Chart Elements -->
+  <rect x="100" y="220" width="20" height="20" fill="#0f3b5f"/>
+  <rect x="130" y="220" width="20" height="20" fill="#2a6ebb"/>
+  <rect x="160" y="220" width="20" height="20" fill="#4a9bff"/>
+  
+  <text x="125" y="230" font-family="Arial" font-size="8" text-anchor="start" fill="#333">Year 1</text>
+  <text x="155" y="230" font-family="Arial" font-size="8" text-anchor="start" fill="#333">Year 2</text>
+  <text x="185" y="230" font-family="Arial" font-size="8" text-anchor="start" fill="#333">Year 3</text>
+  
+  <!-- JPMorgan Text -->
+  <text x="200" y="250" font-family="Arial" font-size="16" font-weight="bold" text-anchor="middle" fill="#333">Investment Banking Analytics</text>
+</svg>

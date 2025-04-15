@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>图片测试页面</title>
+  <style>
+    body {
+      font-family: system-ui, sans-serif;
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    .image-test {
+      margin-bottom: 30px;
+      border: 1px solid #ddd;
+      padding: 15px;
+      border-radius: 8px;
+    }
+    img {
+      max-width: 300px;
+      height: auto;
+      display: block;
+      border: 2px solid #eee;
+    }
+    h2 {
+      margin-top: 0;
+    }
+  </style>
+</head>
+<body>
+  <h1>图片加载测试</h1>
+  
+  <div class="image-test">
+    <h2>测试1: 直接路径</h2>
+    <p>abstract-avatar.png:</p>
+    <img src="/abstract-avatar.png" alt="抽象头像">
+    <p>personal-photo.png:</p>
+    <img src="/personal-photo.png" alt="个人照片">
+  </div>
+  
+  <div class="image-test">
+    <h2>测试2: 完整URL路径</h2>
+    <p>abstract-avatar.png (完整URL):</p>
+    <img id="full-abstract" alt="抽象头像(完整URL)">
+    <p>personal-photo.png (完整URL):</p>
+    <img id="full-personal" alt="个人照片(完整URL)">
+  </div>
+  
+  <div class="image-test">
+    <h2>测试3: vite.svg (参考)</h2>
+    <img src="/vite.svg" alt="Vite Logo">
+  </div>
+
+  <script>
+    // 设置完整URL
+    document.getElementById('full-abstract').src = window.location.origin + '/abstract-avatar.png';
+    document.getElementById('full-personal').src = window.location.origin + '/personal-photo.png';
+    
+    // 添加图片加载/错误事件处理
+    const images = document.querySelectorAll('img');
+    images.forEach(img => {
+      img.addEventListener('load', () => {
+        console.log(`图片加载成功: ${img.src}`);
+        img.style.border = '2px solid green';
+      });
+      
+      img.addEventListener('error', () => {
+        console.error(`图片加载失败: ${img.src}`);
+        img.style.border = '2px solid red';
+        img.style.minHeight = '100px';
+        img.style.background = '#ffeeee';
+        img.alt = `加载失败: ${img.alt}`;
+      });
+    });
+  </script>
+</body>
+</html> 

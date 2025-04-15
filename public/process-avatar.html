@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>头像图片处理工具</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+      line-height: 1.6;
+      color: #333;
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    
+    h1 {
+      color: #0070f3;
+      border-bottom: 1px solid #eaeaea;
+      padding-bottom: 10px;
+      margin-bottom: 30px;
+    }
+    
+    .section {
+      margin-bottom: 30px;
+      padding: 20px;
+      background-color: #f9f9f9;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+    
+    .input-group {
+      margin-bottom: 15px;
+    }
+    
+    label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 500;
+    }
+    
+    input[type="file"] {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      background-color: white;
+    }
+    
+    button {
+      background-color: #0070f3;
+      color: white;
+      border: none;
+      padding: 10px 15px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 16px;
+      transition: background-color 0.3s;
+    }
+    
+    button:hover {
+      background-color: #0060d3;
+    }
+    
+    .preview-container {
+      display: flex;
+      gap: 20px;
+      flex-wrap: wrap;
+      margin-top: 20px;
+    }
+    
+    .preview-item {
+      flex: 1;
+      min-width: 200px;
+    }
+    
+    .preview-box {
+      width: 200px;
+      height: 200px;
+      border-radius: 50%;
+      overflow: hidden;
+      margin-bottom: 10px;
+      border: 2px solid #eaeaea;
+    }
+    
+    .preview-box img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center;
+    }
+    
+    .result {
+      margin-top: 20px;
+      padding: 15px;
+      background-color: #f0f9ff;
+      border-left: 4px solid #0070f3;
+      border-radius: 4px;
+    }
+    
+    .instructions {
+      background-color: #fffaf0;
+      border-left: 4px solid #f0c040;
+      padding: 15px;
+      margin-bottom: 20px;
+      border-radius: 4px;
+    }
+    
+    code {
+      font-family: monospace;
+      background-color: #eee;
+      padding: 2px 5px;
+      border-radius: 3px;
+    }
+  </style>
+</head>
+<body>
+  <h1>头像图片处理工具</h1>
+  
+  <div class="instructions">
+    <p><strong>提示：</strong> 这个工具可以帮助您处理并保存用于翻转头像效果的两张图片。</p>
+    <ol>
+      <li>上传抽象头像图片（作为正面）</li>
+      <li>上传个人照片（作为背面）</li>
+      <li>点击"处理图片"按钮</li>
+      <li>下载处理后的图片并保存到 <code>/public/images/</code> 目录</li>
+    </ol>
+  </div>
+  
+  <div class="section">
+    <h2>上传图片</h2>
+    
+    <div class="input-group">
+      <label for="abstract-avatar">抽象头像图片 (正面):</label>
+      <input type="file" id="abstract-avatar" accept="image/*">
+    </div>
+    
+    <div class="input-group">
+      <label for="personal-photo">个人照片 (背面):</label>
+      <input type="file" id="personal-photo" accept="image/*">
+    </div>
+    
+    <button id="process-button">处理图片</button>
+    
+    <div class="preview-container">
+      <div class="preview-item">
+        <h3>抽象头像预览</h3>
+        <div class="preview-box">
+          <img id="abstract-preview" src="" alt="抽象头像预览">
+        </div>
+      </div>
+      
+      <div class="preview-item">
+        <h3>个人照片预览</h3>
+        <div class="preview-box">
+          <img id="personal-preview" src="" alt="个人照片预览">
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <div id="result-section" class="section" style="display: none;">
+    <h2>处理结果</h2>
+    
+    <div class="preview-container">
+      <div class="preview-item">
+        <h3>抽象头像 (正面)</h3>
+        <div class="preview-box">
+          <img id="abstract-result" src="" alt="抽象头像结果">
+        </div>
+        <a id="abstract-download" href="#" download="abstract-avatar.png">下载抽象头像</a>
+      </div>
+      
+      <div class="preview-item">
+        <h3>个人照片 (背面)</h3>
+        <div class="preview-box">
+          <img id="personal-result" src="" alt="个人照片结果">
+        </div>
+        <a id="personal-download" href="#" download="personal-photo.png">下载个人照片</a>
+      </div>
+    </div>
+    
+    <div class="result">
+      <p><strong>下一步操作：</strong></p>
+      <ol>
+        <li>下载上面处理好的两张图片</li>
+        <li>将它们保存到 <code>/public/images/</code> 目录，分别命名为 <code>abstract-avatar.png</code> 和 <code>personal-photo.png</code></li>
+        <li>重新加载您的网站，查看翻转头像效果！</li>
+      </ol>
+    </div>
+  </div>
+
+  <script>
+    // 图片处理逻辑
+    document.addEventListener('DOMContentLoaded', function() {
+      const abstractInput = document.getElementById('abstract-avatar');
+      const personalInput = document.getElementById('personal-photo');
+      const abstractPreview = document.getElementById('abstract-preview');
+      const personalPreview = document.getElementById('personal-preview');
+      const processButton = document.getElementById('process-button');
+      const resultSection = document.getElementById('result-section');
+      const abstractResult = document.getElementById('abstract-result');
+      const personalResult = document.getElementById('personal-result');
+      const abstractDownload = document.getElementById('abstract-download');
+      const personalDownload = document.getElementById('personal-download');
+      
+      // 预览图片
+      abstractInput.addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (file) {
+          const reader = new FileReader();
+          reader.onload = function(event) {
+            abstractPreview.src = event.target.result;
+          };
+          reader.readAsDataURL(file);
+        }
+      });
+      
+      personalInput.addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (file) {
+          const reader = new FileReader();
+          reader.onload = function(event) {
+            personalPreview.src = event.target.result;
+          };
+          reader.readAsDataURL(file);
+        }
+      });
+      
+      // 处理图片（调整为相同尺寸）
+      processButton.addEventListener('click', function() {
+        if (!abstractInput.files.length || !personalInput.files.length) {
+          alert('请先上传两张图片');
+          return;
+        }
+        
+        const abstractFile = abstractInput.files[0];
+        const personalFile = personalInput.files[0];
+        
+        // 处理图片
+        processImages(abstractFile, personalFile)
+          .then(({abstractDataUrl, personalDataUrl}) => {
+            // 显示结果
+            abstractResult.src = abstractDataUrl;
+            personalResult.src = personalDataUrl;
+            
+            // 设置下载链接
+            abstractDownload.href = abstractDataUrl;
+            personalDownload.href = personalDataUrl;
+            
+            // 显示结果区域
+            resultSection.style.display = 'block';
+          })
+          .catch(error => {
+            console.error('处理图片失败:', error);
+            alert('处理图片失败: ' + error.message);
+          });
+      });
+      
+      // 处理两张图片，调整为相同尺寸
+      async function processImages(abstractFile, personalFile) {
+        // 目标尺寸（正方形）
+        const targetSize = 512;
+        
+        // 将File对象转换为Image对象
+        const abstractImg = await fileToImage(abstractFile);
+        const personalImg = await fileToImage(personalFile);
+        
+        // 获取处理后的数据URL
+        const abstractDataUrl = resizeImage(abstractImg, targetSize, targetSize);
+        const personalDataUrl = resizeImage(personalImg, targetSize, targetSize);
+        
+        return { abstractDataUrl, personalDataUrl };
+      }
+      
+      // 将File对象转换为Image对象
+      function fileToImage(file) {
+        return new Promise((resolve, reject) => {
+          const img = new Image();
+          img.onload = () => resolve(img);
+          img.onerror = () => reject(new Error('加载图片失败'));
+          img.src = URL.createObjectURL(file);
+        });
+      }
+      
+      // 调整图片尺寸并返回数据URL
+      function resizeImage(img, width, height) {
+        const canvas = document.createElement('canvas');
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        
+        // 计算缩放比例（保持宽高比）
+        const aspectRatio = img.width / img.height;
+        let drawWidth, drawHeight, offsetX = 0, offsetY = 0;
+        
+        if (aspectRatio > 1) {
+          // 宽大于高
+          drawHeight = height;
+          drawWidth = height * aspectRatio;
+          offsetX = -(drawWidth - width) / 2;
+        } else {
+          // 高大于宽
+          drawWidth = width;
+          drawHeight = width / aspectRatio;
+          offsetY = -(drawHeight - height) / 2;
+        }
+        
+        // 绘制图像，居中裁剪
+        ctx.drawImage(img, offsetX, offsetY, drawWidth, drawHeight);
+        
+        // 返回数据URL
+        return canvas.toDataURL('image/png');
+      }
+    });
+  </script>
+</body>
+</html> 

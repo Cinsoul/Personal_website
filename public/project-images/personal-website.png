@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" width="800" height="600">
+  <rect width="800" height="600" fill="#f0f4f8"/>
+  <text x="400" y="300" font-family="Arial" font-size="48" text-anchor="middle" fill="#3b82f6">Personal Website</text>
+  <rect x="200" y="350" width="400" height="40" rx="8" fill="#3b82f6"/>
+  <rect x="200" y="410" width="200" height="40" rx="8" fill="#60a5fa"/>
+  <rect x="420" y="410" width="180" height="40" rx="8" fill="#60a5fa"/>
+</svg>
