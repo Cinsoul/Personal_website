@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="400" height="300" viewBox="0 0 400 300">
+  <!-- Background -->
+  <rect width="400" height="300" fill="#f8f8f8"/>
+  
+  <!-- Certificate Background -->
+  <rect x="50" y="50" width="300" height="200" fill="#fff" stroke="#d4af37" stroke-width="3" rx="5"/>
+  
+  <!-- Decorative Border -->
+  <rect x="60" y="60" width="280" height="180" fill="none" stroke="#d4af37" stroke-width="1" stroke-dasharray="2,2" rx="3"/>
+  
+  <!-- School Seal -->
+  <circle cx="200" cy="100" r="30" fill="#003366"/>
+  <circle cx="200" cy="100" r="25" fill="none" stroke="#d4af37" stroke-width="2"/>
+  <text x="200" y="105" font-family="Arial" font-size="10" font-weight="bold" text-anchor="middle" fill="#d4af37">BAYES</text>
+  
+  <!-- Certificate Title -->
+  <text x="200" y="150" font-family="Times New Roman, serif" font-size="16" font-weight="bold" text-anchor="middle" fill="#003366">DEAN'S LIST</text>
+  
+  <!-- Certificate Text -->
+  <text x="200" y="170" font-family="Arial" font-size="12" text-anchor="middle" fill="#333">For Outstanding Academic Achievement</text>
+  <text x="200" y="190" font-family="Arial" font-size="12" text-anchor="middle" fill="#333">Bayes Business School</text>
+  <text x="200" y="210" font-family="Arial" font-size="12" text-anchor="middle" fill="#333">2023</text>
+  
+  <!-- Decorative Elements -->
+  <path d="M80,230 L100,230 L90,215 Z" fill="#d4af37"/>
+  <path d="M300,230 L320,230 L310,215 Z" fill="#d4af37"/>
+  
+  <!-- Ribbon -->
+  <path d="M180,230 C180,240 190,245 200,245 C210,245 220,240 220,230 L220,220 L180,220 Z" fill="#003366"/>
+  <rect x="195" y="245" width="10" height="20" fill="#003366"/>
+  
+  <!-- Medal -->
+  <circle cx="200" cy="255" r="10" fill="#d4af37" stroke="#b08d2e" stroke-width="1"/>
+  <text x="200" y="259" font-family="Arial" font-size="8" font-weight="bold" text-anchor="middle" fill="#333">2023</text>
+</svg>
