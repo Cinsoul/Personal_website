@@ -92,36 +92,36 @@ export default function WorkExperience() {
           ) : (
             <>
               {/* Starbucks */}
-              <div className="mb-8 bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
+              <div className="mb-8 bg-gray-900 dark:bg-gray-900 rounded-lg shadow-lg p-6">
                 <div className="flex justify-between items-start mb-4">
                   <div>
-                    <h3 className="text-xl font-semibold text-gray-900 dark:text-white">Starbucks {t('work.parttime')}</h3>
-                    <p className="text-gray-600 dark:text-gray-300">Barista</p>
+                    <h3 className="text-xl font-semibold text-white dark:text-white">Starbucks {t('work.parttime')}</h3>
+                    <p className="text-gray-300 dark:text-gray-300">Barista</p>
                   </div>
                   <div className="text-right">
-                    <p className="text-gray-600 dark:text-gray-300">London, UK</p>
-                    <p className="text-gray-600 dark:text-gray-300">Mar 2023 – Aug 2024</p>
+                    <p className="text-gray-300 dark:text-gray-300">London, UK</p>
+                    <p className="text-gray-300 dark:text-gray-300">Mar 2023 – Aug 2024</p>
                   </div>
                 </div>
-                <ul className="list-disc list-inside space-y-2 text-gray-700 dark:text-gray-300">
+                <ul className="list-disc list-inside space-y-2 text-gray-300 dark:text-gray-300">
                   <li>Sales & Operations Support: Promote seasonal new products in the store according to customer needs, improve new product sales, and promote the store's overall revenue growth</li>
                   <li>Marketing Skills: Successful promotion of seasonal beverage sales, with sales growth of 15%</li>
                 </ul>
               </div>
 
               {/* UKpathway Consultancy Group */}
-              <div className="mb-8 bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
+              <div className="mb-8 bg-gray-900 dark:bg-gray-900 rounded-lg shadow-lg p-6">
                 <div className="flex justify-between items-start mb-4">
                   <div>
-                    <h3 className="text-xl font-semibold text-gray-900 dark:text-white">UKpathway Consultancy Group {t('work.parttime')}</h3>
-                    <p className="text-gray-600 dark:text-gray-300">Marketing Department</p>
+                    <h3 className="text-xl font-semibold text-white dark:text-white">UKpathway Consultancy Group {t('work.parttime')}</h3>
+                    <p className="text-gray-300 dark:text-gray-300">Marketing Department</p>
                   </div>
                   <div className="text-right">
-                    <p className="text-gray-600 dark:text-gray-300">Remote</p>
-                    <p className="text-gray-600 dark:text-gray-300">Dec 2022 – Feb 2023</p>
+                    <p className="text-gray-300 dark:text-gray-300">Remote</p>
+                    <p className="text-gray-300 dark:text-gray-300">Dec 2022 – Feb 2023</p>
                   </div>
                 </div>
-                <ul className="list-disc list-inside space-y-2 text-gray-700 dark:text-gray-300">
+                <ul className="list-disc list-inside space-y-2 text-gray-300 dark:text-gray-300">
                   <li>Promote Products: Introduce company services on social media</li>
                   <li>Analyse Services: Analyse and highlight the advantages of services and compare them with other companies services</li>
                 </ul>

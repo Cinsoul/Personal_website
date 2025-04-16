@@ -374,11 +374,11 @@ export default function ProjectsAndAwards() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 dark:bg-gray-900 py-24">
+    <div className="min-h-screen bg-black dark:bg-black py-24">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-16">
           <div className="flex justify-between items-center mb-8">
-            <h2 className="text-3xl font-bold text-gray-900 dark:text-white">{t('projects.title')}</h2>
+            <h2 className="text-3xl font-bold text-white dark:text-white">{t('projects.title')}</h2>
             {isAuthenticated && (
               <Link 
                 to="/projects-manager" 
@@ -388,7 +388,7 @@ export default function ProjectsAndAwards() {
               </Link>
             )}
           </div>
-          <p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto" style={{ fontWeight: 300 }}>{t('projects.subtitle')}</p>
+          <p className="text-xl text-gray-300 dark:text-gray-300 max-w-3xl mx-auto" style={{ fontWeight: 300 }}>{t('projects.subtitle')}</p>
         </div>
         <div className={`transition-opacity duration-500 ${isLoaded ? 'opacity-100' : 'opacity-0'}`}>
           {/* Projects Section */}

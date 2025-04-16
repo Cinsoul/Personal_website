@@ -221,11 +221,11 @@ export default function Certifications() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 dark:bg-gray-900">
+    <div className="min-h-screen bg-black dark:bg-black">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className={`transition-opacity duration-500 ${isLoaded ? 'opacity-100' : 'opacity-0'}`}>
           <div className="flex justify-between items-center mb-8">
-            <h2 className="text-3xl font-bold text-gray-900 dark:text-white">{t('nav.certifications')}</h2>
+            <h2 className="text-3xl font-bold text-white dark:text-white">{t('nav.certifications')}</h2>
             {/* 只在管理员模式激活时显示管理按钮 */}
             {showAdmin && (
               <Link to="/certifications-manager" className="px-4 py-2 bg-blue-500 rounded-lg text-white hover:bg-blue-600 transition-colors">

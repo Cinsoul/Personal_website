@@ -7,13 +7,13 @@
 /* Apple-style navigation */
 nav {
   backdrop-filter: saturate(180%) blur(20px);
-  background-color: rgba(255, 255, 255, 0.8);
-  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+  background-color: rgba(0, 0, 0, 0.8);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
   transition: var(--apple-transition);
 }
 
 .dark nav {
-  background-color: rgba(29, 29, 31, 0.8);
+  background-color: rgba(0, 0, 0, 0.8);
   border-bottom: 1px solid rgba(255, 255, 255, 0.05);
 }
 
