@@ -1,0 +1,50 @@
+name: 同步项目数据
+
+on:
+  # 通过repository_dispatch事件触发工作流
+  repository_dispatch:
+    types: [sync-portfolio-data]
+
+jobs:
+  sync-data:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 检出代码
+        uses: actions/checkout@v3
+        
+      - name: 设置Git配置
+        run: |
+          git config --global user.name "Portfolio Data Bot"
+          git config --global user.email "portfolio-bot@example.com"
+      
+      - name: 保存数据到文件
+        run: |
+          # 确保目录存在
+          mkdir -p public/data
+          
+          # 从触发事件中获取数据并写入文件
+          echo '${{ github.event.client_payload.portfolio_data }}' > public/data/portfolio-data.json
+          
+          # 检查文件是否已创建
+          if [ -f public/data/portfolio-data.json ]; then
+            echo "数据文件创建成功"
+          else 
+            echo "数据文件创建失败" && exit 1
+          fi
+      
+      - name: 提交数据变更
+        run: |
+          # 添加更改的文件
+          git add public/data/portfolio-data.json
+          
+          # 检查是否有变更需要提交
+          if git diff --staged --quiet; then
+            echo "没有变更需要提交"
+            exit 0
+          fi
+          
+          # 提交变更
+          git commit -m "通过网页界面更新项目数据 [自动提交]"
+          
+          # 推送到仓库
+          git push 

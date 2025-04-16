@@ -3,11 +3,9 @@ import {
   saveGitHubPAT, 
   clearGitHubPAT, 
   getDefaultGitHubConfig, 
-  GitHubSyncOptions,
   hasGitHubPAT,
   getGitHubPAT
 } from '../utils/githubSync';
-import { useLanguage } from '../contexts/LanguageContext';
 
 interface GitHubSyncProps {
   onClose: () => void;
@@ -15,7 +13,6 @@ interface GitHubSyncProps {
 }
 
 const GitHubSync: React.FC<GitHubSyncProps> = ({ onClose, onSuccess }) => {
-  const { t } = useLanguage();
   const [token, setToken] = useState('');
   const [owner, setOwner] = useState('');
   const [repo, setRepo] = useState('');

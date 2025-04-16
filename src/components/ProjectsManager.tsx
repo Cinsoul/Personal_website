@@ -1446,7 +1446,7 @@ export default function ProjectsManager() {
               </>
             )}
             </div>
-          </div>
+        </div>
         
         {selectMode ? (
           <div className="space-y-2">
@@ -1461,7 +1461,7 @@ export default function ProjectsManager() {
                 <div className="flex-1">
                   <h3 className="text-lg font-medium text-gray-900 dark:text-white">{project.title}</h3>
                   <p className="text-sm text-gray-500 dark:text-gray-400 line-clamp-1">{project.description}</p>
-              </div>
+            </div>
               </div>
             ))}
           </div>
@@ -1489,13 +1489,13 @@ export default function ProjectsManager() {
         <div className="flex justify-between items-center mb-4">
           <h3 className="text-xl font-semibold text-gray-900 dark:text-white">{t('projects.manager.awardsList')}</h3>
           <div className="flex gap-2">
-            <button
+              <button 
               type="button"
               onClick={() => setSelectMode(!selectMode)}
               className="px-3 py-1.5 text-sm bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-md hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
-            >
+              >
               {selectMode ? t('projects.manager.cancelSelect') : t('projects.manager.selectItems')}
-            </button>
+              </button>
             {selectMode && (
               <>
                 <button
@@ -1522,8 +1522,8 @@ export default function ProjectsManager() {
                 </button>
               </>
             )}
+            </div>
           </div>
-        </div>
         
         {selectMode ? (
           <div className="space-y-2">
@@ -1588,7 +1588,7 @@ export default function ProjectsManager() {
                 <span className="text-gray-700 dark:text-gray-300">
                   {t('projects.manager.export.toFile') || '导出到本地文件'}
                 </span>
-              </label>
+                </label>
               
               <label className="flex items-center space-x-2">
                 <input
@@ -1602,14 +1602,14 @@ export default function ProjectsManager() {
                   {t('projects.manager.export.toGithub') || '同步到GitHub仓库'}
                 </span>
               </label>
-            </div>
+              </div>
             
             {exportOption === 'github' && (
               <div className="bg-yellow-50 dark:bg-yellow-900 p-3 rounded-md">
                 <p className="text-yellow-800 dark:text-yellow-200 text-sm">
                   {t('projects.manager.export.githubNote') || '注意：同步到GitHub仓库需要适当的权限和配置。此功能在未来版本中完善。'}
                 </p>
-              </div>
+            </div>
             )}
             
             {exportError && (
@@ -1617,8 +1617,8 @@ export default function ProjectsManager() {
                 <p className="text-red-700 dark:text-red-200 text-sm">{exportError}</p>
               </div>
             )}
-          </div>
-          
+            </div>
+            
           <div className="flex justify-end space-x-3">
             <button
               onClick={() => setShowExportModal(false)}
@@ -1649,7 +1649,7 @@ export default function ProjectsManager() {
           
           <div className="mb-6">
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">{t('projects.manager.import.selectFile')}</label>
-            <input
+                <input
               type="file"
               accept=".json"
               onChange={handleImportFileSelect}
@@ -1660,8 +1660,8 @@ export default function ProjectsManager() {
           </div>
           
           <div className="flex justify-end space-x-3">
-                    <button
-                      type="button"
+                <button
+                  type="button"
               onClick={() => {
                 setShowImportModal(false);
                 setImportData('');
@@ -1671,13 +1671,13 @@ export default function ProjectsManager() {
               className="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-md hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
             >
               {t('projects.manager.cancel')}
-            </button>
-            <button
-              type="button"
+                </button>
+                    <button
+                      type="button"
               onClick={importDataFromJson}
               className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
               disabled={!importData}
-            >
+                    >
               {t('projects.manager.import.confirm')}
                     </button>
                   </div>
