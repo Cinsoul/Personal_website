@@ -1,6 +1,20 @@
 import { useState, useEffect, ChangeEvent, FormEvent } from 'react';
 import { Link } from 'react-router-dom';
 import { useLanguage } from '../contexts/LanguageContext';
+import { syncDataToGitHubRepo } from '../utils/fileUtils';
+
+// 添加防抖工具函数
+const debounce = (func: Function, wait: number) => {
+  let timeout: number;
+  return function executedFunction(...args: any[]) {
+    const later = () => {
+      clearTimeout(timeout);
+      func(...args);
+    };
+    clearTimeout(timeout);
+    timeout = setTimeout(later, wait);
+  };
+};
 
 interface WorkExperience {
   id?: string;
@@ -52,6 +66,11 @@ export default function WorkExperienceManager() {
     responsibilities: []
   });
   const [responsibilityInput, setResponsibilityInput] = useState('');
+  
+  // 添加同步状态
+  const [isSyncing, setIsSyncing] = useState(false);
+  const [lastSyncTime, setLastSyncTime] = useState<Date | null>(null);
+  const [syncMessage, setSyncMessage] = useState('');
 
   // 从本地存储加载数据
   useEffect(() => {
@@ -108,10 +127,56 @@ export default function WorkExperienceManager() {
     }
   }, []);
 
+  // 添加自动同步到GitHub功能
+  const autoSyncToGitHub = async () => {
+    try {
+      // 如果已经在同步中，则跳过
+      if (isSyncing) {
+        console.log('已有同步任务在进行中，跳过此次同步');
+        return;
+      }
+      
+      setIsSyncing(true);
+      setSyncMessage('正在同步工作经验数据到GitHub...');
+      
+      const exportObject = {
+        workExperiences: experiences,
+        exportDate: new Date().toISOString(),
+        version: '1.0'
+      };
+      
+      const success = await syncDataToGitHubRepo(exportObject, { 
+        targetFile: 'public/data/work-experience-data.json',
+        commitMessage: '自动同步工作经验数据 [自动提交]'
+      });
+      
+      if (success) {
+        const now = new Date();
+        setLastSyncTime(now);
+        setSyncMessage(`上次同步: ${now.toLocaleTimeString()}`);
+        console.log('工作经验数据已自动同步到GitHub', now.toLocaleTimeString());
+      } else {
+        setSyncMessage('同步失败，请检查GitHub配置');
+        console.error('自动同步工作经验到GitHub失败');
+      }
+    } catch (error) {
+      console.error('自动同步出错:', error);
+      setSyncMessage('同步出错，请手动同步');
+    } finally {
+      setIsSyncing(false);
+    }
+  };
+  
+  // 创建防抖版本的同步函数 (5秒防抖)
+  const debouncedAutoSync = debounce(autoSyncToGitHub, 5000);
+
   // 保存数据到本地存储
   useEffect(() => {
     if (experiences.length > 0) {
       localStorage.setItem('workExperiences', JSON.stringify(experiences));
+      
+      // 数据变更时触发自动同步
+      debouncedAutoSync();
     }
   }, [experiences]);
 
@@ -150,7 +215,7 @@ export default function WorkExperienceManager() {
     });
   };
 
-  // 保存工作经历
+  // 修改保存工作经历函数，添加自动同步
   const saveExperience = (e: FormEvent) => {
     e.preventDefault();
     
@@ -180,7 +245,7 @@ export default function WorkExperienceManager() {
     setIsEditing(true);
   };
 
-  // 删除工作经历
+  // 修改删除工作经历函数，添加自动同步
   const deleteExperience = (id: string) => {
     if (window.confirm(t('manager.delete.confirm'))) {
       setExperiences(experiences.filter(exp => exp.id !== id));
@@ -206,9 +271,28 @@ export default function WorkExperienceManager() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="flex justify-between items-center mb-8">
           <h1 className="text-3xl font-bold text-gray-900 dark:text-white">{t('manager.work.title')}</h1>
-          <Link to="/" className="px-4 py-2 bg-gray-200 dark:bg-gray-700 rounded-lg text-gray-800 dark:text-gray-200 hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors">
-            {t('manager.back')}
-          </Link>
+          <div className="flex items-center space-x-4">
+            {/* 添加同步状态指示器 */}
+            {isSyncing && (
+              <span className="text-sm text-blue-600 dark:text-blue-400 flex items-center">
+                <svg className="animate-spin -ml-1 mr-2 h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                正在同步...
+              </span>
+            )}
+            
+            {!isSyncing && syncMessage && (
+              <span className="text-sm text-gray-600 dark:text-gray-400">
+                {syncMessage}
+              </span>
+            )}
+            
+            <Link to="/" className="px-4 py-2 bg-gray-200 dark:bg-gray-700 rounded-lg text-gray-800 dark:text-gray-200 hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors">
+              {t('manager.back')}
+            </Link>
+          </div>
         </div>
         
         {/* 工作经历管理部分 */}
