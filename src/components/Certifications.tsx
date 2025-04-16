@@ -2,8 +2,8 @@ import { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useLanguage } from '../contexts/LanguageContext';
 import { getFileIcon } from '../utils/fileUtils';
-import ImageViewer from './ImageViewer';
-import DocumentViewer from './DocumentViewer';
+import ImageViewer from './viewers/ImageViewer';
+import DocumentViewer from './viewers/DocumentViewer';
 
 interface Certification {
   id?: string;
@@ -334,7 +334,7 @@ export default function Certifications() {
       {viewingImage && (
         <ImageViewer 
           imageUrl={viewingImage} 
-          title={viewingImageTitle} 
+          altText={viewingImageTitle} 
           onClose={handleCloseImageViewer}
         />
       )}
@@ -342,9 +342,9 @@ export default function Certifications() {
       {/* 文档查看器 */}
       {viewingDocument && (
         <DocumentViewer
-          dataUrl={viewingDocument.dataUrl}
-          fileName={viewingDocument.fileName}
-          fileType={viewingDocument.fileType}
+          documentUrl={viewingDocument.dataUrl}
+          filename={viewingDocument.fileName}
+          mimeType={viewingDocument.fileType}
           onClose={handleCloseDocumentViewer}
         />
       )}

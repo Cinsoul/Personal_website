@@ -3,8 +3,8 @@ import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useLanguage } from '../contexts/LanguageContext';
 import { useAdmin } from '../contexts/AdminContext';
 import { getFileIcon } from '../utils/fileUtils';
-import ImageViewer from './ImageViewer';
-import DocumentViewer from './DocumentViewer';
+import ImageViewer from './viewers/ImageViewer';
+import DocumentViewer from './viewers/DocumentViewer';
 
 // 编辑按钮组件
 const EditButton = ({ onClick }: { onClick: (e: React.MouseEvent) => void }) => {
@@ -678,21 +678,21 @@ export default function ProjectsAndAwards() {
         </div>
       </div>
       
-      {/* 图片查看器 */}
+      {/* 图片预览 */}
       {viewingImage && (
-        <ImageViewer 
-          imageUrl={viewingImage} 
-          title={viewingImageTitle} 
+        <ImageViewer
+          imageUrl={viewingImage}
+          altText={viewingImageTitle}
           onClose={handleCloseImageViewer}
         />
       )}
       
-      {/* 文档查看器 */}
+      {/* 文档预览 */}
       {viewingDocument && (
         <DocumentViewer
-          dataUrl={viewingDocument.dataUrl}
-          fileName={viewingDocument.fileName}
-          fileType={viewingDocument.fileType}
+          documentUrl={viewingDocument.dataUrl}
+          filename={viewingDocument.fileName}
+          mimeType={viewingDocument.fileType}
           onClose={handleCloseDocumentViewer}
         />
       )}
