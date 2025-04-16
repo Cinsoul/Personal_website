@@ -77,54 +77,23 @@ export default function WorkExperienceManager() {
     const savedExperiences = localStorage.getItem('workExperiences');
     
     if (savedExperiences) {
-      // 加载后自动排序
-      const parsed = JSON.parse(savedExperiences);
-      setExperiences(parsed.sort(sortByDate));
-    } else {
-      // 默认工作经历数据
-      const defaultExperiences = [
-        {
-          id: '1',
-          company: 'Starbucks',
-          position: 'Barista',
-          location: 'London, UK',
-          startDate: 'Mar 2023',
-          endDate: 'Aug 2024',
-          responsibilities: [
-            'Sales & Operations Support: Promote seasonal new products in the store according to customer needs, improve new product sales, and promote the store\'s overall revenue growth',
-            'Marketing Skills: Successful promotion of seasonal beverage sales, with sales growth of 15%'
-          ]
-        },
-        {
-          id: '2',
-          company: 'UKpathway Consultancy Group',
-          position: 'Marketing Department',
-          location: 'Remote',
-          startDate: 'Dec 2022',
-          endDate: 'Feb 2023',
-          responsibilities: [
-            'Promote Products: Introduce company services on social media',
-            'Analyse Services: Analyse and highlight the advantages of services and compare them with other companies services'
-          ]
-        },
-        {
-          id: '3',
-          company: 'MUJI',
-          position: 'Sales Consultant',
-          location: 'Fuzhou, China',
-          startDate: 'Oct 2021',
-          endDate: 'Jun 2022',
-          responsibilities: [
-            'Teamwork: Collaborate with the team on promotional activities to increase sales by 10% through effective communication and execution',
-            'Personal Achievement: Assist in optimising inventory management processes and increase product turnover efficiency by 15%',
-            'Insight: Learn how brands operate globally and understand how they differentiate themselves in their local markets'
-          ]
+      try {
+        // 加载后自动排序
+        const parsed = JSON.parse(savedExperiences);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          console.log('从localStorage加载工作经验数据，数量:', parsed.length);
+          setExperiences(parsed.sort(sortByDate));
+          return;
         }
-      ];
-      // 初始化数据时排序
-      setExperiences(defaultExperiences.sort(sortByDate));
-      localStorage.setItem('workExperiences', JSON.stringify(defaultExperiences));
+      } catch (error) {
+        console.error('解析工作经验数据出错:', error);
+      }
     }
+    
+    console.log('localStorage中没有有效的工作经验数据，将使用空列表');
+    
+    // 使用空数组初始化
+    setExperiences([]);
   }, []);
 
   // 添加自动同步到GitHub功能
