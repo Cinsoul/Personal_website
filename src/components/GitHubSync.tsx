@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { 
-  getGitHubPAT, 
   saveGitHubPAT, 
   clearGitHubPAT, 
   getDefaultGitHubConfig, 
   GitHubSyncOptions,
-  hasGitHubPAT
+  hasGitHubPAT,
+  getGitHubPAT
 } from '../utils/githubSync';
 import { useLanguage } from '../contexts/LanguageContext';
 
@@ -40,7 +40,8 @@ const GitHubSync: React.FC<GitHubSyncProps> = ({ onClose, onSuccess }) => {
     
     // 如果已保存token，尝试获取它（虽然我们不会显示它，但会用星号表示）
     if (hasTokenSaved) {
-      setToken('••••••••••••••••••••••••••'); // 用于UI显示
+      const savedToken = getGitHubPAT();
+      setToken(savedToken ? '••••••••••••••••••••••••••' : '');
     }
   }, []);
 
