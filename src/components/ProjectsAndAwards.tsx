@@ -5,6 +5,7 @@ import { useAdmin } from '../contexts/AdminContext';
 import { getFileIcon } from '../utils/fileUtils';
 import ImageViewer from './viewers/ImageViewer';
 import DocumentViewer from './viewers/DocumentViewer';
+import { getBasePath } from '../utils/imageUtils';
 
 // 编辑按钮组件
 const EditButton = ({ onClick }: { onClick: (e: React.MouseEvent) => void }) => {
@@ -44,6 +45,77 @@ interface Award {
     fileType: string;
   };
 }
+
+// 从预定义文件加载数据
+const loadPortfolioData = async (): Promise<{ projects: Project[], awards: Award[] }> => {
+  try {
+    // 首先尝试从data目录加载数据
+    const basePath = getBasePath();
+    const dataUrl = `${basePath}/data/portfolio-data.json`;
+    
+    const response = await fetch(dataUrl);
+    
+    if (response.ok) {
+      const data = await response.json();
+      console.log('从portfolio-data.json加载数据成功');
+      return {
+        projects: data.projects || [],
+        awards: data.awards || []
+      };
+    }
+    
+    // 如果第一个文件不存在，尝试加载默认数据
+    console.log('尝试加载默认数据文件');
+    const defaultResponse = await fetch(`${basePath}/data/default-portfolio-data.json`);
+    
+    if (defaultResponse.ok) {
+      const defaultData = await defaultResponse.json();
+      console.log('从default-portfolio-data.json加载数据成功');
+      return {
+        projects: defaultData.projects || [],
+        awards: defaultData.awards || []
+      };
+    }
+    
+    console.warn('无法从文件加载数据，尝试从localStorage加载');
+    return {
+      projects: loadProjectsFromLocalStorage(),
+      awards: loadAwardsFromLocalStorage()
+    };
+  } catch (error) {
+    console.error('加载项目和奖项数据失败:', error);
+    return {
+      projects: loadProjectsFromLocalStorage(),
+      awards: loadAwardsFromLocalStorage()
+    };
+  }
+};
+
+// 从localStorage加载项目数据
+const loadProjectsFromLocalStorage = (): Project[] => {
+  try {
+    const savedProjects = localStorage.getItem('projects');
+    if (savedProjects) {
+      return JSON.parse(savedProjects);
+    }
+  } catch (error) {
+    console.error('从localStorage加载项目数据失败:', error);
+  }
+  return [];
+};
+
+// 从localStorage加载奖项数据
+const loadAwardsFromLocalStorage = (): Award[] => {
+  try {
+    const savedAwards = localStorage.getItem('awards');
+    if (savedAwards) {
+      return JSON.parse(savedAwards);
+    }
+  } catch (error) {
+    console.error('从localStorage加载奖项数据失败:', error);
+  }
+  return [];
+};
 
 export default function ProjectsAndAwards() {
   const { t } = useLanguage();
@@ -169,45 +241,6 @@ export default function ProjectsAndAwards() {
     };
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // 添加文件系统数据加载函数
-  const loadDataFromServerOrRepo = async (): Promise<{projects: Project[], awards: Award[]} | null> => {
-    try {
-      console.log('尝试从服务器或仓库加载数据...');
-      
-      // 首先尝试加载仓库中的JSON文件
-      const response = await fetch('/Personal_website/data/portfolio-data.json');
-      
-      // 检查响应状态
-      if (!response.ok) {
-        console.warn('无法从仓库加载数据文件，状态码:', response.status);
-        return null;
-      }
-      
-      // 解析JSON数据
-      const data = await response.json();
-      
-      // 验证数据格式
-      if (!data.projects || !Array.isArray(data.projects) || 
-          !data.awards || !Array.isArray(data.awards)) {
-        console.warn('仓库数据格式无效');
-        return null;
-      }
-      
-      console.log('成功从仓库加载数据:', {
-        projectsCount: data.projects.length,
-        awardsCount: data.awards.length
-      });
-      
-      return {
-        projects: data.projects,
-        awards: data.awards
-      };
-    } catch (error) {
-      console.error('从仓库加载数据时出错:', error);
-      return null;
-    }
-  };
-
   // 修改loadLatestData函数
   const loadLatestData = () => {
     console.log('从localStorage加载最新数据...');
@@ -290,7 +323,7 @@ export default function ProjectsAndAwards() {
     setAwards(defaultAwards);
     
     // 首先尝试从仓库加载数据
-    loadDataFromServerOrRepo().then(repoData => {
+    loadPortfolioData().then(repoData => {
       if (repoData) {
         console.log('使用从仓库加载的数据');
         setProjects(repoData.projects);
