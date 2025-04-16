@@ -64,7 +64,7 @@ function AppContent() {
   }, []);
 
   return (
-    <Router>
+    <Router basename="/Personal_website">
         <div className="min-h-screen bg-white dark:bg-black">
         {/* Navigation */}
         <nav className="fixed top-0 left-0 right-0 z-50">
