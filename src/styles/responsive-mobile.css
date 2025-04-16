@@ -1,0 +1,157 @@
+/**
+ * 针对移动设备的专用样式
+ * 确保在手机上正确显示内容
+ */
+
+/* 只应用于移动设备 */
+@media (max-width: 767px) {
+  /* ===== 通用样式 ===== */
+  body {
+    font-size: 14px !important;
+    overflow-x: hidden !important;
+  }
+
+  h1 {
+    font-size: 1.75rem !important;
+    line-height: 1.25 !important;
+    margin-bottom: 0.75rem !important;
+  }
+
+  h2 {
+    font-size: 1.5rem !important;
+    line-height: 1.3 !important;
+    margin-bottom: 0.5rem !important;
+  }
+
+  /* 增加按钮点击区域 */
+  button, 
+  .button, 
+  a.button, 
+  [role="button"],
+  input[type="button"],
+  input[type="submit"] {
+    min-height: 44px !important; /* 苹果推荐的最小触摸目标尺寸 */
+    padding: 10px 15px !important;
+    margin-bottom: 10px !important;
+  }
+
+  /* ===== 布局调整 ===== */
+  .container, 
+  .content-container,
+  .page-container {
+    padding-left: 15px !important;
+    padding-right: 15px !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    overflow-x: hidden !important;
+  }
+  
+  /* 修改列布局为自动堆叠 */
+  .flex-row, 
+  .grid {
+    flex-direction: column !important;
+    grid-template-columns: 1fr !important;
+  }
+
+  /* 确保图片和卡片宽度合适 */
+  img, 
+  .card, 
+  .project-card, 
+  .work-card,
+  .education-card {
+    max-width: 100% !important;
+    height: auto !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+  }
+
+  /* ===== 头像组件调整 ===== */
+  .flip-container {
+    max-width: 270px !important;
+    max-height: 270px !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+    display: block !important;
+  }
+
+  /* ===== 特定组件调整 ===== */
+  /* 首页布局 */
+  .home-section {
+    padding-top: 3rem !important;
+    padding-bottom: 3rem !important;
+  }
+
+  /* 工作和教育经历 */
+  .experience-grid {
+    grid-gap: 1rem !important;
+  }
+
+  .experience-item {
+    padding: 1rem !important;
+  }
+
+  /* 项目卡片 */
+  .project-card {
+    margin-bottom: 1.5rem !important;
+  }
+
+  /* 修正内容可能超出屏幕的问题 */
+  .work-description,
+  .project-description,
+  .award-description {
+    word-break: break-word !important;
+    max-width: 100% !important;
+  }
+
+  /* ===== 导航和页脚 ===== */
+  nav.main-nav {
+    padding: 0.5rem !important;
+    flex-wrap: wrap !important;
+  }
+
+  nav a {
+    margin: 0.25rem 0.5rem !important;
+    font-size: 0.9rem !important;
+  }
+
+  footer {
+    padding: 1rem !important;
+    text-align: center !important;
+  }
+
+  /* ===== 文本溢出控制 ===== */
+  .text-truncate {
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    display: block !important;
+  }
+
+  /* 长段落的特殊处理 */
+  p.long-text {
+    display: -webkit-box !important;
+    -webkit-line-clamp: 3 !important; /* 显示3行 */
+    -webkit-box-orient: vertical !important;
+    overflow: hidden !important;
+  }
+}
+
+/* 为带mobile-device类的元素应用相同样式 */
+.mobile-device {
+  font-size: 14px !important;
+  overflow-x: hidden !important;
+}
+
+.mobile-device h1 {
+  font-size: 1.75rem !important;
+  line-height: 1.25 !important;
+  margin-bottom: 0.75rem !important;
+}
+
+.mobile-device h2 {
+  font-size: 1.5rem !important;
+  line-height: 1.3 !important;
+  margin-bottom: 0.5rem !important;
+}
+
+/* 其他.mobile-device样式可以根据需要添加 */ 
