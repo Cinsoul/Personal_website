@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes, Route, Link, Navigate, useLocation } from 'react-router-dom';
+import { HashRouter as Router, Routes, Route, Link, Navigate, useLocation } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import { FaBars, FaTimes } from 'react-icons/fa';
 import ProjectsAndAwards from './components/ProjectsAndAwards';
@@ -64,7 +64,7 @@ function AppContent() {
   }, []);
 
   return (
-    <Router basename="/Personal_website">
+    <Router>
         <div className="min-h-screen bg-white dark:bg-black">
         {/* Navigation */}
         <nav className="fixed top-0 left-0 right-0 z-50">
