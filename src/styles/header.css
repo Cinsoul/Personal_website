@@ -1,7 +1,6 @@
 /* 导航栏样式 */
 .app-header {
-  background-color: rgba(0, 0, 0, 0.9);
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+  background-color: #000000;
   position: fixed;
   top: 0;
   left: 0;
@@ -11,6 +10,7 @@
   transition: all 0.3s ease;
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 .header-container {
@@ -20,13 +20,13 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  height: 70px;
+  height: 60px;
+  width: 100%;
 }
 
 .logo-container {
   display: flex;
   align-items: center;
-  width: auto;
 }
 
 .logo {
@@ -47,20 +47,18 @@
   display: flex;
   align-items: center;
   gap: 1.5rem;
-  justify-content: flex-end;
-  flex: 1;
-  margin-left: 2rem;
 }
 
 .main-nav a {
   color: #e0e0e0;
   text-decoration: none;
-  font-size: 1rem;
+  font-size: 0.95rem;
   font-weight: 500;
   transition: color 0.3s ease;
   padding: 0.5rem 0.75rem;
   border-radius: 4px;
   white-space: nowrap;
+  background-color: transparent;
 }
 
 .main-nav a:hover {
@@ -159,7 +157,7 @@
     right: 0;
     flex-direction: column;
     gap: 0;
-    background-color: rgba(0, 0, 0, 0.95);
+    background-color: #000000;
     padding: 0;
     height: 0;
     overflow: hidden;

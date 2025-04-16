@@ -49,9 +49,7 @@ const Header = () => {
   return (
     <header className="app-header">
       <div className="header-container">
-        <div className="logo-container">
-          <Link to="/" className="logo">Xindi Wang</Link>
-        </div>
+        <Link to="/" className="logo">Xindi Wang</Link>
         
         <nav className={`main-nav ${menuOpen ? 'mobile-menu-open' : ''}`}>
           <Link to="/" onClick={() => setMenuOpen(false)}>{t('nav.home')}</Link>
