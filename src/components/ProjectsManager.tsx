@@ -359,11 +359,12 @@ export default function ProjectsManager() {
         return;
       }
       
-      // 如果没有有效的数据，设置默认项目
-      setDefaultProjects();
+      // 如果localStorage中没有数据，保持列表为空
+      console.warn('localStorage中没有项目数据，将使用空列表');
+      // setDefaultProjects(); // 移除设置默认项目
       } catch (error) {
       console.error('加载项目数据出错:', error);
-      setDefaultProjects();
+      // setDefaultProjects(); // 移除设置默认项目
     }
   };
   
@@ -379,11 +380,12 @@ export default function ProjectsManager() {
           return;
         }
         
-      // 如果没有有效的数据，设置默认奖项
-      setDefaultAwards();
+      // 如果localStorage中没有数据，保持列表为空
+      console.warn('localStorage中没有奖项数据，将使用空列表');
+      // setDefaultAwards(); // 移除设置默认奖项
       } catch (error) {
       console.error('加载奖项数据出错:', error);
-      setDefaultAwards();
+      // setDefaultAwards(); // 移除设置默认奖项
     }
   };
   
