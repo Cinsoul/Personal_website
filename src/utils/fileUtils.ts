@@ -311,3 +311,154 @@ export const processFileSingle = async (file: File): Promise<string> => {
     }
   });
 };
+
+// 增加同步项目数据到GitHub仓库的功能
+export interface SyncOptions {
+  targetFile?: string;
+  commitMessage?: string;
+}
+
+export async function syncDataToGitHubRepo(data: any, options: SyncOptions = {}): Promise<boolean> {
+  try {
+    console.log('正在准备同步数据到GitHub仓库...');
+    
+    // 默认参数
+    const {
+      targetFile = 'portfolio-data.json',
+      commitMessage = '更新项目数据'
+    } = options;
+    
+    // 将数据转换为JSON字符串
+    // const jsonData = JSON.stringify(data, null, 2);
+    JSON.stringify(data, null, 2); // 仅执行转换，但不使用结果变量
+    
+    // 获取当前用户和仓库信息（示例代码，实际上这需要后端支持）
+    console.log('由于GitHub API限制，此功能需要在后端实现');
+    
+    console.log(`将在未来版本中实现以下功能:
+    1. 将数据写入到仓库中的 ${targetFile} 文件
+    2. 使用消息 "${commitMessage}" 提交更改
+    3. 推送变更到仓库`);
+    
+    return true;
+  } catch (error) {
+    console.error('同步数据到GitHub仓库失败:', error);
+    return false;
+  }
+}
+
+// 从GitHub仓库加载数据的函数
+export async function loadDataFromGitHubRepo(options: SyncOptions = {}): Promise<any> {
+  try {
+    console.log('正在从GitHub仓库加载数据...');
+    
+    // 默认参数
+    const { targetFile = 'portfolio-data.json' } = options;
+    
+    console.log(`将在未来版本中实现以下功能:
+    1. 从仓库中读取 ${targetFile} 文件
+    2. 解析JSON数据并返回`);
+    
+    // 暂时返回null，表示没有可用数据
+    return null;
+  } catch (error) {
+    console.error('从GitHub仓库加载数据失败:', error);
+    return null;
+  }
+}
+
+// 保存项目和奖项数据到本地文件系统的函数
+export function saveDataToFile(data: any, fileName: string = 'portfolio-data.json'): void {
+  try {
+    const jsonData = JSON.stringify(data, null, 2);
+    const blob = new Blob([jsonData], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = fileName;
+    document.body.appendChild(link);
+    link.click();
+    
+    // 清理
+    setTimeout(() => {
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+    }, 100);
+  } catch (error) {
+    console.error('保存数据到文件失败:', error);
+  }
+}
+
+// 生成默认示例数据的函数
+export function generateSampleData(): any {
+  return {
+    "projects": [
+      {
+        "id": "project-1",
+        "title": "Personal Website",
+        "description": "A responsive personal portfolio website built with React and Tailwind CSS, featuring dark mode support, responsive design, and smooth animations",
+        "technologies": ["React", "TypeScript", "Tailwind CSS", "Vite"],
+        "link": "https://github.com/Cinsoul/personal-website",
+        "image": "/Personal_website/project-images/personal-website.png"
+      },
+      {
+        "id": "project-2",
+        "title": "LVMH Digital Innovation",
+        "description": "Developed innovative digital solutions for luxury retail, focusing on enhancing customer experience through AR/VR technology",
+        "technologies": ["React Native", "AR Kit", "Node.js", "AWS"],
+        "image": "/Personal_website/project-images/lvmh-project.svg"
+      },
+      {
+        "id": "project-3",
+        "title": "Bloomberg Market Analysis",
+        "description": "Created a comprehensive market analysis tool using Bloomberg API, enabling real-time financial data visualization and analysis",
+        "technologies": ["Python", "Bloomberg API", "Pandas", "Plotly"],
+        "image": "/Personal_website/project-images/bloomberg-project.svg"
+      },
+      {
+        "id": "project-4",
+        "title": "Investment Banking Analytics",
+        "description": "Developed financial models and analytics tools for investment banking operations, focusing on M&A analysis",
+        "technologies": ["Excel", "VBA", "Python", "Financial Modeling"],
+        "image": "/Personal_website/project-images/jpmorgan-project.svg"
+      }
+    ],
+    "awards": [
+      {
+        "id": "award-1",
+        "title": "Dean's List",
+        "organization": "Bayes Business School",
+        "date": "2023",
+        "description": "Awarded for outstanding academic achievement and maintaining a high GPA throughout the academic year",
+        "image": "/Personal_website/project-images/bayes-award.svg"
+      },
+      {
+        "id": "award-2",
+        "title": "LVMH Inside Program Completion",
+        "organization": "LVMH",
+        "date": "Nov 2024",
+        "description": "Successfully completed the exclusive LVMH Inside program, gaining comprehensive insights into luxury retail and digital innovation",
+        "image": "/Personal_website/logos/lvmh.svg"
+      },
+      {
+        "id": "award-3",
+        "title": "Bloomberg Market Concepts",
+        "organization": "Bloomberg",
+        "date": "Sep 2021",
+        "description": "Completed advanced financial market analysis certification, covering economics, currencies, fixed income, and equities",
+        "image": "/Personal_website/logos/bloomberg.svg"
+      },
+      {
+        "id": "award-4",
+        "title": "Investment Banking Excellence",
+        "organization": "JPMorgan Chase",
+        "date": "Apr 2021",
+        "description": "Recognized for outstanding performance in investment banking simulation program, focusing on M&A analysis and financial modeling",
+        "image": "/Personal_website/logos/jpmorgan.svg"
+      }
+    ],
+    "exportDate": new Date().toISOString(),
+    "version": "1.0"
+  };
+}

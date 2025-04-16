@@ -169,7 +169,46 @@ export default function ProjectsAndAwards() {
     };
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // 提取加载数据逻辑到独立函数，以便重用
+  // 添加文件系统数据加载函数
+  const loadDataFromServerOrRepo = async (): Promise<{projects: Project[], awards: Award[]} | null> => {
+    try {
+      console.log('尝试从服务器或仓库加载数据...');
+      
+      // 首先尝试加载仓库中的JSON文件
+      const response = await fetch('/Personal_website/data/portfolio-data.json');
+      
+      // 检查响应状态
+      if (!response.ok) {
+        console.warn('无法从仓库加载数据文件，状态码:', response.status);
+        return null;
+      }
+      
+      // 解析JSON数据
+      const data = await response.json();
+      
+      // 验证数据格式
+      if (!data.projects || !Array.isArray(data.projects) || 
+          !data.awards || !Array.isArray(data.awards)) {
+        console.warn('仓库数据格式无效');
+        return null;
+      }
+      
+      console.log('成功从仓库加载数据:', {
+        projectsCount: data.projects.length,
+        awardsCount: data.awards.length
+      });
+      
+      return {
+        projects: data.projects,
+        awards: data.awards
+      };
+    } catch (error) {
+      console.error('从仓库加载数据时出错:', error);
+      return null;
+    }
+  };
+
+  // 修改loadLatestData函数
   const loadLatestData = () => {
     console.log('从localStorage加载最新数据...');
     setIsLoaded(false); // 重置加载状态
@@ -250,218 +289,55 @@ export default function ProjectsAndAwards() {
     setProjects(defaultProjects);
     setAwards(defaultAwards);
     
-    // 创建一个延迟任务，尝试从localStorage加载数据
-    setTimeout(() => {
-      // 加载项目数据
+    // 首先尝试从仓库加载数据
+    loadDataFromServerOrRepo().then(repoData => {
+      if (repoData) {
+        console.log('使用从仓库加载的数据');
+        setProjects(repoData.projects);
+        setAwards(repoData.awards);
+        projectsLoaded = true;
+        awardsLoaded = true;
+        setIsLoaded(true);
+        return;
+      }
+      
+      // 如果仓库数据加载失败，尝试从localStorage加载
       try {
+        // 尝试加载项目数据
         const savedProjects = localStorage.getItem('projects');
-        console.log('从localStorage获取projects键的原始值:', savedProjects ? `有数据，长度: ${savedProjects.length}` : '无数据');
-        
         if (savedProjects) {
-          try {
-            const parsedProjects = JSON.parse(savedProjects);
-            
-            if (Array.isArray(parsedProjects)) {
-              console.log('解析后的项目数组长度:', parsedProjects.length);
-              
-              // 确认数组内容是否符合预期
-              const validProjects = parsedProjects.filter(project => 
-                project && typeof project === 'object' && project.title
-              );
-              
-              console.log('有效项目数量:', validProjects.length);
-              
-              if (validProjects.length > 0) {
-                // 验证图片路径，确保显示正常
-                const validatedProjects = validProjects.map((project: any) => {
-                  // 检查图片路径是否有效
-                  let imagePath = project.image;
-                  if (!imagePath || imagePath.trim() === '') {
-                    imagePath = '/vite.svg';
-                    console.log(`项目 ${project.title} 没有图片路径，使用默认图片`);
-                  }
-                  
-                  return {
-                    ...project,
-                    id: project.id || crypto.randomUUID(),
-                    image: imagePath,
-                    technologies: Array.isArray(project.technologies) ? project.technologies : []
-                  };
-                });
-                
-                console.log('设置项目状态，数量:', validatedProjects.length);
-                setProjects(validatedProjects);
-                console.log('项目数据已设置到组件状态');
-                
-                projectsLoaded = true;
-              } else {
-                console.warn('从localStorage加载的项目数据无效或为空');
-              }
-            } else {
-              console.error('从localStorage加载的projects不是数组:', typeof parsedProjects);
-            }
-          } catch (error) {
-            console.error('解析项目数据JSON失败:', error);
+          const parsedProjects = JSON.parse(savedProjects);
+          if (Array.isArray(parsedProjects) && parsedProjects.length > 0) {
+            setProjects(parsedProjects);
+            projectsLoaded = true;
+            console.log('从localStorage加载了项目数据');
           }
-        } else {
-          console.warn('localStorage中不存在projects键');
         }
-      } catch (storageError) {
-        console.error('访问localStorage时出错:', storageError);
-      }
-      
-      // 加载奖项数据
-      try {
-        const savedAwards = localStorage.getItem('awards');
-        console.log('从localStorage获取awards键的原始值:', savedAwards ? `有数据，长度: ${savedAwards.length}` : '无数据');
         
+        // 尝试加载奖项数据
+        const savedAwards = localStorage.getItem('awards');
         if (savedAwards) {
-          try {
-            const parsedAwards = JSON.parse(savedAwards);
-            
-            if (Array.isArray(parsedAwards)) {
-              console.log('解析后的奖项数组长度:', parsedAwards.length);
-              
-              // 确认数组内容是否符合预期
-              const validAwards = parsedAwards.filter(award => 
-                award && typeof award === 'object' && award.title
-              );
-              
-              console.log('有效奖项数量:', validAwards.length);
-              
-              if (validAwards.length > 0) {
-                // 验证图片路径，确保显示正常
-                const validatedAwards = validAwards.map((award: any) => {
-                  // 检查图片路径是否有效
-                  let imagePath = award.image;
-                  if (!imagePath || imagePath.trim() === '') {
-                    imagePath = '/vite.svg';
-                    console.log(`奖项 ${award.title} 没有图片路径，使用默认图片`);
-                  }
-                  
-                  return {
-                    ...award,
-                    id: award.id || crypto.randomUUID(),
-                    image: imagePath,
-                    organization: award.organization || ''
-                  };
-                });
-                
-                console.log('设置奖项状态，数量:', validatedAwards.length);
-                setAwards(validatedAwards);
-                console.log('奖项数据已设置到组件状态');
-                
-                awardsLoaded = true;
-              } else {
-                console.warn('从localStorage加载的奖项数据无效或为空');
-              }
-            } else {
-              console.error('从localStorage加载的awards不是数组:', typeof parsedAwards);
-            }
-          } catch (error) {
-            console.error('解析奖项数据JSON失败:', error);
+          const parsedAwards = JSON.parse(savedAwards);
+          if (Array.isArray(parsedAwards) && parsedAwards.length > 0) {
+            setAwards(parsedAwards);
+            awardsLoaded = true;
+            console.log('从localStorage加载了奖项数据');
           }
-        } else {
-          console.warn('localStorage中不存在awards键');
         }
-      } catch (storageError) {
-        console.error('访问localStorage时出错:', storageError);
+      } catch (error) {
+        console.error('从localStorage加载数据时出错:', error);
+      } finally {
+        setIsLoaded(true);
+        
+        if (!projectsLoaded) {
+          console.log('未能加载项目数据，使用默认项目');
+        }
+        
+        if (!awardsLoaded) {
+          console.log('未能加载奖项数据，使用默认奖项');
+        }
       }
-      
-      // 如果localStorage没有项目数据或数据无效，则加载默认项目数据
-      if (!projectsLoaded) {
-        console.log('使用默认项目数据');
-        // 默认项目数据
-        const defaultProjects: Project[] = [
-          {
-            id: 'project-1',
-            title: 'Personal Website',
-            description: 'A responsive personal portfolio website built with React and Tailwind CSS, featuring dark mode support, responsive design, and smooth animations',
-            technologies: ['React', 'TypeScript', 'Tailwind CSS', 'Vite'],
-            link: 'https://github.com/yourusername/personal-website',
-            image: '/project-images/personal-website.png'
-          },
-          {
-            id: 'project-2',
-            title: 'LVMH Digital Innovation',
-            description: 'Developed innovative digital solutions for luxury retail, focusing on enhancing customer experience through AR/VR technology',
-            technologies: ['React Native', 'AR Kit', 'Node.js', 'AWS'],
-            image: '/project-images/lvmh-project.svg'
-          },
-          {
-            id: 'project-3',
-            title: 'Bloomberg Market Analysis',
-            description: 'Created a comprehensive market analysis tool using Bloomberg API, enabling real-time financial data visualization and analysis',
-            technologies: ['Python', 'Bloomberg API', 'Pandas', 'Plotly'],
-            image: '/project-images/bloomberg-project.svg'
-          },
-          {
-            id: 'project-4',
-            title: 'Investment Banking Analytics',
-            description: 'Developed financial models and analytics tools for investment banking operations, focusing on M&A analysis',
-            technologies: ['Excel', 'VBA', 'Python', 'Financial Modeling'],
-            image: '/project-images/jpmorgan-project.svg'
-          }
-        ];
-        setProjects(defaultProjects);
-        // 保存默认项目到localStorage
-        localStorage.setItem('projects', JSON.stringify(defaultProjects));
-        console.log('已保存默认项目到localStorage');
-      }
-      
-      // 如果localStorage没有奖项数据或数据无效，则加载默认奖项数据
-      if (!awardsLoaded) {
-        console.log('使用默认奖项数据');
-        // 默认奖项数据
-        const defaultAwards: Award[] = [
-          {
-            id: 'award-1',
-            title: 'Dean\'s List',
-            organization: 'Bayes Business School',
-            date: '2023',
-            description: 'Awarded for outstanding academic achievement and maintaining a high GPA throughout the academic year',
-            image: '/project-images/bayes-award.svg'
-          },
-          {
-            id: 'award-2',
-            title: 'LVMH Inside Program Completion',
-            organization: 'LVMH',
-            date: 'Nov 2024',
-            description: 'Successfully completed the exclusive LVMH Inside program, gaining comprehensive insights into luxury retail and digital innovation',
-            image: '/logos/lvmh.svg'
-          },
-          {
-            id: 'award-3',
-            title: 'Bloomberg Market Concepts',
-            organization: 'Bloomberg',
-            date: 'Sep 2021',
-            description: 'Completed advanced financial market analysis certification, covering economics, currencies, fixed income, and equities',
-            image: '/logos/bloomberg.svg'
-          },
-          {
-            id: 'award-4',
-            title: 'Investment Banking Excellence',
-            organization: 'JPMorgan Chase',
-            date: 'Apr 2021',
-            description: 'Recognized for outstanding performance in investment banking simulation program, focusing on M&A analysis and financial modeling',
-            image: '/logos/jpmorgan.svg'
-          }
-        ];
-        setAwards(defaultAwards);
-        // 保存默认奖项到localStorage
-        localStorage.setItem('awards', JSON.stringify(defaultAwards));
-        console.log('已保存默认奖项到localStorage');
-      }
-      
-      // 无论是否成功加载localStorage数据，都确保设置isLoaded状态为true
-      setIsLoaded(true);
-      console.log('数据加载完成，已设置isLoaded = true');
-      
-      // 如果没有成功加载任何数据，确保使用默认数据
-      if (!projectsLoaded && !awardsLoaded) {
-        console.log('从localStorage加载数据失败，使用默认数据');
-      }
-    }, 300); // 增加延迟时间，确保localStorage数据有足够时间同步
+    });
   };
 
   return (

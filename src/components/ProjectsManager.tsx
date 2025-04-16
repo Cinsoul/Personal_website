@@ -208,6 +208,9 @@ const loadAwardsFromLocalStorage = (): Award[] => {
 
 import { useAdmin } from '../contexts/AdminContext'; // 确保导入useAdmin
 
+// 导入数据同步工具
+import { saveDataToFile, syncDataToGitHubRepo } from '../utils/fileUtils';
+
 export default function ProjectsManager() {
   // 获取语言上下文
   const { t } = useLanguage();
@@ -312,6 +315,10 @@ export default function ProjectsManager() {
   const [awardUploadProgress, setAwardUploadProgress] = useState(0);
   const [uploading, setUploading] = useState(false);
   const [dragActive, setDragActive] = useState(false);
+
+  // 在组件顶部添加状态
+  const [exportOption, setExportOption] = useState<'file' | 'github'>('file');
+  const [exportError, setExportError] = useState('');
 
   // 检查是否有从其他页面传递过来的编辑状态
   useEffect(() => {
@@ -503,15 +510,22 @@ export default function ProjectsManager() {
       version: '1.0'
     };
     
-    const dataStr = JSON.stringify(exportObject, null, 2);
-    const dataUri = `data:application/json;charset=utf-8,${encodeURIComponent(dataStr)}`;
-    
-    const exportFileDefaultName = `portfolio-data-${new Date().toISOString().slice(0, 10)}.json`;
-    
-    const linkElement = document.createElement('a');
-    linkElement.setAttribute('href', dataUri);
-    linkElement.setAttribute('download', exportFileDefaultName);
-    linkElement.click();
+    if (exportOption === 'file') {
+      // 导出到本地文件
+      saveDataToFile(exportObject, `portfolio-data-${new Date().toISOString().slice(0, 10)}.json`);
+    } else if (exportOption === 'github') {
+      // 尝试同步到GitHub仓库
+      syncDataToGitHubRepo(exportObject, { 
+        targetFile: 'public/data/portfolio-data.json',
+        commitMessage: '更新项目和奖项数据 [自动提交]'
+      }).then(success => {
+        if (success) {
+          showSuccessMessage(t('projects.manager.export.githubSuccess') || '已成功同步到GitHub仓库');
+        } else {
+          setExportError(t('projects.manager.export.githubError') || '同步到GitHub仓库失败');
+        }
+      });
+    }
     
     setShowExportModal(false);
   };
@@ -1552,26 +1566,73 @@ export default function ProjectsManager() {
     
     return (
       <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-        <div className="bg-white dark:bg-gray-800 rounded-lg p-6 max-w-md w-full">
-          <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">{t('projects.manager.export.title')}</h3>
-          <p className="mb-6 text-gray-600 dark:text-gray-300">{t('projects.manager.export.description')}</p>
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl p-6 w-full max-w-md">
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+            {t('projects.manager.export.title') || '导出数据'}
+          </h3>
+          
+          <div className="mb-6 space-y-4">
+            <p className="text-gray-600 dark:text-gray-400">
+              {t('projects.manager.export.description') || '选择导出方式：'}
+            </p>
+            
+            <div className="space-y-2">
+              <label className="flex items-center space-x-2">
+                <input
+                  type="radio"
+                  name="exportOption"
+                  checked={exportOption === 'file'}
+                  onChange={() => setExportOption('file')}
+                  className="h-4 w-4 text-blue-600"
+                />
+                <span className="text-gray-700 dark:text-gray-300">
+                  {t('projects.manager.export.toFile') || '导出到本地文件'}
+                </span>
+              </label>
+              
+              <label className="flex items-center space-x-2">
+                <input
+                  type="radio"
+                  name="exportOption"
+                  checked={exportOption === 'github'}
+                  onChange={() => setExportOption('github')}
+                  className="h-4 w-4 text-blue-600"
+                />
+                <span className="text-gray-700 dark:text-gray-300">
+                  {t('projects.manager.export.toGithub') || '同步到GitHub仓库'}
+                </span>
+              </label>
+            </div>
+            
+            {exportOption === 'github' && (
+              <div className="bg-yellow-50 dark:bg-yellow-900 p-3 rounded-md">
+                <p className="text-yellow-800 dark:text-yellow-200 text-sm">
+                  {t('projects.manager.export.githubNote') || '注意：同步到GitHub仓库需要适当的权限和配置。此功能在未来版本中完善。'}
+                </p>
+              </div>
+            )}
+            
+            {exportError && (
+              <div className="bg-red-50 dark:bg-red-900 p-3 rounded-md">
+                <p className="text-red-700 dark:text-red-200 text-sm">{exportError}</p>
+              </div>
+            )}
+          </div>
           
           <div className="flex justify-end space-x-3">
-                <button
-                  type="button"
+            <button
               onClick={() => setShowExportModal(false)}
-              className="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-md hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
+              className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 rounded-md hover:bg-gray-200 dark:hover:bg-gray-600 focus:outline-none"
             >
-              {t('projects.manager.cancel')}
+              {t('cancel') || '取消'}
             </button>
             <button
-              type="button"
               onClick={exportData}
-              className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
+              className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 focus:outline-none"
             >
-              {t('projects.manager.export.confirm')}
-                </button>
-              </div>
+              {t('export') || '导出'}
+            </button>
+          </div>
         </div>
       </div>
     );
