@@ -1,14 +1,10 @@
 import { Link } from 'react-router-dom';
 import { useLanguage } from '../contexts/LanguageContext';
 import { useAdmin } from '../contexts/AdminContext';
-import { useState, useEffect } from 'react';
-import { Project } from '../types/Project';
 
 export default function Projects() {
   const { t } = useLanguage();
   const { isAdminMode } = useAdmin();
-  const [projects, setProjects] = useState<Project[]>([]);
-  const [isLoaded, setIsLoaded] = useState(false);
   
   // 移除局部管理员状态
   // const [showAdmin, setShowAdmin] = useState(false);
