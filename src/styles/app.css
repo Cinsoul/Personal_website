@@ -2,127 +2,351 @@
 @import './header.css';
 @import './footer.css';
 
-/* 主要布局样式 */
-body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+/* 全局重置 */
+* {
+  box-sizing: border-box;
   margin: 0;
   padding: 0;
-  line-height: 1.6;
-  color: #333;
-  background-color: #f8f9fa;
 }
 
-.dark-mode {
-  color: #e0e0e0;
-  background-color: #121212;
+body, html {
+  background-color: #000;
+  color: #fff;
+  font-family: 'Roboto', sans-serif;
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  width: 100%;
 }
 
-.app-container {
+#root {
+  min-height: 100vh;
+  background-color: #000;
   display: flex;
   flex-direction: column;
-  min-height: 100vh;
 }
 
-.main-content {
-  flex: 1;
-  padding-top: 60px; /* 顶部导航栏的高度 */
-  width: 100%;
-  max-width: 1200px;
-  margin: 0 auto;
-  padding-left: 20px;
-  padding-right: 20px;
-}
-
-/* 通用工具类 */
+/* 页面内容容器 */
 .container {
-  width: 100%;
   max-width: 1200px;
   margin: 0 auto;
   padding: 0 20px;
+  width: 100%;
+  flex-grow: 1;
+  background-color: #000;
 }
 
+/* 主要内容区域 */
+.main-content {
+  padding: 2rem 0;
+  min-height: calc(100vh - 140px);
+  background-color: #000;
+}
+
+/* 全局链接样式 */
+a {
+  color: #3498db;
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+a:hover {
+  color: #2980b9;
+}
+
+/* 段落样式 */
+p {
+  line-height: 1.6;
+  margin-bottom: 1rem;
+}
+
+/* 标题样式 */
+h1, h2, h3, h4, h5, h6 {
+  font-weight: 600;
+  margin-bottom: 1rem;
+  color: #fff;
+}
+
+h1 {
+  font-size: 2.5rem;
+}
+
+h2 {
+  font-size: 2rem;
+}
+
+h3 {
+  font-size: 1.75rem;
+}
+
+h4 {
+  font-size: 1.5rem;
+}
+
+h5 {
+  font-size: 1.25rem;
+}
+
+h6 {
+  font-size: 1rem;
+}
+
+/* 区域分隔样式 */
 .section {
-  margin: 3rem 0;
+  margin-bottom: 4rem;
+  padding: 2rem;
+  border-radius: 8px;
+  background-color: #000;
 }
 
 .section-title {
-  font-size: 2.25rem;
-  font-weight: 700;
   margin-bottom: 2rem;
-  color: #1e88e5;
+  text-align: center;
+  position: relative;
 }
 
-.section-subtitle {
-  font-size: 1.5rem;
-  font-weight: 600;
+.section-title:after {
+  content: '';
+  position: absolute;
+  bottom: -10px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 50px;
+  height: 3px;
+  background-color: #3498db;
+  border-radius: 1.5px;
+}
+
+/* 按钮样式 */
+.btn {
+  display: inline-block;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 4px;
+  background-color: #3498db;
+  color: #fff;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.btn:hover {
+  background-color: #2980b9;
+}
+
+.btn:focus {
+  outline: none;
+}
+
+.btn-secondary {
+  background-color: #2c3e50;
+}
+
+.btn-secondary:hover {
+  background-color: #1a252f;
+}
+
+/* 表单元素样式 */
+input, textarea, select {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 1rem;
+  border: 1px solid #2c3e50;
+  border-radius: 4px;
+  background-color: rgba(44, 62, 80, 0.1);
+  color: #fff;
+}
+
+input:focus, textarea:focus, select:focus {
+  outline: none;
+  border-color: #3498db;
+}
+
+/* 响应式图片 */
+img {
+  max-width: 100%;
+  height: auto;
+}
+
+/* 自定义滚动条样式 */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #1a1a1a;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #3498db;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #2980b9;
+}
+
+/* 工具类 */
+.text-center {
+  text-align: center;
+}
+
+.mb-1 {
+  margin-bottom: 0.5rem;
+}
+
+.mb-2 {
+  margin-bottom: 1rem;
+}
+
+.mb-3 {
   margin-bottom: 1.5rem;
-  color: #424242;
 }
 
-.dark-mode .section-subtitle {
-  color: #e0e0e0;
+.mb-4 {
+  margin-bottom: 2rem;
 }
 
-/* 响应式布局调整 */
-@media (max-width: 1023px) {
-  .main-content {
-    padding-top: 56px; /* 平板和移动设备上导航栏的高度 */
-    padding-left: 15px;
-    padding-right: 15px;
-  }
-  
-  .section {
-    margin: 2.5rem 0;
-  }
-  
-  .section-title {
-    font-size: 2rem;
-    margin-bottom: 1.75rem;
-  }
-  
-  .section-subtitle {
-    font-size: 1.35rem;
-    margin-bottom: 1.25rem;
-  }
+/* 页面根部样式 */
+.app {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background-color: #000;
 }
 
-@media (max-width: 767px) {
-  .main-content {
-    padding-left: 12px;
-    padding-right: 12px;
-  }
-  
-  .section {
-    margin: 2rem 0;
-  }
-  
-  .section-title {
-    font-size: 1.75rem;
-    margin-bottom: 1.5rem;
-    text-align: center;
-  }
-  
-  .section-subtitle {
-    font-size: 1.25rem;
-    margin-bottom: 1rem;
-    text-align: center;
-  }
-}
-
-/* 动画效果 */
+/* 淡入动画 */
 @keyframes fadeIn {
   from {
     opacity: 0;
-    transform: translateY(20px);
   }
   to {
     opacity: 1;
-    transform: translateY(0);
   }
 }
 
 .fade-in {
-  animation: fadeIn 0.5s ease-out forwards;
+  animation: fadeIn 1s ease-in-out;
+}
+
+/* 响应式布局 */
+@media (max-width: 768px) {
+  .container {
+    padding: 0 15px;
+  }
+  
+  h1 {
+    font-size: 2rem;
+  }
+  
+  h2 {
+    font-size: 1.75rem;
+  }
+  
+  h3 {
+    font-size: 1.5rem;
+  }
+  
+  .section {
+    padding: 1.5rem;
+  }
+}
+
+@media (max-width: 480px) {
+  h1 {
+    font-size: 1.75rem;
+  }
+  
+  h2 {
+    font-size: 1.5rem;
+  }
+  
+  h3 {
+    font-size: 1.25rem;
+  }
+  
+  .section {
+    padding: 1rem;
+  }
+}
+
+/* 确保页面底部无空白 */
+footer {
+  width: 100%;
+  background-color: #000;
+  margin-top: auto;
+}
+
+/* 修复空白问题 */
+#content-wrapper {
+  background-color: #000;
+  width: 100%;
+  min-height: 100vh;
+}
+
+/* 修复所有可能的白色区域 */
+div, p, h1, h2, h3, h4, h5, h6, span, a {
+  background-color: transparent;
+}
+
+/* 确保页面内所有区域都不会出现白色背景 */
+[class*="container"],
+[class*="wrapper"],
+[class*="section"],
+[class*="content"],
+[class*="row"],
+[class*="col"] {
+  background-color: #000;
+}
+
+/* 确保所有元素不超出父容器 */
+img, video, iframe, embed, object {
+  max-width: 100%;
+  height: auto;
+}
+
+/* 移动端响应式设计 */
+@media (max-width: 768px) {
+  .section-container {
+    padding: 1rem;
+  }
+}
+
+/* 自定义滚动条 */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+  background-color: #111;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: #333;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: #444;
+}
+
+/* 确保所有部分和背景都是黑色 */
+.section, 
+.container,
+.page-content,
+div[class^="page-"],
+section[class^="section-"] {
+  background-color: #000000;
+}
+
+/* 共享组件样式 */
+.section-subtitle {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-bottom: 1.5rem;
+  color: #e0e0e0;
+}
+
+.dark-mode .section-subtitle {
+  color: #e0e0e0;
 }
 
 /* 设置延迟序列 */
@@ -130,4 +354,5 @@ body {
 .delay-2 { animation-delay: 0.2s; }
 .delay-3 { animation-delay: 0.3s; }
 .delay-4 { animation-delay: 0.4s; }
+.delay-5 { animation-delay: 0.5s; } 
 .delay-5 { animation-delay: 0.5s; } 

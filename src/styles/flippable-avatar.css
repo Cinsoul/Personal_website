@@ -1,14 +1,30 @@
-/* 翻转容器设置 */
+/* 翻转容器 */
 .flip-container {
+  position: relative;
+  width: 250px;
+  height: 250px;
   perspective: 1000px;
+  margin: 0 auto 2rem;
+  border-radius: 125px;
+  background-color: #000;
+  overflow: hidden;
+  box-shadow: 0 0 20px rgba(0, 0, 255, 0.3);
+  z-index: 1;
+  cursor: pointer;
+}
+
+/* 翻转效果 */
+.flipper {
   width: 100%;
   height: 100%;
-  border-radius: 50%;
-  overflow: hidden;
-  cursor: pointer;
   position: relative;
-  background-color: #000; /* 确保底层也是黑色 */
-  box-shadow: 0 0 15px rgba(0, 0, 0, 0.3);
+  transition: transform 0.8s;
+  transform-style: preserve-3d;
+  background-color: #000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
 }
 
 /* 翻转动画 */
@@ -16,87 +32,114 @@
   transform: rotateY(180deg);
 }
 
-/* 悬停效果 */
-.flip-container:hover .avatar-image {
-  transform: scale(1.05);
-}
-
-/* 翻转器 */
-.flipper {
-  transition: transform 0.8s;
-  transform-style: preserve-3d;
-  position: relative;
-  width: 100%;
-  height: 100%;
-}
-
-/* 正面和反面共同样式 */
-.front,
-.back {
-  width: 100%;
-  height: 100%;
+/* 正面和背面共同样式 */
+.front, .back {
   position: absolute;
-  top: 0;
-  left: 0;
+  width: 100%;
+  height: 100%;
   backface-visibility: hidden;
-  overflow: hidden;
-  border-radius: 50%;
-  background-color: #000; /* 黑色背景 */
+  background-color: #000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-/* 正面样式（默认显示） */
+/* 正面样式 - 抽象头像（保持圆形） */
 .front {
   z-index: 2;
+  border-radius: 125px;
   transform: rotateY(0deg);
 }
 
-/* 反面样式（初始隐藏） */
+/* 背面样式 - 个人照片（可为其他形状） */
 .back {
   transform: rotateY(180deg);
+  border-radius: 10px;
 }
 
-/* 图片容器 */
+/* 头像图片容器 */
 .avatar-image-container {
   width: 100%;
   height: 100%;
-  position: relative;
-  display: flex;
-  justify-content: center;
-  align-items: center;
   overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-/* 图片样式 */
+/* 正面头像图片样式（抽象头像） */
+.front .avatar-image-container {
+  border-radius: 125px;
+}
+
+/* 头像图片样式 */
 .avatar-image {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  transition: transform 0.3s ease;
-}
-
-/* 背面图片特殊样式 */
-.back .avatar-image {
-  object-fit: cover; /* 确保覆盖整个区域 */
+  object-position: center;
   background-color: #000;
+  border-radius: 125px;
 }
 
-/* 加载占位符 */
+/* 背面图片样式（个人照片 - 显示全身） */
+.back .avatar-image {
+  object-fit: contain;
+  border-radius: 0;
+}
+
+/* 响应式样式 */
+@media (max-width: 768px) {
+  .flip-container {
+    width: 200px;
+    height: 200px;
+    border-radius: 100px;
+  }
+  
+  .front {
+    border-radius: 100px;
+  }
+  
+  .front .avatar-image {
+    border-radius: 100px;
+  }
+}
+
+@media (max-width: 480px) {
+  .flip-container {
+    width: 150px;
+    height: 150px;
+    border-radius: 75px;
+  }
+  
+  .front {
+    border-radius: 75px;
+  }
+  
+  .front .avatar-image {
+    border-radius: 75px;
+  }
+  
+  .avatar-glow {
+    width: 160px;
+    height: 160px;
+  }
+}
+
+/* 加载中的占位图样式 */
 .loading-placeholder {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
+  width: 100%;
+  height: 100%;
   display: flex;
-  justify-content: center;
   align-items: center;
-  background-color: rgba(0, 0, 0, 0.7);
-  z-index: 3;
-  border-radius: 50%;
+  justify-content: center;
+  background-color: #000;
+  color: #fff;
+  font-size: 14px;
 }
 
-/* 加载动画 */
-.spinner {
+/* 加载中的旋转器样式 */
+.loading-spinner {
   width: 40px;
   height: 40px;
   border: 4px solid rgba(255, 255, 255, 0.3);
@@ -105,21 +148,36 @@
   animation: spin 1s ease-in-out infinite;
 }
 
+/* 旋转动画 */
 @keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
+  to { transform: rotate(360deg); }
 }
 
-/* 图像占位符 */
-.avatar-placeholder {
-  width: 100%;
-  height: 100%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  font-size: 5rem;
-  font-weight: bold;
-  color: white;
-  background-color: #3498db; /* 蓝色背景 */
-} 
+/* 头像外围光效 */
+.avatar-glow {
+  position: absolute;
+  width: 270px;
+  height: 270px;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle at center,
+    rgba(0, 0, 255, 0.2) 0%,
+    rgba(0, 0, 255, 0.1) 50%,
+    rgba(0, 0, 255, 0) 70%
+  );
+  z-index: 0;
+  pointer-events: none;
+}
+
+/* 页面背景修复 */
+body {
+  background-color: #000;
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+}
+
+#root {
+  background-color: #000;
+  min-height: 100vh;
+}
