@@ -1,80 +1,291 @@
 /**
- * 内容强制更新工具
- * 用于解决内容不同步和缓存问题
+ * 内容更新工具函数
+ * 用于强制刷新页面内容、清理缓存等操作
  */
 
 /**
- * 清除所有本地缓存
+ * 浏览器环境检查
+ * @returns 是否在浏览器环境中运行
  */
-export const clearAllCaches = (): void => {
-  if (typeof window === 'undefined') return;
+const isBrowser = () => {
+  return typeof window !== 'undefined' && typeof navigator !== 'undefined';
+};
+
+/**
+ * 检查环境是否支持浏览器API
+ * @returns 是否在浏览器环境中运行
+ */
+export const isBrowserEnvironment = (): boolean => {
+  return typeof window !== 'undefined' 
+    && typeof navigator !== 'undefined'
+    && typeof document !== 'undefined';
+};
+
+/**
+ * 检查浏览器是否支持Service Worker
+ * @returns 是否支持Service Worker
+ */
+export const isServiceWorkerSupported = (): boolean => {
+  if (!isBrowserEnvironment()) return false;
+  return 'serviceWorker' in navigator;
+};
+
+/**
+ * 检查浏览器是否支持Cache API
+ * @returns 是否支持Cache API
+ */
+export const isCacheApiSupported = (): boolean => {
+  if (!isBrowserEnvironment()) return false;
+  return 'caches' in window;
+};
+
+/**
+ * 清除本地存储
+ */
+export const clearLocalStorage = (): void => {
+  if (!isBrowserEnvironment()) return;
   
   try {
-    // 清除localStorage
     localStorage.clear();
-    
-    // 清除sessionStorage
+    console.log('本地存储已清除');
+  } catch (error) {
+    console.error('清除本地存储失败:', error);
+  }
+};
+
+/**
+ * 清除会话存储
+ */
+export const clearSessionStorage = (): void => {
+  if (!isBrowserEnvironment()) return;
+  
+  try {
     sessionStorage.clear();
+    console.log('会话存储已清除');
+  } catch (error) {
+    console.error('清除会话存储失败:', error);
+  }
+};
+
+/**
+ * 清除所有Cookie
+ */
+export const clearCookies = (): void => {
+  if (!isBrowserEnvironment()) return;
+  
+  try {
+    const cookies = document.cookie.split(';');
     
-    // 删除所有cookie
-    document.cookie.split(';').forEach(cookie => {
-      document.cookie = cookie
-        .replace(/^ +/, '')
-        .replace(/=.*/, `=;expires=${new Date(0).toUTCString()};path=/`);
-    });
+    for (let i = 0; i < cookies.length; i++) {
+      const cookie = cookies[i];
+      const eqPos = cookie.indexOf('=');
+      const name = eqPos > -1 ? cookie.substring(0, eqPos).trim() : cookie.trim();
+      document.cookie = `${name}=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/`;
+    }
+    console.log('Cookies已清除');
+  } catch (error) {
+    console.error('清除Cookies失败:', error);
+  }
+};
+
+/**
+ * 直接使用Cache API清除缓存
+ * 注意：这只能清除同源的缓存
+ */
+export const clearCacheAPI = async (): Promise<boolean> => {
+  if (!isCacheApiSupported()) {
+    console.warn('此浏览器不支持Cache API，无法直接清除缓存');
+    return false;
+  }
+
+  try {
+    const cacheNames = await caches.keys();
+    await Promise.all(
+      cacheNames.map(cacheName => caches.delete(cacheName))
+    );
+    console.log('Cache API缓存已清除');
+    return true;
+  } catch (error) {
+    console.error('清除Cache API缓存失败:', error);
+    return false;
+  }
+};
+
+/**
+ * 清除Service Worker缓存
+ * 通过与Service Worker通信实现
+ */
+export const clearCache = async (): Promise<boolean> => {
+  console.log('开始清除缓存...');
+  
+  // 清除浏览器存储
+  clearLocalStorage();
+  clearSessionStorage();
+  clearCookies();
+  
+  // 尝试使用Cache API直接清除缓存
+  try {
+    await clearCacheAPI();
+  } catch (error) {
+    console.error('使用Cache API清除缓存失败:', error);
+  }
+  
+  // 检查Service Worker是否可用
+  if (!isServiceWorkerSupported()) {
+    console.warn('此浏览器不支持Service Worker，无法通过SW清除缓存');
+    return false;
+  }
+  
+  try {
+    // 获取Service Worker注册信息
+    const registration = await navigator.serviceWorker.getRegistration();
     
-    // 如果浏览器支持缓存API，清除缓存
-    if (window.caches) {
-      caches.keys().then(names => {
-        names.forEach(name => {
-          caches.delete(name);
-        });
-      });
+    if (!registration) {
+      console.warn('未找到已注册的Service Worker');
+      return false;
     }
     
-    console.log('所有本地缓存已清除');
+    // 检查Service Worker控制器是否激活
+    if (!navigator.serviceWorker.controller) {
+      console.warn('Service Worker未控制当前页面，尝试刷新后再试');
+      return false;
+    }
+    
+    // 创建一个消息通道用于接收Service Worker的响应
+    const messageChannel = new MessageChannel();
+    
+    // 创建一个Promise，等待SW响应或超时
+    return new Promise((resolve) => {
+      // 设置10秒超时
+      const timeout = setTimeout(() => {
+        console.warn('Service Worker响应超时，假设缓存已清除');
+        resolve(true);
+      }, 10000);
+      
+      // 设置消息通道的响应处理函数
+      messageChannel.port1.onmessage = (event) => {
+        clearTimeout(timeout);
+        
+        if (event.data && event.data.action === 'cacheCleared') {
+          console.log('Service Worker确认缓存已清除:', event.data.status);
+          resolve(event.data.status);
+        } else {
+          console.warn('Service Worker返回了未知响应:', event.data);
+          resolve(false);
+        }
+      };
+      
+      // 发送清除缓存消息到Service Worker
+      try {
+        // 检查controller是否存在（TypeScript安全检查）
+        const controller = navigator.serviceWorker.controller;
+        if (!controller) {
+          console.warn('Service Worker控制器不存在，无法发送消息');
+          clearTimeout(timeout);
+          resolve(false);
+          return;
+        }
+        
+        controller.postMessage(
+          { action: 'clearCache' },
+          [messageChannel.port2]
+        );
+        console.log('已向Service Worker发送清除缓存请求');
+      } catch (error) {
+        console.error('无法向Service Worker发送消息:', error);
+        clearTimeout(timeout);
+        resolve(false);
+      }
+    });
   } catch (error) {
-    console.error('清除缓存失败:', error);
+    console.error('与Service Worker通信过程中出错:', error);
+    return false;
+  }
+};
+
+/**
+ * 获取带有时间戳的URL，用于绕过缓存
+ * @param url 原始URL
+ * @returns 带有时间戳参数的URL
+ */
+export const getNoCacheUrl = (url: string): string => {
+  const separator = url.includes('?') ? '&' : '?';
+  return `${url}${separator}_t=${new Date().getTime()}`;
+};
+
+/**
+ * 强制重新加载页面并获取最新内容
+ * 先清除缓存，然后重新加载页面
+ */
+export const forceContentUpdate = async (): Promise<void> => {
+  try {
+    console.log('开始强制更新内容...');
+    
+    // 尝试清除缓存
+    const cacheCleared = await clearCache();
+    
+    console.log(`缓存清除${cacheCleared ? '成功' : '可能不完全'}`);
+    
+    // 尝试使用标准方法重新加载页面
+    try {
+      window.location.reload();
+      console.log('页面将重新加载');
+    } catch (reloadError) {
+      console.error('标准刷新方法失败，尝试备用方法:', reloadError);
+      
+      // 备用方法：使用带时间戳的URL重定向
+      try {
+        window.location.href = getNoCacheUrl(window.location.href);
+        console.log('正在使用备用方法重新加载页面');
+      } catch (redirectError) {
+        console.error('所有刷新方法均失败:', redirectError);
+        
+        // 通知用户手动刷新
+        if (typeof alert === 'function') {
+          alert('无法自动刷新页面，请手动刷新获取最新内容');
+        }
+      }
+    }
+  } catch (error) {
+    console.error('强制更新内容过程中发生错误:', error);
+    
+    // 尝试进行简单刷新作为最后尝试
+    try {
+      window.location.reload();
+    } catch {
+      console.error('所有刷新方法均失败');
+    }
   }
 };
 
 /**
  * 强制刷新页面内容
- * @param hardReload 是否硬刷新页面
+ * @param options 刷新选项对象，可包含hardReload属性，表示是否硬刷新页面
  */
-export const forceContentRefresh = (hardReload = false): void => {
-  if (typeof window === 'undefined') return;
-
+export const forceContentRefresh = (options: { hardReload?: boolean } = {}): void => {
+  if (!isBrowser()) return;
+  
   try {
-    // 添加时间戳参数到所有图片URL，强制重新加载
-    const images = document.querySelectorAll('img');
-    const timestamp = Date.now();
+    // 更新 localStorage 中的时间戳
+    const timestamp = new Date().getTime();
+    localStorage.setItem('lastContentUpdate', timestamp.toString());
     
-    images.forEach(img => {
-      const currentSrc = img.src;
-      if (currentSrc) {
-        if (currentSrc.includes('?')) {
-          img.src = `${currentSrc.split('?')[0]}?t=${timestamp}`;
-        } else {
-          img.src = `${currentSrc}?t=${timestamp}`;
-        }
-      }
-    });
-
-    // 更新localStorage中的版本标记
-    localStorage.setItem('content_version', timestamp.toString());
-
-    if (hardReload) {
-      // 强制重新加载页面（绕过缓存）
-      // 使用新 API，避免使用已弃用的带参数的 reload()
-      if (typeof window.location.reload === 'function') {
-        window.location.reload();
-      }
+    // 根据选项决定刷新方式
+    if (options.hardReload) {
+      // 硬刷新 - 完全从服务器重新获取
+      window.location.reload();
+    } else {
+      // 软刷新 - the behavior is browser-dependent
+      window.location.reload();
     }
-    
-    console.log('内容已强制刷新');
-  } catch (error) {
-    console.error('刷新内容失败:', error);
+  } catch (err) {
+    console.error('强制刷新内容失败:', err);
+    // 尝试最基本的刷新
+    try {
+      window.location.href = window.location.href;
+    } catch {
+      console.warn('基本刷新方式也失败，无法刷新页面');
+    }
   }
 };
 
@@ -82,120 +293,114 @@ export const forceContentRefresh = (hardReload = false): void => {
  * 获取当前内容版本
  * @returns 当前内容版本号或null
  */
-export const getCurrentContentVersion = (): number | null => {
-  if (typeof window === 'undefined') return null;
+export const getCurrentContentVersion = (): string | null => {
+  if (!isBrowser()) return null;
   
   try {
-    const version = localStorage.getItem('content_version');
-    return version ? parseInt(version, 10) : null;
-  } catch (error) {
-    console.error('获取内容版本失败:', error);
+    return localStorage.getItem('contentVersion');
+  } catch (err) {
+    console.warn('获取当前内容版本失败:', err);
     return null;
   }
 };
 
 /**
  * 检查并更新内容（如果需要）
- * @param forceUpdate 是否强制更新
+ * @param minUpdateInterval 最小更新间隔（毫秒），默认为1小时
  */
-export const checkAndUpdateContent = (forceUpdate = false): void => {
-  if (typeof window === 'undefined') return;
+export const checkAndUpdateContent = (
+  minUpdateInterval: number = 3600000 // 默认1小时
+): boolean => {
+  if (!isBrowser()) return false;
   
   try {
-    // 获取上次更新时间
-    const lastUpdate = parseInt(localStorage.getItem('last_content_update') || '0', 10);
-    const now = Date.now();
-    const oneHour = 60 * 60 * 1000;
+    const lastUpdate = localStorage.getItem('lastContentUpdate');
+    const now = new Date().getTime();
     
-    // 如果强制更新或者上次更新超过1小时，则更新内容
-    if (forceUpdate || now - lastUpdate > oneHour) {
-      forceContentRefresh(false);
-      localStorage.setItem('last_content_update', now.toString());
+    // 如果没有上次更新记录，或者解析出的时间戳不是数字，则记录当前时间并返回false
+    if (!lastUpdate) {
+      localStorage.setItem('lastContentUpdate', now.toString());
+      return false;
     }
-  } catch (error) {
-    console.error('检查内容更新失败:', error);
-  }
-};
-
-// 内容更新工具函数
-
-/**
- * 清除Service Worker缓存并触发内容刷新
- * @returns Promise<boolean> 是否成功清除缓存
- */
-export const clearCache = (): Promise<boolean> => {
-  if (!('serviceWorker' in navigator)) {
-    console.warn('当前浏览器不支持Service Worker');
-    return Promise.resolve(false);
-  }
-
-  return new Promise((resolve, reject) => {
-    const controller = navigator.serviceWorker.controller;
-    if (!controller) {
-      console.warn('没有活动的Service Worker');
-      return reject(new Error('没有活动的Service Worker'));
-    }
-
-    // 创建一个消息通道
-    const messageChannel = new MessageChannel();
     
-    // 设置消息响应处理
-    messageChannel.port1.onmessage = (event) => {
-      if (event.data.error) {
-        reject(new Error(event.data.error));
-      } else if (event.data.action === 'cacheCleared') {
-        resolve(true);
-      } else {
-        resolve(false);
-      }
-    };
-
-    // 向Service Worker发送清除缓存请求
-    controller.postMessage(
-      { action: 'clearCache' },
-      [messageChannel.port2]
-    );
-  });
+    const lastUpdateTime = parseInt(lastUpdate, 10);
+    
+    // 处理解析错误
+    if (isNaN(lastUpdateTime)) {
+      localStorage.setItem('lastContentUpdate', now.toString());
+      return false;
+    }
+    
+    // 检查是否超过最小更新间隔
+    if (now - lastUpdateTime > minUpdateInterval) {
+      // 更新时间戳并返回true表示需要更新
+      localStorage.setItem('lastContentUpdate', now.toString());
+      return true;
+    }
+    
+    return false;
+  } catch (err) {
+    console.warn('检查内容更新时间失败:', err);
+    return false;
+  }
 };
 
 /**
  * 刷新应用内容，包括重新加载数据和更新视图
  * @param forceReload 是否强制重新加载页面
  */
-export const refreshContent = (forceReload = false): void => {
-  // 发布一个全局事件通知各组件更新内容
-  window.dispatchEvent(new CustomEvent('forceContentUpdate', { 
-    detail: { timestamp: Date.now() } 
-  }));
+export const refreshContent = async (options: { 
+  forceReload?: boolean;
+  clearCaches?: boolean;
+} = {}): Promise<void> => {
+  if (!isBrowser()) return;
   
-  // 如果指定强制重新加载页面
-  if (forceReload) {
-    // 添加时间戳参数以跳过缓存
-    const timestamp = Date.now();
-    const currentUrl = window.location.href;
-    const separator = currentUrl.includes('?') ? '&' : '?';
-    
-    // 重定向到带时间戳的URL以跳过缓存
-    window.location.href = `${currentUrl}${separator}timestamp=${timestamp}`;
-  }
-};
-
-/**
- * 完整的内容更新流程：清除缓存并刷新内容
- * @param forceReload 是否强制重新加载页面
- */
-export const forceContentUpdate = async (forceReload = false): Promise<void> => {
   try {
-    // 尝试清除缓存
-    const cleared = await clearCache().catch(() => false);
-    console.log('缓存清除状态:', cleared ? '成功' : '失败');
+    if (options.clearCaches) {
+      // 尝试清除缓存
+      await clearCache();
+    }
     
-    // 刷新内容
-    refreshContent(forceReload);
-  } catch (error) {
-    console.error('内容更新失败:', error);
-    // 即使缓存清除失败，也尝试刷新内容
-    refreshContent(forceReload);
+    // 添加时间戳参数以避免缓存
+    const timestamp = new Date().getTime();
+    
+    // 更新localStorage中的时间戳
+    try {
+      localStorage.setItem('lastContentUpdate', timestamp.toString());
+    } catch (err) {
+      console.warn('更新内容时间戳失败:', err);
+    }
+    
+    // 根据选项决定是否强制重新加载
+    if (options.forceReload) {
+      try {
+        window.location.reload();
+      } catch (err) {
+        console.warn('强制刷新失败，尝试备用方法:', err);
+        
+        // 备用方法：添加时间戳并重定向
+        try {
+          const currentUrl = new URL(window.location.href);
+          currentUrl.searchParams.set('timestamp', timestamp.toString());
+          window.location.href = currentUrl.toString();
+        } catch (urlError) {
+          console.warn('URL操作失败，尝试直接刷新:', urlError);
+          window.location.reload();
+        }
+      }
+    } else {
+      // 软刷新
+      window.location.reload();
+    }
+  } catch (err) {
+    console.error('刷新内容失败:', err);
+    
+    // 最后尝试最基本的刷新
+    try {
+      window.location.href = window.location.href;
+    } catch {
+      console.error('所有刷新方法都失败，无法刷新页面');
+    }
   }
 };
 
@@ -204,17 +409,22 @@ export const forceContentUpdate = async (forceReload = false): Promise<void> => 
  * @param callback 当内容更新时的回调函数
  */
 export const addContentUpdateListener = (
-  callback: (timestamp: number) => void
+  callback: () => void, 
+  checkInterval: number = 300000 // 默认5分钟
 ): () => void => {
-  const handler = (event: Event) => {
-    const customEvent = event as CustomEvent;
-    callback(customEvent.detail?.timestamp || Date.now());
-  };
+  if (!isBrowser()) return () => {};
   
-  window.addEventListener('forceContentUpdate', handler);
+  // 设置定期检查
+  const intervalId = setInterval(() => {
+    // 检查是否需要更新内容
+    if (checkAndUpdateContent(checkInterval)) {
+      // 执行回调
+      callback();
+    }
+  }, checkInterval);
   
-  // 返回一个移除监听器的函数
+  // 返回一个取消监听的函数
   return () => {
-    window.removeEventListener('forceContentUpdate', handler);
+    clearInterval(intervalId);
   };
 }; 

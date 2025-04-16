@@ -20,7 +20,7 @@ const ContentSyncWrapper = ({ children }: { children: React.ReactNode }) => {
   
   // 当路由变化时，检查并更新内容
   useEffect(() => {
-    checkAndUpdateContent(false);
+    checkAndUpdateContent(3600000); // 使用默认的1小时间隔
   }, [location.pathname]);
   
   return <>{children}</>;
@@ -37,12 +37,12 @@ const TestPage = () => (
 // 头部导航组件
 const Header = () => {
   const { language, setLanguage, t } = useLanguage();
-  const { isAdminMode } = useAdmin();
+  const { /* isAdminMode */ } = useAdmin(); // 注释掉未使用的变量
   const [menuOpen, setMenuOpen] = useState(false);
   
   // 强制刷新内容
   const handleRefreshContent = () => {
-    forceContentRefresh(false);
+    forceContentRefresh({ hardReload: false }); // 使用正确的对象参数
     alert('内容已刷新，请等待图片重新加载');
   };
   
@@ -141,7 +141,7 @@ function App() {
     
     // 在组件挂载时检查并更新内容
     const timer = setTimeout(() => {
-      checkAndUpdateContent(true);
+      checkAndUpdateContent(3600000); // 使用默认的1小时间隔
     }, 500);
     
     return () => {

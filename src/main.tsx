@@ -10,7 +10,7 @@ import { AdminProvider } from './contexts/AdminContext'
 // 注册 Service Worker
 if ('serviceWorker' in navigator) {
   // 添加时间戳确保获取最新的Service Worker
-  const swUrl = `/service-worker.js?t=${Date.now()}`;
+  const swUrl = `/sw.js?t=${Date.now()}`;
   
   window.addEventListener('load', () => {
     navigator.serviceWorker.register(swUrl)
