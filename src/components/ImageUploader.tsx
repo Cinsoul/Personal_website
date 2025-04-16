@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { compressImage } from '../utils/fileUtils';
+import { compressImage } from '../utils/simpleImageUtils';
 import { IoCloudUploadOutline, IoImageOutline } from 'react-icons/io5';
 import '../styles/imageUploader.css';
 
@@ -40,6 +40,7 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
     setError('');
 
     try {
+      // 使用Promise版本的compressImage
       const compressedImage = await compressImage(file, maxDimension, quality);
       setImagePreview(compressedImage);
       onImageChange(compressedImage, file);
