@@ -211,6 +211,19 @@ import { useAdmin } from '../contexts/AdminContext'; // 确保导入useAdmin
 // 导入数据同步工具
 import { saveDataToFile, syncDataToGitHubRepo } from '../utils/fileUtils';
 
+// 添加防抖工具函数
+const debounce = (func: Function, wait: number) => {
+  let timeout: number;
+  return function executedFunction(...args: any[]) {
+    const later = () => {
+      clearTimeout(timeout);
+      func(...args);
+    };
+    clearTimeout(timeout);
+    timeout = setTimeout(later, wait);
+  };
+};
+
 export default function ProjectsManager() {
   // 获取语言上下文
   const { t } = useLanguage();
@@ -319,6 +332,11 @@ export default function ProjectsManager() {
   // 在组件顶部添加状态
   const [exportOption, setExportOption] = useState<'file' | 'github'>('file');
   const [exportError, setExportError] = useState('');
+
+  // 添加同步状态
+  const [isSyncing, setIsSyncing] = useState(false);
+  const [lastSyncTime, setLastSyncTime] = useState<Date | null>(null);
+  const [syncMessage, setSyncMessage] = useState('');
 
   // 检查是否有从其他页面传递过来的编辑状态
   useEffect(() => {
@@ -487,6 +505,9 @@ export default function ProjectsManager() {
         return arrayMove(projects, oldIndex, newIndex);
       });
     }
+    
+    // 现有代码末尾添加自动同步调用
+    debouncedAutoSync();
   };
   
   // 处理奖项拖拽结束
@@ -501,6 +522,9 @@ export default function ProjectsManager() {
         return arrayMove(awards, oldIndex, newIndex);
       });
     }
+    
+    // 现有代码末尾添加自动同步调用
+    debouncedAutoSync();
   };
   
   // 导出数据为JSON文件
@@ -1068,6 +1092,9 @@ export default function ProjectsManager() {
       // 用户选择不继续编辑，完全重置表单
       resetProjectForm();
     }
+    
+    // 触发自动同步
+    debouncedAutoSync();
   };
 
   // 保存奖项
@@ -1185,6 +1212,9 @@ export default function ProjectsManager() {
       // 用户选择不继续编辑，完全重置表单
       resetAwardForm();
     }
+    
+    // 触发自动同步
+    debouncedAutoSync();
   };
 
   // 编辑项目
@@ -1329,6 +1359,9 @@ export default function ProjectsManager() {
       localStorage.setItem('projects', JSON.stringify(updatedProjects));
       console.log('已删除项目并更新localStorage');
     }
+    
+    // 现有代码末尾添加自动同步调用
+    debouncedAutoSync();
   };
 
   // 删除奖项
@@ -1359,6 +1392,9 @@ export default function ProjectsManager() {
       localStorage.setItem('awards', JSON.stringify(updatedAwards));
       console.log('已删除奖项并更新localStorage');
     }
+    
+    // 现有代码末尾添加自动同步调用
+    debouncedAutoSync();
   };
 
   // 重置项目表单
@@ -2215,31 +2251,92 @@ export default function ProjectsManager() {
     }
   };
 
-  // 更新网页主体布局以包含新功能
+  // 添加自动同步到GitHub功能
+  const autoSyncToGitHub = async () => {
+    try {
+      // 如果已经在同步中，则跳过
+      if (isSyncing) {
+        console.log('已有同步任务在进行中，跳过此次同步');
+        return;
+      }
+      
+      setIsSyncing(true);
+      setSyncMessage('正在同步数据到GitHub...');
+      
+      const exportObject = {
+        projects: projects,
+        awards: awards,
+        exportDate: new Date().toISOString(),
+        version: '1.0'
+      };
+      
+      const success = await syncDataToGitHubRepo(exportObject, { 
+        targetFile: 'public/data/portfolio-data.json',
+        commitMessage: '自动同步项目和奖项数据 [自动提交]'
+      });
+      
+      if (success) {
+        const now = new Date();
+        setLastSyncTime(now);
+        setSyncMessage(`上次同步: ${now.toLocaleTimeString()}`);
+        console.log('数据已自动同步到GitHub', now.toLocaleTimeString());
+      } else {
+        setSyncMessage('同步失败，请检查GitHub配置');
+        console.error('自动同步到GitHub失败');
+      }
+    } catch (error) {
+      console.error('自动同步出错:', error);
+      setSyncMessage('同步出错，请手动同步');
+    } finally {
+      setIsSyncing(false);
+    }
+  };
+  
+  // 创建防抖版本的同步函数 (5秒防抖)
+  const debouncedAutoSync = debounce(autoSyncToGitHub, 5000);
+
+  // 渲染组件
   return (
     <div className="min-h-screen bg-white dark:bg-black py-24">
       {/* 成功消息提示 */}
       {successMessage && (
         <div className="fixed top-4 left-1/2 transform -translate-x-1/2 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg z-50 transition-opacity duration-300 ease-in-out">
           {successMessage}
-                          </div>
-                        )}
+        </div>
+      )}
       
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="mb-8 flex justify-between items-center">
-                        <div>
+          <div>
             <h1 className="text-3xl font-semibold text-gray-900 dark:text-white mb-2">{t('projects.manager.title')}</h1>
             <p className="text-gray-600 dark:text-gray-300">{t('projects.manager.subtitle')}</p>
-                        </div>
-          <div className="flex space-x-3">
-                        <button
+          </div>
+          <div className="flex space-x-3 items-center">
+            {/* 添加同步状态指示器 */}
+            {isSyncing && (
+              <span className="text-sm text-blue-600 dark:text-blue-400 flex items-center mr-3">
+                <svg className="animate-spin -ml-1 mr-2 h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                正在同步...
+              </span>
+            )}
+            
+            {!isSyncing && syncMessage && (
+              <span className="text-sm text-gray-600 dark:text-gray-400 mr-3">
+                {syncMessage}
+              </span>
+            )}
+            
+            <button
               type="button"
               onClick={() => handleNavigation('/projects')}
               className="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-md hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
-                        >
+            >
               {t('projects.manager.backToProjects')}
-                        </button>
-                        <button
+            </button>
+            <button
               type="button"
               onClick={() => setShowImportModal(true)}
               className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors"
@@ -2252,9 +2349,9 @@ export default function ProjectsManager() {
               className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
             >
               {t('projects.manager.export.button')}
-                        </button>
-                      </div>
-                    </div>
+            </button>
+          </div>
+        </div>
         
         {/* 主要内容容器 */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
@@ -2264,7 +2361,7 @@ export default function ProjectsManager() {
               
               {/* 项目表单 - 使用新的渲染函数 */}
               {renderProjectForm()}
-                  </div>
+          </div>
             
             {/* 项目列表 */}
             <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-md">
@@ -2278,8 +2375,8 @@ export default function ProjectsManager() {
               
               {/* 奖项表单 - 使用新的渲染函数 */}
               {renderAwardForm()}
-      </div>
-            
+        </div>
+              
             {/* 奖项列表 */}
             <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-md">
               {renderAwardsList()}
@@ -2287,10 +2384,6 @@ export default function ProjectsManager() {
           </div>
         </div>
       </div>
-      
-      {/* 导入/导出模态框 */}
-      {renderExportModal()}
-      {renderImportModal()}
     </div>
   );
 }
