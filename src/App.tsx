@@ -1,8 +1,14 @@
+import { HashRouter as Router, Routes, Route, Link } from 'react-router-dom';
 import { LanguageProvider, useLanguage } from './contexts/LanguageContext';
 import { AdminProvider } from './contexts/AdminContext';
+import Home from './components/Home';
+import Education from './components/Education';
+import WorkExperience from './components/WorkExperience';
+import ProjectsAndAwards from './components/ProjectsAndAwards';
+import Contact from './components/Contact';
 
-// 简单的Home组件作为临时测试用途
-function SimpleHome() {
+// 简单的测试组件用于验证路由
+function TestPage() {
   const { t, language, setLanguage } = useLanguage();
   return (
     <div style={{ 
@@ -39,11 +45,57 @@ function SimpleHome() {
   );
 }
 
+// 主要应用容器
+function AppContent() {
+  const { language, setLanguage, t } = useLanguage();
+
+  return (
+    <Router>
+      <div className="min-h-screen bg-white dark:bg-black">
+        {/* 简化的导航栏 */}
+        <nav className="fixed top-0 left-0 right-0 z-50 bg-white dark:bg-black shadow-md">
+          <div className="max-w-7xl mx-auto px-4 py-4">
+            <div className="flex justify-between items-center">
+              <Link to="/" className="text-2xl font-bold">Xindi Wang</Link>
+              
+              <div className="flex items-center space-x-6">
+                <Link to="/" className="text-gray-700 dark:text-gray-300 hover:text-blue-600">{t('nav.home')}</Link>
+                <Link to="/education" className="text-gray-700 dark:text-gray-300 hover:text-blue-600">{t('nav.education')}</Link>
+                <Link to="/work" className="text-gray-700 dark:text-gray-300 hover:text-blue-600">{t('nav.work')}</Link>
+                <Link to="/projects" className="text-gray-700 dark:text-gray-300 hover:text-blue-600">{t('nav.projects')}</Link>
+                <Link to="/contact" className="text-gray-700 dark:text-gray-300 hover:text-blue-600">{t('nav.contact')}</Link>
+                <button
+                  onClick={() => setLanguage(language === 'en' ? 'zh' : 'en')}
+                  className="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600"
+                >
+                  {language === 'zh' ? 'EN' : '中文'}
+                </button>
+              </div>
+            </div>
+          </div>
+        </nav>
+
+        {/* 主内容区域 */}
+        <main className="pt-20 pb-10 px-4">
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/education" element={<Education />} />
+            <Route path="/work" element={<WorkExperience />} />
+            <Route path="/projects" element={<ProjectsAndAwards />} />
+            <Route path="/contact" element={<Contact />} />
+            <Route path="/test" element={<TestPage />} />
+          </Routes>
+        </main>
+      </div>
+    </Router>
+  );
+}
+
 function App() {
   return (
     <LanguageProvider>
       <AdminProvider>
-        <SimpleHome />
+        <AppContent />
       </AdminProvider>
     </LanguageProvider>
   );
