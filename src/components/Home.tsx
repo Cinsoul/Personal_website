@@ -3,9 +3,9 @@ import { Link } from 'react-router-dom';
 import { useLanguage } from '../contexts/LanguageContext';
 import FlippableAvatar from './FlippableAvatar';
 
-// 使用项目中的图片
-const abstractAvatarPath = './abstract-avatar.png'; 
-const personalPhotoPath = './personal-photo.png';
+// 使用项目中的图片，添加正确的基础路径
+const abstractAvatarPath = '/Personal_website/abstract-avatar.png'; 
+const personalPhotoPath = '/Personal_website/personal-photo.png';
 
 export default function Home() {
   const [isLoaded, setIsLoaded] = useState(false);
