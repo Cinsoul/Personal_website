@@ -3,14 +3,11 @@ import { Link } from 'react-router-dom';
 import { useLanguage } from '../contexts/LanguageContext';
 import FlippableAvatar from './FlippableAvatar';
 
-// 简化图片路径计算
+// 直接使用完整URL路径
 const getImagePaths = () => {
-  // 固定使用项目路径 - 简单直接
-  const basePath = '/Personal_website';
-  
   return {
-    abstractAvatarPath: `${basePath}/images/abstract-avatar.png`, 
-    personalPhotoPath: `${basePath}/images/personal-photo.png`
+    abstractAvatarPath: 'https://cinsoul.github.io/Personal_website/images/abstract-avatar.png', 
+    personalPhotoPath: 'https://cinsoul.github.io/Personal_website/images/personal-photo.png'
   };
 };
 

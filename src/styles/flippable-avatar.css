@@ -18,7 +18,7 @@
 
 /* 悬停效果 */
 .flip-container:hover .avatar-image {
-  transform: scale(1.1);
+  transform: scale(1.05);
 }
 
 /* 翻转器 */
@@ -42,9 +42,6 @@
   overflow: hidden;
   border-radius: 50%;
   background-color: #000; /* 黑色背景 */
-  display: flex;
-  justify-content: center;
-  align-items: center;
 }
 
 /* 正面样式（默认显示） */
@@ -58,32 +55,22 @@
   transform: rotateY(180deg);
 }
 
-/* 修复：使用绝对定位和缩放来确保图片填满容器且无黑色边缘 */
+/* 图片容器 */
 .avatar-image-container {
-  position: absolute;
-  top: -10%; /* 扩大覆盖区域 */
-  left: -10%;
-  right: -10%;
-  bottom: -10%;
-  width: 120%; /* 图片尺寸比容器大 */
-  height: 120%;
+  width: 100%;
+  height: 100%;
+  position: relative;
   display: flex;
   justify-content: center;
   align-items: center;
   overflow: hidden;
-  border-radius: 50%;
-  background-color: #000;
 }
 
 /* 图片样式 */
 .avatar-image {
-  min-width: 120%; /* 确保图片始终大于容器 */
-  min-height: 120%;
-  width: auto;
-  height: auto;
-  object-fit: cover; /* 覆盖整个区域 */
-  object-position: center; 
-  transform: scale(1.2); /* 放大图片 */
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
   transition: transform 0.3s ease;
 }
 
@@ -135,5 +122,4 @@
   font-weight: bold;
   color: white;
   background-color: #3498db; /* 蓝色背景 */
-  border-radius: 50%;
 } 
