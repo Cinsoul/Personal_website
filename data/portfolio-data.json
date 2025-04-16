@@ -1,0 +1,69 @@
+{
+  "projects": [
+    {
+      "id": "project-1",
+      "title": "Personal Website",
+      "description": "A responsive personal portfolio website built with React and Tailwind CSS, featuring dark mode support, responsive design, and smooth animations",
+      "technologies": ["React", "TypeScript", "Tailwind CSS", "Vite"],
+      "link": "https://github.com/Cinsoul/personal-website",
+      "image": "/Personal_website/project-images/personal-website.png"
+    },
+    {
+      "id": "project-2",
+      "title": "LVMH Digital Innovation",
+      "description": "Developed innovative digital solutions for luxury retail, focusing on enhancing customer experience through AR/VR technology",
+      "technologies": ["React Native", "AR Kit", "Node.js", "AWS"],
+      "image": "/Personal_website/project-images/lvmh-project.svg"
+    },
+    {
+      "id": "project-3",
+      "title": "Bloomberg Market Analysis",
+      "description": "Created a comprehensive market analysis tool using Bloomberg API, enabling real-time financial data visualization and analysis",
+      "technologies": ["Python", "Bloomberg API", "Pandas", "Plotly"],
+      "image": "/Personal_website/project-images/bloomberg-project.svg"
+    },
+    {
+      "id": "project-4",
+      "title": "Investment Banking Analytics",
+      "description": "Developed financial models and analytics tools for investment banking operations, focusing on M&A analysis",
+      "technologies": ["Excel", "VBA", "Python", "Financial Modeling"],
+      "image": "/Personal_website/project-images/jpmorgan-project.svg"
+    }
+  ],
+  "awards": [
+    {
+      "id": "award-1",
+      "title": "Dean's List",
+      "organization": "Bayes Business School",
+      "date": "2023",
+      "description": "Awarded for outstanding academic achievement and maintaining a high GPA throughout the academic year",
+      "image": "/Personal_website/project-images/bayes-award.svg"
+    },
+    {
+      "id": "award-2",
+      "title": "LVMH Inside Program Completion",
+      "organization": "LVMH",
+      "date": "Nov 2024",
+      "description": "Successfully completed the exclusive LVMH Inside program, gaining comprehensive insights into luxury retail and digital innovation",
+      "image": "/Personal_website/logos/lvmh.svg"
+    },
+    {
+      "id": "award-3",
+      "title": "Bloomberg Market Concepts",
+      "organization": "Bloomberg",
+      "date": "Sep 2021",
+      "description": "Completed advanced financial market analysis certification, covering economics, currencies, fixed income, and equities",
+      "image": "/Personal_website/logos/bloomberg.svg"
+    },
+    {
+      "id": "award-4",
+      "title": "Investment Banking Excellence",
+      "organization": "JPMorgan Chase",
+      "date": "Apr 2021",
+      "description": "Recognized for outstanding performance in investment banking simulation program, focusing on M&A analysis and financial modeling",
+      "image": "/Personal_website/logos/jpmorgan.svg"
+    }
+  ],
+  "exportDate": "2023-10-26T12:00:00.000Z",
+  "version": "1.0"
+} 
