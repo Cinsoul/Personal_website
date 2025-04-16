@@ -17,6 +17,10 @@ const FlippableAvatar: React.FC<FlippableAvatarProps> = ({
   const [isFlipped, setIsFlipped] = useState(false);
   const [frontImgError, setFrontImgError] = useState(false);
   const [backImgError, setBackImgError] = useState(false);
+  const [isLoaded, setIsLoaded] = useState(false);
+  const [loadError, setLoadError] = useState(false);
+  const [avatar, setAvatar] = useState(frontImagePath);
+  const [personalPhoto, setPersonalPhoto] = useState(backImagePath);
   
   // 调试图片加载
   useEffect(() => {
@@ -35,6 +39,16 @@ const FlippableAvatar: React.FC<FlippableAvatarProps> = ({
     preloadBack.src = backImagePath;
   }, [frontImagePath, backImagePath]);
 
+  const handleImageLoad = () => {
+    setIsLoaded(true);
+    setLoadError(false);
+  };
+
+  const handleImageError = () => {
+    setIsLoaded(false);
+    setLoadError(true);
+  };
+
   return (
     <div 
       className={`flip-container ${isFlipped ? 'flipped' : ''}`} 
@@ -44,42 +58,44 @@ const FlippableAvatar: React.FC<FlippableAvatarProps> = ({
       <div className="flipper">
         <div className="front">
           <div className="avatar-image-container">
-            {!frontImgError ? (
-              <img 
-                src={frontImagePath}
-                alt={`${altText} - 正面`}
+            {isLoaded && !loadError ? (
+              <img
+                src={avatar}
+                alt="抽象头像"
                 className="avatar-image"
-                onError={() => {
-                  console.error('前面图片加载错误');
-                  setFrontImgError(true);
-                }}
-                crossOrigin="anonymous"
+                onLoad={handleImageLoad}
+                onError={handleImageError}
               />
             ) : (
-              <div className="avatar-placeholder">
-                {altText.charAt(0).toUpperCase()}
-              </div>
+              loadError ? (
+                <div className="avatar-placeholder">?</div>
+              ) : (
+                <div className="loading-container">
+                  <div className="spinner"></div>
+                </div>
+              )
             )}
           </div>
         </div>
         
         <div className="back">
-          <div className="avatar-image-container">
-            {!backImgError ? (
-              <img 
-                src={backImagePath}
-                alt={`${altText} - 背面`}
-                className="avatar-image"
-                onError={() => {
-                  console.error('背面图片加载错误');
-                  setBackImgError(true);
-                }}
-                crossOrigin="anonymous"
+          <div className="avatar-image-container full-body">
+            {isLoaded && !loadError ? (
+              <img
+                src={personalPhoto}
+                alt="个人照片"
+                className="avatar-image full-body"
+                onLoad={handleImageLoad}
+                onError={handleImageError}
               />
             ) : (
-              <div className="avatar-placeholder">
-                {altText.charAt(0).toUpperCase()}
-              </div>
+              loadError ? (
+                <div className="avatar-placeholder">?</div>
+              ) : (
+                <div className="loading-container">
+                  <div className="spinner"></div>
+                </div>
+              )
             )}
           </div>
         </div>
