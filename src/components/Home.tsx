@@ -3,16 +3,35 @@ import { Link } from 'react-router-dom';
 import { useLanguage } from '../contexts/LanguageContext';
 import FlippableAvatar from './FlippableAvatar';
 
-// 使用正确的图片路径（环境自适应）
-// 根据环境自动选择适当的基础路径
-const basePath = window.location.hostname === 'localhost' ? '' : '/Personal_website';
-const abstractAvatarPath = `${basePath}/images/abstract-avatar.png`; 
-const personalPhotoPath = `${basePath}/images/personal-photo.png`;
+// 使用绝对路径确保在任何环境下都能找到图片
+// 根据部署情况智能选择路径
+const getBasePath = () => {
+  // 检测当前环境以确定正确的图片路径
+  const hostname = window.location.hostname;
+  if (hostname === 'localhost' || hostname === '127.0.0.1') {
+    return '';
+  } else if (hostname.includes('github.io')) {
+    return '/Personal_website';
+  } else {
+    return '';
+  }
+};
+
+// 使用版本号破坏缓存
+const versionSuffix = `?v=${Date.now()}`;
+const basePath = getBasePath();
+const abstractAvatarPath = `${basePath}/images/abstract-avatar.png${versionSuffix}`; 
+const personalPhotoPath = `${basePath}/images/personal-photo.png${versionSuffix}`;
+
+console.log('使用图片路径:', abstractAvatarPath, personalPhotoPath);
 
 export default function Home() {
   const [isLoaded, setIsLoaded] = useState(false);
   const [scrollPosition, setScrollPosition] = useState(0);
   const { t } = useLanguage();
+  
+  // 强制更新计数器
+  const [refreshCounter, setRefreshCounter] = useState(0);
 
   useEffect(() => {
     setIsLoaded(true);
@@ -22,7 +41,16 @@ export default function Home() {
     };
     
     window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
+    
+    // 添加定期强制更新机制以确保内容同步
+    const forceUpdateInterval = setInterval(() => {
+      setRefreshCounter(prev => prev + 1);
+    }, 60000); // 每分钟更新一次
+    
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      clearInterval(forceUpdateInterval);
+    }
   }, []);
 
   return (
@@ -70,10 +98,11 @@ export default function Home() {
           </div>
           <div className="flex-1 flex justify-center md:justify-end">
             <div className="relative w-72 h-72 md:w-96 md:h-96 rounded-full overflow-hidden shadow-2xl transform hover:scale-105 transition-all duration-500 ease-out">
-              {/* 使用可翻转头像组件 */}
+              {/* 使用可翻转头像组件并传入refreshCounter触发更新 */}
               <FlippableAvatar 
-                frontImagePath={abstractAvatarPath} 
-                backImagePath={personalPhotoPath}
+                key={`avatar-${refreshCounter}`} 
+                frontImagePath={`${abstractAvatarPath}&refresh=${refreshCounter}`} 
+                backImagePath={`${personalPhotoPath}&refresh=${refreshCounter}`}
                 altText="Xindi Wang"
                 size={400}
               />

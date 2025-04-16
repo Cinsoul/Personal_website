@@ -7,6 +7,8 @@
   overflow: hidden;
   cursor: pointer;
   position: relative;
+  background-color: #000; /* 确保底层也是黑色 */
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.3);
 }
 
 /* 翻转动画 */
@@ -34,39 +36,51 @@
   backface-visibility: hidden;
   overflow: hidden;
   border-radius: 50%;
-  background-color: #000; /* 为所有面添加黑色背景 */
+  background-color: #000; /* 黑色背景 */
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 /* 正面样式（默认显示） */
 .front {
   z-index: 2;
   transform: rotateY(0deg);
-  display: flex;
-  justify-content: center;
-  align-items: center;
 }
 
 /* 反面样式（初始隐藏） */
 .back {
   transform: rotateY(180deg);
-  display: flex;
-  justify-content: center;
-  align-items: center;
 }
 
 /* 图片样式 */
 .avatar-image {
-  width: 100%;
-  height: 100%;
-  object-fit: cover; /* 确保图片填满容器 */
-  object-position: center;
+  min-width: 100%;
+  min-height: 100%;
+  width: auto;
+  height: auto;
+  object-fit: cover; /* 覆盖整个区域 */
+  object-position: center center;
   transition: transform 0.3s ease;
 }
 
 /* 背面图片特殊样式 */
 .back .avatar-image {
-  object-fit: cover; /* 改为cover以填满区域 */
-  background-color: #000; /* 添加黑色背景以填充空白区域 */
+  object-fit: cover; /* 确保覆盖整个区域 */
+  background-color: #000;
+}
+
+/* CSS的hack技巧，确保图片永远覆盖整个区域，不留空白 */
+.avatar-image-container {
+  position: absolute;
+  top: -5%;
+  left: -5%;
+  right: -5%;
+  bottom: -5%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
 }
 
 /* 加载占位符 */
@@ -79,8 +93,9 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  background-color: rgba(0, 0, 0, 0.1);
+  background-color: rgba(0, 0, 0, 0.7);
   z-index: 3;
+  border-radius: 50%;
 }
 
 /* 加载动画 */
