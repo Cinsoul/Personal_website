@@ -12,14 +12,16 @@ const getImagePaths = () => {
   let basePath = '';
   if (hostname === 'localhost' || hostname === '127.0.0.1') {
     basePath = '';
-  } else if (hostname.includes('github.io')) {
+  } else {
+    // 对于任何非本地环境（包括GitHub Pages）都使用项目名称路径
     basePath = '/Personal_website';
   }
   
   // 使用不影响渲染对比的缓存破坏方式
+  const timestamp = new Date().getTime();
   return {
-    abstractAvatarPath: `${basePath}/images/abstract-avatar.png`, 
-    personalPhotoPath: `${basePath}/images/personal-photo.png`
+    abstractAvatarPath: `${basePath}/images/abstract-avatar.png?v=${timestamp}`, 
+    personalPhotoPath: `${basePath}/images/personal-photo.png?v=${timestamp}`
   };
 };
 

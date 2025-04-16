@@ -10,19 +10,12 @@
 export const getBasePath = (): string => {
   if (typeof window === 'undefined') return '';
   
-  // 检查是否在GitHub Pages环境
-  const isGitHubPages = window.location.hostname.includes('github.io');
-  // 从URL路径中提取项目名称
-  let projectPath = '';
+  // 在本地开发环境返回空字符串
+  const isLocalhost = window.location.hostname === 'localhost' || 
+                     window.location.hostname === '127.0.0.1';
   
-  if (isGitHubPages) {
-    const pathSegments = window.location.pathname.split('/');
-    if (pathSegments.length > 1) {
-      projectPath = `/${pathSegments[1]}`;
-    }
-  }
-  
-  return isGitHubPages ? projectPath : '';
+  // 在任何非本地环境下都使用项目路径
+  return isLocalhost ? '' : '/Personal_website';
 };
 
 /**
