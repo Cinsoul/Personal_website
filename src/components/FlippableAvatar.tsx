@@ -15,39 +15,41 @@ const FlippableAvatar: React.FC<FlippableAvatarProps> = ({
   size = 300
 }) => {
   const [isFlipped, setIsFlipped] = useState(false);
-  const [frontImgError, setFrontImgError] = useState(false);
-  const [backImgError, setBackImgError] = useState(false);
-  const [isLoaded, setIsLoaded] = useState(false);
-  const [loadError, setLoadError] = useState(false);
-  const [avatar, setAvatar] = useState(frontImagePath);
-  const [personalPhoto, setPersonalPhoto] = useState(backImagePath);
+  const [frontLoaded, setFrontLoaded] = useState(false);
+  const [backLoaded, setBackLoaded] = useState(false);
+  const [frontLoadError, setFrontLoadError] = useState(false);
+  const [backLoadError, setBackLoadError] = useState(false);
   
-  // 调试图片加载
+  // 预加载图片
   useEffect(() => {
     console.log('尝试加载图片:', frontImagePath, backImagePath);
     
-    // 预加载图片
     const preloadFront = new Image();
     const preloadBack = new Image();
     
-    preloadFront.onload = () => console.log('前面图片加载成功');
-    preloadFront.onerror = () => console.error('前面图片加载失败');
-    preloadBack.onload = () => console.log('背面图片加载成功');
-    preloadBack.onerror = () => console.error('背面图片加载失败');
+    preloadFront.onload = () => {
+      console.log('前面图片加载成功');
+      setFrontLoaded(true);
+    };
+    
+    preloadFront.onerror = () => {
+      console.error('前面图片加载失败');
+      setFrontLoadError(true);
+    };
+    
+    preloadBack.onload = () => {
+      console.log('背面图片加载成功');
+      setBackLoaded(true);
+    };
+    
+    preloadBack.onerror = () => {
+      console.error('背面图片加载失败');
+      setBackLoadError(true);
+    };
     
     preloadFront.src = frontImagePath;
     preloadBack.src = backImagePath;
   }, [frontImagePath, backImagePath]);
-
-  const handleImageLoad = () => {
-    setIsLoaded(true);
-    setLoadError(false);
-  };
-
-  const handleImageError = () => {
-    setIsLoaded(false);
-    setLoadError(true);
-  };
 
   return (
     <div 
@@ -58,20 +60,18 @@ const FlippableAvatar: React.FC<FlippableAvatarProps> = ({
       <div className="flipper">
         <div className="front">
           <div className="avatar-image-container">
-            {isLoaded && !loadError ? (
+            {frontLoaded ? (
               <img
-                src={avatar}
-                alt="抽象头像"
+                src={frontImagePath}
+                alt={altText + " (抽象头像)"}
                 className="avatar-image"
-                onLoad={handleImageLoad}
-                onError={handleImageError}
               />
             ) : (
-              loadError ? (
-                <div className="avatar-placeholder">?</div>
+              frontLoadError ? (
+                <div className="avatar-placeholder">图片加载失败</div>
               ) : (
-                <div className="loading-container">
-                  <div className="spinner"></div>
+                <div className="loading-placeholder">
+                  <div className="loading-spinner"></div>
                 </div>
               )
             )}
@@ -79,21 +79,19 @@ const FlippableAvatar: React.FC<FlippableAvatarProps> = ({
         </div>
         
         <div className="back">
-          <div className="avatar-image-container full-body">
-            {isLoaded && !loadError ? (
+          <div className="avatar-image-container">
+            {backLoaded ? (
               <img
-                src={personalPhoto}
-                alt="个人照片"
-                className="avatar-image full-body"
-                onLoad={handleImageLoad}
-                onError={handleImageError}
+                src={backImagePath}
+                alt={altText + " (个人照片)"}
+                className="avatar-image"
               />
             ) : (
-              loadError ? (
-                <div className="avatar-placeholder">?</div>
+              backLoadError ? (
+                <div className="avatar-placeholder">图片加载失败</div>
               ) : (
-                <div className="loading-container">
-                  <div className="spinner"></div>
+                <div className="loading-placeholder">
+                  <div className="loading-spinner"></div>
                 </div>
               )
             )}

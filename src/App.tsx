@@ -51,17 +51,6 @@ const Header = () => {
       <div className="header-container">
         <div className="logo-container">
           <Link to="/" className="logo">Xindi Wang</Link>
-          
-          {/* 移动端菜单按钮 */}
-          <button 
-            className="mobile-menu-button"
-            onClick={() => setMenuOpen(!menuOpen)}
-            aria-label={menuOpen ? '关闭菜单' : '打开菜单'}
-          >
-            <span></span>
-            <span></span>
-            <span></span>
-          </button>
         </div>
         
         <nav className={`main-nav ${menuOpen ? 'mobile-menu-open' : ''}`}>
@@ -94,6 +83,17 @@ const Header = () => {
             🔄
           </button>
         </nav>
+        
+        {/* 移动端菜单按钮 */}
+        <button 
+          className="mobile-menu-button"
+          onClick={() => setMenuOpen(!menuOpen)}
+          aria-label={menuOpen ? '关闭菜单' : '打开菜单'}
+        >
+          <span></span>
+          <span></span>
+          <span></span>
+        </button>
       </div>
     </header>
   );

@@ -65,6 +65,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  background-color: #000;
 }
 
 /* 正面头像图片样式（抽象头像） */
@@ -86,6 +87,64 @@
 .back .avatar-image {
   object-fit: contain;
   border-radius: 0;
+  background-color: #000;
+}
+
+/* 加载中的占位图样式 */
+.loading-placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #000;
+  color: #fff;
+  font-size: 14px;
+  border-radius: inherit;
+}
+
+/* 加载出错的占位符 */
+.avatar-placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #1a1a1a;
+  color: #fff;
+  font-size: 14px;
+  border-radius: inherit;
+}
+
+/* 加载中的旋转器样式 */
+.loading-spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  border-top-color: #fff;
+  animation: spin 1s ease-in-out infinite;
+}
+
+/* 旋转动画 */
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* 头像外围光效 */
+.avatar-glow {
+  position: absolute;
+  width: 270px;
+  height: 270px;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle at center,
+    rgba(0, 0, 255, 0.2) 0%,
+    rgba(0, 0, 255, 0.1) 50%,
+    rgba(0, 0, 255, 0) 70%
+  );
+  z-index: 0;
+  pointer-events: none;
 }
 
 /* 响应式样式 */
@@ -124,49 +183,6 @@
     width: 160px;
     height: 160px;
   }
-}
-
-/* 加载中的占位图样式 */
-.loading-placeholder {
-  width: 100%;
-  height: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background-color: #000;
-  color: #fff;
-  font-size: 14px;
-}
-
-/* 加载中的旋转器样式 */
-.loading-spinner {
-  width: 40px;
-  height: 40px;
-  border: 4px solid rgba(255, 255, 255, 0.3);
-  border-radius: 50%;
-  border-top-color: #fff;
-  animation: spin 1s ease-in-out infinite;
-}
-
-/* 旋转动画 */
-@keyframes spin {
-  to { transform: rotate(360deg); }
-}
-
-/* 头像外围光效 */
-.avatar-glow {
-  position: absolute;
-  width: 270px;
-  height: 270px;
-  border-radius: 50%;
-  background: radial-gradient(
-    circle at center,
-    rgba(0, 0, 255, 0.2) 0%,
-    rgba(0, 0, 255, 0.1) 50%,
-    rgba(0, 0, 255, 0) 70%
-  );
-  z-index: 0;
-  pointer-events: none;
 }
 
 /* 页面背景修复 */
