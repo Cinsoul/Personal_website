@@ -5,7 +5,7 @@
   height: 250px;
   perspective: 1000px;
   margin: 0 auto 2rem;
-  border-radius: 125px;
+  border-radius: 50%;
   background-color: #000;
   overflow: hidden;
   box-shadow: 0 0 20px rgba(0, 0, 255, 0.3);
@@ -42,19 +42,20 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  border-radius: 50%;
+  overflow: hidden;
 }
 
 /* 正面样式 - 抽象头像（保持圆形） */
 .front {
   z-index: 2;
-  border-radius: 125px;
   transform: rotateY(0deg);
 }
 
-/* 背面样式 - 个人照片（可为其他形状） */
+/* 背面样式 - 个人照片（也设为圆形） */
 .back {
   transform: rotateY(180deg);
-  border-radius: 10px;
+  background-color: #000 !important;
 }
 
 /* 头像图片容器 */
@@ -66,11 +67,7 @@
   align-items: center;
   justify-content: center;
   background-color: #000;
-}
-
-/* 正面头像图片样式（抽象头像） */
-.front .avatar-image-container {
-  border-radius: 125px;
+  border-radius: 50%;
 }
 
 /* 头像图片样式 */
@@ -80,14 +77,15 @@
   object-fit: cover;
   object-position: center;
   background-color: #000;
-  border-radius: 125px;
 }
 
 /* 背面图片样式（个人照片 - 显示全身） */
 .back .avatar-image {
   object-fit: contain;
-  border-radius: 0;
-  background-color: #000;
+  background-color: #000 !important;
+  padding: 0;
+  max-width: 100%;
+  max-height: 100%;
 }
 
 /* 加载中的占位图样式 */
@@ -152,15 +150,11 @@
   .flip-container {
     width: 200px;
     height: 200px;
-    border-radius: 100px;
   }
   
-  .front {
-    border-radius: 100px;
-  }
-  
-  .front .avatar-image {
-    border-radius: 100px;
+  .back .avatar-image {
+    object-fit: contain;
+    background-color: #000 !important;
   }
 }
 
@@ -168,20 +162,16 @@
   .flip-container {
     width: 150px;
     height: 150px;
-    border-radius: 75px;
-  }
-  
-  .front {
-    border-radius: 75px;
-  }
-  
-  .front .avatar-image {
-    border-radius: 75px;
   }
   
   .avatar-glow {
     width: 160px;
     height: 160px;
+  }
+  
+  .back .avatar-image {
+    object-fit: contain;
+    background-color: #000 !important;
   }
 }
 

@@ -5,10 +5,10 @@ import FlippableAvatar from './FlippableAvatar';
 
 // 修正图片路径
 const getImagePaths = () => {
-  // 针对GitHub Pages部署修正路径
+  // 使用绝对路径确保在所有路由下都能正确加载图片
   return {
-    abstractAvatarPath: './images/abstract-avatar.png', 
-    personalPhotoPath: './images/personal-photo.png'
+    abstractAvatarPath: '/images/abstract-avatar.png', 
+    personalPhotoPath: '/images/personal-photo.png'
   };
 };
 
