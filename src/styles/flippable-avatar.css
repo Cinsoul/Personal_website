@@ -122,4 +122,18 @@
   to {
     transform: rotate(360deg);
   }
+}
+
+/* 图像占位符 */
+.avatar-placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 5rem;
+  font-weight: bold;
+  color: white;
+  background-color: #3498db; /* 蓝色背景 */
+  border-radius: 50%;
 } 

@@ -3,25 +3,14 @@ import { Link } from 'react-router-dom';
 import { useLanguage } from '../contexts/LanguageContext';
 import FlippableAvatar from './FlippableAvatar';
 
-// 使用函数获取路径，延迟到客户端执行
+// 简化图片路径计算
 const getImagePaths = () => {
-  // 安全获取hostname，防止服务端渲染错误
-  const hostname = typeof window !== 'undefined' ? window.location.hostname : '';
+  // 固定使用项目路径 - 简单直接
+  const basePath = '/Personal_website';
   
-  // 根据环境选择基础路径
-  let basePath = '';
-  if (hostname === 'localhost' || hostname === '127.0.0.1') {
-    basePath = '';
-  } else {
-    // 对于任何非本地环境（包括GitHub Pages）都使用项目名称路径
-    basePath = '/Personal_website';
-  }
-  
-  // 使用不影响渲染对比的缓存破坏方式
-  const timestamp = new Date().getTime();
   return {
-    abstractAvatarPath: `${basePath}/images/abstract-avatar.png?v=${timestamp}`, 
-    personalPhotoPath: `${basePath}/images/personal-photo.png?v=${timestamp}`
+    abstractAvatarPath: `${basePath}/images/abstract-avatar.png`, 
+    personalPhotoPath: `${basePath}/images/personal-photo.png`
   };
 };
 
@@ -29,9 +18,6 @@ export default function Home() {
   const [isLoaded, setIsLoaded] = useState(false);
   const [scrollPosition, setScrollPosition] = useState(0);
   const { t } = useLanguage();
-  
-  // 强制更新计数器
-  const [refreshCounter, setRefreshCounter] = useState(0);
   
   // 图片路径状态
   const [imagePaths, setImagePaths] = useState({ abstractAvatarPath: '', personalPhotoPath: '' });
@@ -47,14 +33,8 @@ export default function Home() {
     
     window.addEventListener('scroll', handleScroll);
     
-    // 添加定期强制更新机制以确保内容同步
-    const forceUpdateInterval = setInterval(() => {
-      setRefreshCounter(prev => prev + 1);
-    }, 60000); // 每分钟更新一次
-    
     return () => {
       window.removeEventListener('scroll', handleScroll);
-      clearInterval(forceUpdateInterval);
     };
   }, []);
 
@@ -103,12 +83,11 @@ export default function Home() {
           </div>
           <div className="flex-1 flex justify-center md:justify-end">
             <div className="relative w-72 h-72 md:w-96 md:h-96 rounded-full overflow-hidden shadow-2xl transform hover:scale-105 transition-all duration-500 ease-out">
-              {/* 使用可翻转头像组件并传入refreshCounter触发更新 */}
+              {/* 简化头像组件使用 */}
               {imagePaths.abstractAvatarPath && (
                 <FlippableAvatar 
-                  key={`avatar-${refreshCounter}`} 
-                  frontImagePath={`${imagePaths.abstractAvatarPath}?v=${refreshCounter}`} 
-                  backImagePath={`${imagePaths.personalPhotoPath}?v=${refreshCounter}`}
+                  frontImagePath={imagePaths.abstractAvatarPath} 
+                  backImagePath={imagePaths.personalPhotoPath}
                   altText="Xindi Wang"
                   size={400}
                 />

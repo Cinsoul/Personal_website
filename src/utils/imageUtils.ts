@@ -8,14 +8,8 @@
  * @returns 基础路径字符串
  */
 export const getBasePath = (): string => {
-  if (typeof window === 'undefined') return '';
-  
-  // 在本地开发环境返回空字符串
-  const isLocalhost = window.location.hostname === 'localhost' || 
-                     window.location.hostname === '127.0.0.1';
-  
-  // 在任何非本地环境下都使用项目路径
-  return isLocalhost ? '' : '/Personal_website';
+  // 固定返回GitHub Pages项目路径
+  return '/Personal_website';
 };
 
 /**
