@@ -3,9 +3,11 @@ import { Link } from 'react-router-dom';
 import { useLanguage } from '../contexts/LanguageContext';
 import FlippableAvatar from './FlippableAvatar';
 
-// 使用项目中的图片，使用绝对路径
-const abstractAvatarPath = '/Personal_website/abstract-avatar.png'; 
-const personalPhotoPath = '/Personal_website/personal-photo.png';
+// 使用正确的图片路径（环境自适应）
+// 根据环境自动选择适当的基础路径
+const basePath = window.location.hostname === 'localhost' ? '' : '/Personal_website';
+const abstractAvatarPath = `${basePath}/images/abstract-avatar.png`; 
+const personalPhotoPath = `${basePath}/images/personal-photo.png`;
 
 export default function Home() {
   const [isLoaded, setIsLoaded] = useState(false);
@@ -70,9 +72,10 @@ export default function Home() {
             <div className="relative w-72 h-72 md:w-96 md:h-96 rounded-full overflow-hidden shadow-2xl transform hover:scale-105 transition-all duration-500 ease-out">
               {/* 使用可翻转头像组件 */}
               <FlippableAvatar 
-                frontImage={abstractAvatarPath} 
-                backImage={personalPhotoPath}
-                alt="Xindi Wang"
+                frontImagePath={abstractAvatarPath} 
+                backImagePath={personalPhotoPath}
+                altText="Xindi Wang"
+                size={400}
               />
             </div>
           </div>

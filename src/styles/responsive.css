@@ -1,0 +1,139 @@
+/* 全局响应式样式优化 */
+
+/* 移动设备优化（小于768px） */
+@media (max-width: 767px) {
+  /* 减小各级标题字体大小 */
+  h1 {
+    font-size: 2rem !important;
+    line-height: 1.2 !important;
+  }
+  
+  h2 {
+    font-size: 1.5rem !important;
+    line-height: 1.3 !important;
+  }
+  
+  /* 确保导航栏在小屏幕上正确显示 */
+  .nav-container {
+    padding: 0.5rem !important;
+  }
+  
+  /* 调整卡片和内容容器 */
+  .content-card {
+    padding: 1rem !important;
+    margin-bottom: 1rem !important;
+  }
+  
+  /* 调整头像大小 */
+  .flip-container {
+    max-width: 250px !important;
+    max-height: 250px !important;
+  }
+
+  /* 优化按钮大小 */
+  .button, button:not(.icon-button) {
+    padding: 0.5rem 1rem !important;
+    font-size: 0.875rem !important;
+  }
+  
+  /* 确保表单元素适应移动屏幕 */
+  input, textarea, select {
+    font-size: 16px !important; /* 防止iOS上缩放 */
+  }
+  
+  /* 调整网格布局 */
+  .grid {
+    grid-template-columns: 1fr !important;
+  }
+  
+  /* 调整页面外边距 */
+  .page-container {
+    padding: 1rem !important;
+  }
+}
+
+/* 平板设备优化（768px - 1023px） */
+@media (min-width: 768px) and (max-width: 1023px) {
+  /* 平板上头像尺寸适中 */
+  .flip-container {
+    max-width: 300px !important;
+    max-height: 300px !important;
+  }
+  
+  /* 适当减小标题尺寸 */
+  h1 {
+    font-size: 2.5rem !important;
+  }
+  
+  /* 适当调整内边距 */
+  .content-container {
+    padding: 2rem !important;
+  }
+}
+
+/* 针对Instagram-like界面的优化 */
+@media (max-width: 767px) {
+  /* 标题栏和顶部导航 */
+  .instagram-header {
+    padding: 0.5rem !important;
+  }
+  
+  /* 个人信息部分压缩 */
+  .profile-info {
+    padding: 1rem 0.5rem !important;
+  }
+  
+  /* 调整工作经验卡片样式 */
+  .experience-card {
+    padding: 1rem !important;
+    margin-bottom: 0.75rem !important;
+  }
+  
+  /* 减小底部导航图标尺寸 */
+  .bottom-nav-icon {
+    width: 1.5rem !important;
+    height: 1.5rem !important;
+  }
+}
+
+/* 针对夜间模式的额外优化 */
+@media (prefers-color-scheme: dark) {
+  /* 调整亮度和对比度，优化夜间模式下的可读性 */
+  img:not(.preserve-color) {
+    filter: brightness(0.9) !important;
+  }
+  
+  /* 夜间模式下文本对比度优化 */
+  body {
+    color: rgba(255, 255, 255, 0.9) !important;
+  }
+  
+  /* 夜间模式下背景色微调 */
+  .bg-dark-adaptive {
+    background-color: #121212 !important;
+  }
+}
+
+/* 打印媒体优化 */
+@media print {
+  /* 隐藏不需要打印的元素 */
+  nav, footer, .no-print {
+    display: none !important;
+  }
+  
+  /* 确保打印内容完整可见 */
+  * {
+    color: black !important;
+    background: white !important;
+  }
+  
+  /* 打印时调整链接样式 */
+  a {
+    text-decoration: underline !important;
+  }
+  
+  /* 确保打印时内容不被截断 */
+  @page {
+    margin: 2cm;
+  }
+} 

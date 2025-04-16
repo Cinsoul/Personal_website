@@ -1,88 +1,85 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import '../styles/flippable-avatar.css';
-import { getFallbackAvatarUrl, getFallbackPersonalPhotoUrl } from '../utils/imageUtils';
+import { generateAvatarPlaceholder } from '../utils/imageUtils';
 
 interface FlippableAvatarProps {
-  frontImage: string;
-  backImage: string;
-  alt?: string;
-  className?: string;
+  frontImagePath: string;
+  backImagePath: string;
+  altText: string;
+  size?: number;
 }
 
 const FlippableAvatar: React.FC<FlippableAvatarProps> = ({ 
-  frontImage, 
-  backImage, 
-  alt = '个人头像', 
-  className = '' 
+  frontImagePath, 
+  backImagePath, 
+  altText,
+  size = 300
 }) => {
   const [isFlipped, setIsFlipped] = useState(false);
   const [frontLoading, setFrontLoading] = useState(true);
   const [backLoading, setBackLoading] = useState(true);
-  const [frontImgSrc, setFrontImgSrc] = useState(frontImage);
-  const [backImgSrc, setBackImgSrc] = useState(backImage);
+  const [frontImgSrc, setFrontImgSrc] = useState<string>(frontImagePath);
+  const [backImgSrc, setBackImgSrc] = useState<string>(backImagePath);
+  const [forceRefresh, setForceRefresh] = useState<number>(Date.now());
 
-  // 检查图片可访问性
-  useEffect(() => {
-    const checkImageAvailability = async () => {
-      try {
-        // 使用Image对象预加载图片
-        const loadImage = (url: string) => {
-          return new Promise<void>((resolve, reject) => {
-            const img = new Image();
-            img.onload = () => resolve();
-            img.onerror = () => reject();
-            img.src = url;
-          });
-        };
-
-        try {
-          await loadImage(frontImage);
-          setFrontImgSrc(frontImage);
-        } catch (error) {
-          console.warn('无法加载正面头像图片，使用备用图片');
-          setFrontImgSrc(getFallbackAvatarUrl());
-        }
-
-        try {
-          await loadImage(backImage);
-          setBackImgSrc(backImage);
-        } catch (error) {
-          console.warn('无法加载背面头像图片，使用备用图片');
-          setBackImgSrc(getFallbackPersonalPhotoUrl());
-        }
-      } catch (error) {
-        console.error('图片检查出错:', error);
-      }
+  // 使用useCallback缓存函数，防止不必要的重新渲染
+  const checkImageAvailability = useCallback(() => {
+    // 添加时间戳参数防止缓存
+    const frontImgWithTimestamp = `${frontImagePath}?t=${forceRefresh}`;
+    const backImgWithTimestamp = `${backImagePath}?t=${forceRefresh}`;
+    
+    // 检查前面图片
+    const frontImg = new Image();
+    frontImg.onload = () => {
+      setFrontImgSrc(frontImgWithTimestamp);
+      setFrontLoading(false);
     };
+    frontImg.onerror = () => {
+      console.warn(`前面图片加载失败: ${frontImagePath}`);
+      // 使用占位符
+      setFrontImgSrc(generateAvatarPlaceholder(altText, size, size));
+      setFrontLoading(false);
+    };
+    frontImg.src = frontImgWithTimestamp;
+    
+    // 检查背面图片
+    const backImg = new Image();
+    backImg.onload = () => {
+      setBackImgSrc(backImgWithTimestamp);
+      setBackLoading(false);
+    };
+    backImg.onerror = () => {
+      console.warn(`背面图片加载失败: ${backImagePath}`);
+      // 使用占位符
+      setBackImgSrc(generateAvatarPlaceholder(altText, size, size));
+      setBackLoading(false);
+    };
+    backImg.src = backImgWithTimestamp;
+  }, [frontImagePath, backImagePath, altText, size, forceRefresh]);
 
+  // 组件挂载或图片路径变化时检查图片可用性
+  useEffect(() => {
+    setFrontLoading(true);
+    setBackLoading(true);
     checkImageAvailability();
-  }, [frontImage, backImage]);
+  }, [frontImagePath, backImagePath, checkImageAvailability]);
 
-  const handleFrontImageLoad = () => {
-    setFrontLoading(false);
+  // 添加强制刷新功能
+  const forceImageRefresh = () => {
+    setForceRefresh(Date.now());
   };
 
-  const handleBackImageLoad = () => {
-    setBackLoading(false);
-  };
-
-  const handleFrontImageError = () => {
-    console.warn('加载正面图片失败，使用备用图片');
-    setFrontImgSrc(getFallbackAvatarUrl());
-    setFrontLoading(false);
-  };
-
-  const handleBackImageError = () => {
-    console.warn('加载背面图片失败，使用备用图片');
-    setBackImgSrc(getFallbackPersonalPhotoUrl());
-    setBackLoading(false);
+  // 双击时强制刷新图片
+  const handleDoubleClick = () => {
+    forceImageRefresh();
   };
 
   return (
     <div 
-      className={`flip-container ${isFlipped ? 'flipped' : ''} ${className}`}
-      onMouseEnter={() => setIsFlipped(true)}
-      onMouseLeave={() => setIsFlipped(false)}
+      className={`flip-container ${isFlipped ? 'flipped' : ''}`} 
+      onClick={() => setIsFlipped(!isFlipped)}
+      onDoubleClick={handleDoubleClick}
+      style={{ width: `${size}px`, height: `${size}px` }}
     >
       <div className="flipper">
         <div className="front">
@@ -92,11 +89,15 @@ const FlippableAvatar: React.FC<FlippableAvatarProps> = ({
             </div>
           )}
           <img 
-            src={frontImgSrc} 
-            alt={`${alt} - 正面`} 
+            src={frontImgSrc}
+            alt={`${altText} - 正面`}
             className="avatar-image"
-            onLoad={handleFrontImageLoad}
-            onError={handleFrontImageError}
+            onLoad={() => setFrontLoading(false)}
+            onError={() => {
+              console.warn(`前面图片加载失败(内联处理): ${frontImagePath}`);
+              setFrontImgSrc(generateAvatarPlaceholder(altText, size, size));
+              setFrontLoading(false);
+            }}
           />
         </div>
         <div className="back">
@@ -106,11 +107,15 @@ const FlippableAvatar: React.FC<FlippableAvatarProps> = ({
             </div>
           )}
           <img 
-            src={backImgSrc} 
-            alt={`${alt} - 背面`} 
+            src={backImgSrc}
+            alt={`${altText} - 背面`}
             className="avatar-image"
-            onLoad={handleBackImageLoad}
-            onError={handleBackImageError}
+            onLoad={() => setBackLoading(false)}
+            onError={() => {
+              console.warn(`背面图片加载失败(内联处理): ${backImagePath}`);
+              setBackImgSrc(generateAvatarPlaceholder(altText, size, size));
+              setBackLoading(false);
+            }}
           />
         </div>
       </div>
