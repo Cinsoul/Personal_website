@@ -5,10 +5,12 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <title>重定向中...</title>
-  <script>
-    // 单页应用重定向脚本
-    var pathSegmentsToKeep = 1;
+  <title>单页应用 - 页面重定向</title>
+  <script type="text/javascript">
+    // GitHub Pages的单页应用重定向脚本
+    // 由于GitHub Pages不支持前端路由，添加此脚本进行重定向
+    var pathSegmentsToKeep = 0; // 如果你的站点是username.github.io/repo-name，则设置为1
+
     var l = window.location;
     l.replace(
       l.protocol + '//' + l.hostname + (l.port ? ':' + l.port : '') +
@@ -20,6 +22,7 @@
   </script>
 </head>
 <body>
-  正在重定向到首页...
+  <h1>页面重定向中...</h1>
+  <p>如果您未被自动重定向，请<a href="/">点击此处</a>返回首页。</p>
 </body>
 </html>
