@@ -187,7 +187,7 @@ export const refreshContent = (forceReload = false): void => {
 export const forceContentUpdate = async (forceReload = false): Promise<void> => {
   try {
     // 尝试清除缓存
-    const cleared = await clearCache();
+    const cleared = await clearCache().catch(() => false);
     console.log('缓存清除状态:', cleared ? '成功' : '失败');
     
     // 刷新内容
