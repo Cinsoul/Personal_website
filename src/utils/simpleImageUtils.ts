@@ -8,7 +8,10 @@
  */
 
 /**
- * 压缩图片
+ * 压缩图片 (Promise版本)
+ * 与fileUtils.ts中的回调版本不同，这个函数返回Promise
+ * 被SimpleImageUploader和ImageUploader组件使用
+ * 
  * @param file 图片文件
  * @param maxDimension 最大尺寸（宽或高）
  * @param quality 压缩质量 (0-1)
