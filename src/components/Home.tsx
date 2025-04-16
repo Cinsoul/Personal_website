@@ -3,27 +3,25 @@ import { Link } from 'react-router-dom';
 import { useLanguage } from '../contexts/LanguageContext';
 import FlippableAvatar from './FlippableAvatar';
 
-// 使用绝对路径确保在任何环境下都能找到图片
-// 根据部署情况智能选择路径
-const getBasePath = () => {
-  // 检测当前环境以确定正确的图片路径
-  const hostname = window.location.hostname;
+// 使用函数获取路径，延迟到客户端执行
+const getImagePaths = () => {
+  // 安全获取hostname，防止服务端渲染错误
+  const hostname = typeof window !== 'undefined' ? window.location.hostname : '';
+  
+  // 根据环境选择基础路径
+  let basePath = '';
   if (hostname === 'localhost' || hostname === '127.0.0.1') {
-    return '';
+    basePath = '';
   } else if (hostname.includes('github.io')) {
-    return '/Personal_website';
-  } else {
-    return '';
+    basePath = '/Personal_website';
   }
+  
+  // 使用不影响渲染对比的缓存破坏方式
+  return {
+    abstractAvatarPath: `${basePath}/images/abstract-avatar.png`, 
+    personalPhotoPath: `${basePath}/images/personal-photo.png`
+  };
 };
-
-// 使用版本号破坏缓存
-const versionSuffix = `?v=${Date.now()}`;
-const basePath = getBasePath();
-const abstractAvatarPath = `${basePath}/images/abstract-avatar.png${versionSuffix}`; 
-const personalPhotoPath = `${basePath}/images/personal-photo.png${versionSuffix}`;
-
-console.log('使用图片路径:', abstractAvatarPath, personalPhotoPath);
 
 export default function Home() {
   const [isLoaded, setIsLoaded] = useState(false);
@@ -32,8 +30,13 @@ export default function Home() {
   
   // 强制更新计数器
   const [refreshCounter, setRefreshCounter] = useState(0);
+  
+  // 图片路径状态
+  const [imagePaths, setImagePaths] = useState({ abstractAvatarPath: '', personalPhotoPath: '' });
 
   useEffect(() => {
+    // 客户端渲染时设置图片路径
+    setImagePaths(getImagePaths());
     setIsLoaded(true);
     
     const handleScroll = () => {
@@ -50,7 +53,7 @@ export default function Home() {
     return () => {
       window.removeEventListener('scroll', handleScroll);
       clearInterval(forceUpdateInterval);
-    }
+    };
   }, []);
 
   return (
@@ -99,13 +102,15 @@ export default function Home() {
           <div className="flex-1 flex justify-center md:justify-end">
             <div className="relative w-72 h-72 md:w-96 md:h-96 rounded-full overflow-hidden shadow-2xl transform hover:scale-105 transition-all duration-500 ease-out">
               {/* 使用可翻转头像组件并传入refreshCounter触发更新 */}
-              <FlippableAvatar 
-                key={`avatar-${refreshCounter}`} 
-                frontImagePath={`${abstractAvatarPath}&refresh=${refreshCounter}`} 
-                backImagePath={`${personalPhotoPath}&refresh=${refreshCounter}`}
-                altText="Xindi Wang"
-                size={400}
-              />
+              {imagePaths.abstractAvatarPath && (
+                <FlippableAvatar 
+                  key={`avatar-${refreshCounter}`} 
+                  frontImagePath={`${imagePaths.abstractAvatarPath}?v=${refreshCounter}`} 
+                  backImagePath={`${imagePaths.personalPhotoPath}?v=${refreshCounter}`}
+                  altText="Xindi Wang"
+                  size={400}
+                />
+              )}
             </div>
           </div>
         </div>

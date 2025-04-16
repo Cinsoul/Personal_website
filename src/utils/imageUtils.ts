@@ -8,6 +8,8 @@
  * @returns 布尔值 Promise，表示图片是否可访问
  */
 export const isImageAccessible = async (url: string): Promise<boolean> => {
+  if (typeof window === 'undefined') return false;
+  
   try {
     const response = await fetch(url, { method: 'HEAD' });
     return response.ok;
@@ -25,6 +27,12 @@ export const isImageAccessible = async (url: string): Promise<boolean> => {
  * @returns 数据 URL
  */
 export const generateAvatarPlaceholder = (text: string, width = 200, height = 200): string => {
+  // 检查是否在服务器端环境
+  if (typeof document === 'undefined' || typeof window === 'undefined') {
+    // 返回一个SVG数据URL (可在服务端生成)
+    return `data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='${width}' height='${height}' viewBox='0 0 ${width} ${height}'%3E%3Crect width='${width}' height='${height}' fill='%23cccccc'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' font-family='Arial' font-size='${Math.floor(width / 3)}px' fill='%23666666'%3E${text.charAt(0).toUpperCase()}%3C/text%3E%3C/svg%3E`;
+  }
+  
   try {
     // 创建一个画布元素
     const canvas = document.createElement('canvas');
@@ -65,7 +73,10 @@ export const generateAvatarPlaceholder = (text: string, width = 200, height = 20
  */
 export const getFallbackAvatarUrl = (): string => {
   // 返回默认头像URL
-  return '/vite.svg';
+  const basePath = typeof window !== 'undefined' && window.location.hostname.includes('github.io') 
+    ? '/Personal_website' 
+    : '';
+  return `${basePath}/vite.svg`;
 };
 
 /**
@@ -74,5 +85,8 @@ export const getFallbackAvatarUrl = (): string => {
  */
 export const getFallbackPersonalPhotoUrl = (): string => {
   // 返回默认照片URL
-  return '/vite.svg';
+  const basePath = typeof window !== 'undefined' && window.location.hostname.includes('github.io') 
+    ? '/Personal_website' 
+    : '';
+  return `${basePath}/vite.svg`;
 }; 

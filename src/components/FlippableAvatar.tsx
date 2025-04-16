@@ -9,6 +9,28 @@ interface FlippableAvatarProps {
   size?: number;
 }
 
+// 安全获取本地存储值的函数
+const getStorageValue = (key: string, defaultValue: number): number => {
+  if (typeof window === 'undefined') return defaultValue;
+  try {
+    const storedValue = localStorage.getItem(key);
+    return storedValue ? parseInt(storedValue, 10) : defaultValue;
+  } catch (error) {
+    console.warn('访问localStorage失败:', error);
+    return defaultValue;
+  }
+};
+
+// 安全设置本地存储值的函数
+const setStorageValue = (key: string, value: string): void => {
+  if (typeof window === 'undefined') return;
+  try {
+    localStorage.setItem(key, value);
+  } catch (error) {
+    console.warn('写入localStorage失败:', error);
+  }
+};
+
 const FlippableAvatar: React.FC<FlippableAvatarProps> = ({ 
   frontImagePath, 
   backImagePath, 
@@ -24,13 +46,19 @@ const FlippableAvatar: React.FC<FlippableAvatarProps> = ({
   
   // 添加本地存储ID以强制刷新
   const storageKey = 'avatar_cache_version';
-  const [cacheVersion, setCacheVersion] = useState<number>(() => {
-    const storedVersion = localStorage.getItem(storageKey);
-    return storedVersion ? parseInt(storedVersion, 10) : Date.now();
-  });
+  const defaultCacheVersion = Date.now();
+  const [cacheVersion, setCacheVersion] = useState<number>(() => 
+    getStorageValue(storageKey, defaultCacheVersion)
+  );
   
-  // 更强力的图片加载机制
+  // 更安全的图片加载机制
   const loadImage = useCallback((url: string, setLoading: React.Dispatch<React.SetStateAction<boolean>>, setImgSrc: React.Dispatch<React.SetStateAction<string>>, fallbackText: string) => {
+    if (!url) {
+      setImgSrc(generateAvatarPlaceholder(fallbackText || altText, size, size));
+      setLoading(false);
+      return;
+    }
+    
     // 强制破坏缓存
     const timestamp = `t=${forceRefresh}_${cacheVersion}`;
     const fullURL = url.includes('?') ? `${url}&${timestamp}` : `${url}?${timestamp}`;
@@ -40,7 +68,6 @@ const FlippableAvatar: React.FC<FlippableAvatarProps> = ({
     
     // 成功加载时
     img.onload = () => {
-      console.log(`图片加载成功: ${url}`);
       setImgSrc(fullURL);
       setLoading(false);
     };
@@ -51,21 +78,25 @@ const FlippableAvatar: React.FC<FlippableAvatarProps> = ({
       setImgSrc(generateAvatarPlaceholder(fallbackText || altText, size, size));
       setLoading(false);
       
-      // 尝试直接获取图片（作为备选方案）
-      fetch(url, { cache: 'no-store' })
-        .then(response => {
-          if (response.ok) {
-            return response.blob();
-          }
-          throw new Error('图片获取失败');
-        })
-        .then(blob => {
-          const objectURL = URL.createObjectURL(blob);
-          setImgSrc(objectURL);
-        })
-        .catch(err => {
-          console.error('备选获取图片失败:', err);
-        });
+      // 仅在浏览器环境尝试备选方案
+      if (typeof window !== 'undefined') {
+        try {
+          fetch(url, { cache: 'no-store' })
+            .then(response => {
+              if (response.ok) return response.blob();
+              throw new Error('图片获取失败');
+            })
+            .then(blob => {
+              const objectURL = URL.createObjectURL(blob);
+              setImgSrc(objectURL);
+            })
+            .catch(err => {
+              console.error('备选获取图片失败:', err);
+            });
+        } catch (error) {
+          console.error('备选方案执行出错:', error);
+        }
+      }
     };
     
     // 设置crossOrigin以避免CORS问题
@@ -76,6 +107,8 @@ const FlippableAvatar: React.FC<FlippableAvatarProps> = ({
   
   // 加载两个图片
   useEffect(() => {
+    if (typeof window === 'undefined') return; // 仅在客户端执行
+    
     setFrontLoading(true);
     setBackLoading(true);
     
@@ -85,7 +118,7 @@ const FlippableAvatar: React.FC<FlippableAvatarProps> = ({
     // 每次组件挂载时更新缓存版本
     const newVersion = Date.now();
     setCacheVersion(newVersion);
-    localStorage.setItem(storageKey, newVersion.toString());
+    setStorageValue(storageKey, newVersion.toString());
     
   }, [frontImagePath, backImagePath, loadImage, altText]);
   
@@ -93,12 +126,13 @@ const FlippableAvatar: React.FC<FlippableAvatarProps> = ({
   const forceImageRefresh = () => {
     setFrontLoading(true);
     setBackLoading(true);
-    setForceRefresh(Date.now());
+    const newRefresh = Date.now();
+    setForceRefresh(newRefresh);
     
     // 更新缓存版本号
     const newVersion = Date.now();
     setCacheVersion(newVersion);
-    localStorage.setItem(storageKey, newVersion.toString());
+    setStorageValue(storageKey, newVersion.toString());
     
     // 强制重新加载图片
     setTimeout(() => {
@@ -107,7 +141,8 @@ const FlippableAvatar: React.FC<FlippableAvatarProps> = ({
     }, 50);
   };
 
-  return (
+  // 渲染内容
+  const renderContent = () => (
     <div 
       className={`flip-container ${isFlipped ? 'flipped' : ''}`} 
       onClick={() => setIsFlipped(!isFlipped)}
@@ -127,7 +162,6 @@ const FlippableAvatar: React.FC<FlippableAvatarProps> = ({
                 alt={`${altText} - 正面`}
                 className="avatar-image"
                 onError={() => {
-                  console.warn(`前面图片加载失败(内联处理): ${frontImagePath}`);
                   setFrontImgSrc(generateAvatarPlaceholder(`${altText}-F`, size, size));
                 }}
               />
@@ -147,7 +181,6 @@ const FlippableAvatar: React.FC<FlippableAvatarProps> = ({
                 alt={`${altText} - 背面`}
                 className="avatar-image"
                 onError={() => {
-                  console.warn(`背面图片加载失败(内联处理): ${backImagePath}`);
                   setBackImgSrc(generateAvatarPlaceholder(`${altText}-B`, size, size));
                 }}
               />
@@ -157,6 +190,8 @@ const FlippableAvatar: React.FC<FlippableAvatarProps> = ({
       </div>
     </div>
   );
+
+  return renderContent();
 };
 
 export default FlippableAvatar; 
