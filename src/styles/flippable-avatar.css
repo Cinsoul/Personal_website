@@ -16,6 +16,11 @@
   transform: rotateY(180deg);
 }
 
+/* 悬停效果 */
+.flip-container:hover .avatar-image {
+  transform: scale(1.1);
+}
+
 /* 翻转器 */
 .flipper {
   transition: transform 0.8s;
@@ -53,14 +58,32 @@
   transform: rotateY(180deg);
 }
 
+/* 修复：使用绝对定位和缩放来确保图片填满容器且无黑色边缘 */
+.avatar-image-container {
+  position: absolute;
+  top: -10%; /* 扩大覆盖区域 */
+  left: -10%;
+  right: -10%;
+  bottom: -10%;
+  width: 120%; /* 图片尺寸比容器大 */
+  height: 120%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+  border-radius: 50%;
+  background-color: #000;
+}
+
 /* 图片样式 */
 .avatar-image {
-  min-width: 100%;
-  min-height: 100%;
+  min-width: 120%; /* 确保图片始终大于容器 */
+  min-height: 120%;
   width: auto;
   height: auto;
   object-fit: cover; /* 覆盖整个区域 */
-  object-position: center center;
+  object-position: center; 
+  transform: scale(1.2); /* 放大图片 */
   transition: transform 0.3s ease;
 }
 
@@ -68,19 +91,6 @@
 .back .avatar-image {
   object-fit: cover; /* 确保覆盖整个区域 */
   background-color: #000;
-}
-
-/* CSS的hack技巧，确保图片永远覆盖整个区域，不留空白 */
-.avatar-image-container {
-  position: absolute;
-  top: -5%;
-  left: -5%;
-  right: -5%;
-  bottom: -5%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  overflow: hidden;
 }
 
 /* 加载占位符 */

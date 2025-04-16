@@ -3,6 +3,29 @@
  */
 
 /**
+ * 获取基础路径
+ * 在GitHub Pages环境会返回项目路径，其他环境返回空字符串
+ * @returns 基础路径字符串
+ */
+export const getBasePath = (): string => {
+  if (typeof window === 'undefined') return '';
+  
+  // 检查是否在GitHub Pages环境
+  const isGitHubPages = window.location.hostname.includes('github.io');
+  // 从URL路径中提取项目名称
+  let projectPath = '';
+  
+  if (isGitHubPages) {
+    const pathSegments = window.location.pathname.split('/');
+    if (pathSegments.length > 1) {
+      projectPath = `/${pathSegments[1]}`;
+    }
+  }
+  
+  return isGitHubPages ? projectPath : '';
+};
+
+/**
  * 检查图片是否可访问
  * @param url 图片URL
  * @returns 布尔值 Promise，表示图片是否可访问
@@ -73,9 +96,7 @@ export const generateAvatarPlaceholder = (text: string, width = 200, height = 20
  */
 export const getFallbackAvatarUrl = (): string => {
   // 返回默认头像URL
-  const basePath = typeof window !== 'undefined' && window.location.hostname.includes('github.io') 
-    ? '/Personal_website' 
-    : '';
+  const basePath = getBasePath();
   return `${basePath}/vite.svg`;
 };
 
@@ -85,8 +106,6 @@ export const getFallbackAvatarUrl = (): string => {
  */
 export const getFallbackPersonalPhotoUrl = (): string => {
   // 返回默认照片URL
-  const basePath = typeof window !== 'undefined' && window.location.hostname.includes('github.io') 
-    ? '/Personal_website' 
-    : '';
+  const basePath = getBasePath();
   return `${basePath}/vite.svg`;
 }; 

@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import '../styles/flippable-avatar.css';
-import { generateAvatarPlaceholder } from '../utils/imageUtils';
+import { generateAvatarPlaceholder, getBasePath } from '../utils/imageUtils';
 
 interface FlippableAvatarProps {
   frontImagePath: string;
@@ -31,6 +31,15 @@ const setStorageValue = (key: string, value: string): void => {
   }
 };
 
+// 确保图片路径是完整的URL
+const getFullImagePath = (path: string): string => {
+  if (!path) return '';
+  if (path.startsWith('data:') || path.startsWith('http')) return path;
+  
+  const basePath = getBasePath();
+  return `${basePath}${path.startsWith('/') ? path : `/${path}`}`;
+};
+
 const FlippableAvatar: React.FC<FlippableAvatarProps> = ({ 
   frontImagePath, 
   backImagePath, 
@@ -59,9 +68,12 @@ const FlippableAvatar: React.FC<FlippableAvatarProps> = ({
       return;
     }
     
+    // 获取完整URL路径
+    const fullPath = getFullImagePath(url);
+    
     // 强制破坏缓存
     const timestamp = `t=${forceRefresh}_${cacheVersion}`;
-    const fullURL = url.includes('?') ? `${url}&${timestamp}` : `${url}?${timestamp}`;
+    const fullURL = fullPath.includes('?') ? `${fullPath}&${timestamp}` : `${fullPath}?${timestamp}`;
     
     // 创建新图片实例
     const img = new Image();
@@ -74,14 +86,14 @@ const FlippableAvatar: React.FC<FlippableAvatarProps> = ({
     
     // 加载失败时
     img.onerror = () => {
-      console.warn(`图片加载失败: ${url}`);
+      console.warn(`图片加载失败: ${fullPath}`);
       setImgSrc(generateAvatarPlaceholder(fallbackText || altText, size, size));
       setLoading(false);
       
       // 仅在浏览器环境尝试备选方案
       if (typeof window !== 'undefined') {
         try {
-          fetch(url, { cache: 'no-store' })
+          fetch(fullPath, { cache: 'no-store' })
             .then(response => {
               if (response.ok) return response.blob();
               throw new Error('图片获取失败');

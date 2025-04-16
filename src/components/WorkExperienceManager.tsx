@@ -216,7 +216,7 @@ export default function WorkExperienceManager() {
 
   // 修改删除工作经历函数，添加自动同步
   const deleteExperience = (id: string) => {
-    if (window.confirm(t('manager.delete.confirm'))) {
+    if (window.confirm(t('manager.work.delete.confirm'))) {
       setExperiences(experiences.filter(exp => exp.id !== id));
     }
   };
@@ -269,14 +269,14 @@ export default function WorkExperienceManager() {
         
         {/* 工作经历管理部分 */}
         <section className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 mb-8">
-          <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">{t('work.manager.add_edit')}</h2>
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">{t('manager.work.add_edit')}</h2>
           
           {/* 工作经历表单 */}
           <form onSubmit={saveExperience} className="mb-8">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
                 <label className="block text-gray-700 dark:text-gray-300 mb-2" htmlFor="company">
-                  {t('work.manager.company')}
+                  {t('manager.work.company')}
                 </label>
                 <input
                   type="text"
@@ -291,7 +291,7 @@ export default function WorkExperienceManager() {
               
               <div>
                 <label className="block text-gray-700 dark:text-gray-300 mb-2" htmlFor="position">
-                  {t('work.manager.position')}
+                  {t('manager.work.position')}
                 </label>
                 <input
                   type="text"
@@ -307,7 +307,7 @@ export default function WorkExperienceManager() {
             
             <div className="mt-4">
               <label className="block text-gray-700 dark:text-gray-300 mb-2" htmlFor="location">
-                {t('work.manager.location')}
+                {t('manager.work.location')}
               </label>
               <input
                 type="text"
@@ -323,7 +323,7 @@ export default function WorkExperienceManager() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
               <div>
                 <label className="block text-gray-700 dark:text-gray-300 mb-2" htmlFor="startDate">
-                  {t('work.manager.start_date')}
+                  {t('manager.work.start_date')}
                 </label>
                 <input
                   type="text"
@@ -332,14 +332,14 @@ export default function WorkExperienceManager() {
                   value={currentExperience.startDate}
                   onChange={handleExperienceChange}
                   className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-                  placeholder={t('work.manager.start_date_placeholder')}
+                  placeholder={t('manager.work.start_date_placeholder')}
                   required
                 />
               </div>
               
               <div>
                 <label className="block text-gray-700 dark:text-gray-300 mb-2" htmlFor="endDate">
-                  {t('work.manager.end_date')}
+                  {t('manager.work.end_date')}
                 </label>
                 <input
                   type="text"
@@ -348,7 +348,7 @@ export default function WorkExperienceManager() {
                   value={currentExperience.endDate}
                   onChange={handleExperienceChange}
                   className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-                  placeholder={t('work.manager.end_date_placeholder')}
+                  placeholder={t('manager.work.end_date_placeholder')}
                   required
                 />
               </div>
@@ -356,7 +356,7 @@ export default function WorkExperienceManager() {
             
             <div className="mt-4">
               <label className="block text-gray-700 dark:text-gray-300 mb-2">
-                {t('work.manager.responsibilities')}
+                {t('manager.work.responsibilities')}
               </label>
               <div className="flex items-center">
                 <input
@@ -364,14 +364,14 @@ export default function WorkExperienceManager() {
                   value={responsibilityInput}
                   onChange={handleResponsibilityInputChange}
                   className="flex-1 px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-                  placeholder={t('work.manager.input_responsibility')}
+                  placeholder={t('manager.work.input_responsibility')}
                 />
                 <button
                   type="button"
                   onClick={addResponsibility}
                   className="ml-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
                 >
-                  {t('work.manager.add')}
+                  {t('manager.work.add')}
                 </button>
               </div>
               
@@ -384,7 +384,7 @@ export default function WorkExperienceManager() {
                       onClick={() => removeResponsibility(index)}
                       className="ml-2 text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300"
                     >
-                      {t('work.manager.delete')}
+                      {t('manager.work.delete')}
                     </button>
                   </div>
                 ))}
@@ -397,20 +397,20 @@ export default function WorkExperienceManager() {
                 onClick={resetExperienceForm}
                 className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 dark:text-gray-300 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
               >
-                {t('work.manager.cancel')}
+                {t('manager.work.cancel')}
               </button>
               <button
                 type="submit"
                 className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
               >
-                {isEditing ? t('work.manager.update') : t('work.manager.add_experience')}
+                {isEditing ? t('manager.work.update') : t('manager.work.add_experience')}
               </button>
             </div>
           </form>
           
           {/* 工作经历列表 */}
           <div className="mt-8">
-            <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">{t('work.manager.existing')}</h3>
+            <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">{t('manager.work.existing')}</h3>
             <div className="space-y-4">
               {experiences.map((experience) => (
                 <div key={experience.id} className="border dark:border-gray-700 rounded-lg p-4">
@@ -426,7 +426,7 @@ export default function WorkExperienceManager() {
                   </div>
                   
                   <div className="mt-2">
-                    <h5 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{t('work.manager.responsibilities')}:</h5>
+                    <h5 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{t('manager.work.responsibilities')}:</h5>
                     <ul className="list-disc list-inside space-y-1 text-gray-700 dark:text-gray-300">
                       {experience.responsibilities.map((responsibility, index) => (
                         <li key={index}>{responsibility}</li>
@@ -439,13 +439,13 @@ export default function WorkExperienceManager() {
                       onClick={() => editExperience(experience)}
                       className="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300"
                     >
-                      {t('work.manager.edit')}
+                      {t('manager.work.edit')}
                     </button>
                     <button
                       onClick={() => deleteExperience(experience.id!)}
                       className="text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300"
                     >
-                      {t('work.manager.delete')}
+                      {t('manager.work.delete')}
                     </button>
                   </div>
                 </div>
