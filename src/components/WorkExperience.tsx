@@ -128,18 +128,18 @@ export default function WorkExperience() {
               </div>
 
               {/* MUJI */}
-              <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
+              <div className="bg-gray-900 dark:bg-gray-900 rounded-lg shadow-lg p-6">
                 <div className="flex justify-between items-start mb-4">
                   <div>
-                    <h3 className="text-xl font-semibold text-gray-900 dark:text-white">MUJI {t('work.parttime')}</h3>
-                    <p className="text-gray-600 dark:text-gray-300">Sales Consultant</p>
+                    <h3 className="text-xl font-semibold text-white dark:text-white">MUJI {t('work.parttime')}</h3>
+                    <p className="text-gray-300 dark:text-gray-300">Sales Consultant</p>
                   </div>
                   <div className="text-right">
-                    <p className="text-gray-600 dark:text-gray-300">Fuzhou, China</p>
-                    <p className="text-gray-600 dark:text-gray-300">Oct 2021 – Jun 2022</p>
+                    <p className="text-gray-300 dark:text-gray-300">Fuzhou, China</p>
+                    <p className="text-gray-300 dark:text-gray-300">Oct 2021 – Jun 2022</p>
                   </div>
                 </div>
-                <ul className="list-disc list-inside space-y-2 text-gray-700 dark:text-gray-300">
+                <ul className="list-disc list-inside space-y-2 text-gray-300 dark:text-gray-300">
                   <li>Teamwork: Collaborate with the team on promotional activities to increase sales by 10% through effective communication and execution</li>
                   <li>Personal Achievement: Assist in optimising inventory management processes and increase product turnover efficiency by 15%</li>
                   <li>Insight: Learn how brands operate globally and understand how they differentiate themselves in their local markets</li>
