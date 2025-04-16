@@ -14,65 +14,64 @@ const AdminContext = createContext<AdminContextType | undefined>(undefined);
 
 // 创建Provider组件
 export const AdminProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+  // 先初始化状态为false
   const [isAdminMode, setAdminMode] = useState(false);
   const [isAuthenticated, setAuthenticated] = useState(false);
-
-  // 从localStorage加载认证状态
+  
+  // 从localStorage加载认证状态 - 在组件挂载时
   useEffect(() => {
-    // 添加调试日志
-    console.log('AdminContext初始化，检查存储的认证状态');
-    const savedAuthState = localStorage.getItem('adminAuthenticated');
-    console.log('localStorage中的认证状态:', savedAuthState);
-    
-    if (savedAuthState === 'true') {
-      setAuthenticated(true);
-      setAdminMode(true);
-      console.log('从localStorage恢复认证状态: 已登录');
-    } else {
-      console.log('未找到有效的认证状态');
+    console.log('AdminContext：初始化');
+    try {
+      const savedAuthState = localStorage.getItem('adminAuthenticated');
+      console.log('AdminContext：localStorage中的认证状态:', savedAuthState);
+      
+      if (savedAuthState === 'true') {
+        console.log('AdminContext：检测到已保存的认证状态，恢复状态');
+        setAuthenticated(true);
+        setAdminMode(true);
+      }
+    } catch (error) {
+      console.error('AdminContext：访问localStorage出错', error);
     }
   }, []);
 
   // 监听认证状态变化，保存到localStorage
   useEffect(() => {
-    if (isAuthenticated) {
-      localStorage.setItem('adminAuthenticated', 'true');
-      setAdminMode(true);
-    } else {
-      localStorage.removeItem('adminAuthenticated');
+    console.log('AdminContext：认证状态变化:', isAuthenticated);
+    try {
+      if (isAuthenticated) {
+        localStorage.setItem('adminAuthenticated', 'true');
+        setAdminMode(true);
+      } else {
+        localStorage.removeItem('adminAuthenticated');
+      }
+    } catch (error) {
+      console.error('AdminContext：更新localStorage出错', error);
     }
   }, [isAuthenticated]);
 
-  // 监听特殊按键组合（保留现有功能，但仅作为备用）
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.ctrlKey && e.shiftKey && e.key === 'A') {
-        console.log('全局管理员模式已激活');
-        setAdminMode(true);
-        // 不设置isAuthenticated，因为这只是临时访问
-      }
-    };
-    
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, []);
-
   // 登出功能
   const logout = () => {
+    console.log('AdminContext：执行登出');
     setAuthenticated(false);
     setAdminMode(false);
-    localStorage.removeItem('adminAuthenticated');
-    console.log('管理员已登出');
+    try {
+      localStorage.removeItem('adminAuthenticated');
+    } catch (error) {
+      console.error('AdminContext：登出时清除localStorage出错', error);
+    }
+  };
+
+  const contextValue = {
+    isAdminMode,
+    setAdminMode,
+    isAuthenticated,
+    setAuthenticated,
+    logout
   };
 
   return (
-    <AdminContext.Provider value={{ 
-      isAdminMode, 
-      setAdminMode, 
-      isAuthenticated, 
-      setAuthenticated,
-      logout
-    }}>
+    <AdminContext.Provider value={contextValue}>
       {children}
     </AdminContext.Provider>
   );
@@ -85,4 +84,4 @@ export const useAdmin = (): AdminContextType => {
     throw new Error('useAdmin必须在AdminProvider内使用');
   }
   return context;
-}; 
+};
