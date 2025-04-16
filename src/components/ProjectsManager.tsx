@@ -335,7 +335,7 @@ export default function ProjectsManager() {
 
   // 添加同步状态
   const [isSyncing, setIsSyncing] = useState(false);
-  const [lastSyncTime, setLastSyncTime] = useState<Date | null>(null);
+  const [_lastSyncTime, setLastSyncTime] = useState<Date | null>(null);
   const [syncMessage, setSyncMessage] = useState('');
 
   // 检查是否有从其他页面传递过来的编辑状态
@@ -400,76 +400,14 @@ export default function ProjectsManager() {
         
       // 如果localStorage中没有数据，保持列表为空
       console.warn('localStorage中没有奖项数据，将使用空列表');
-      // setDefaultAwards(); // 移除设置默认奖项
       } catch (error) {
       console.error('加载奖项数据出错:', error);
-      // setDefaultAwards(); // 移除设置默认奖项
     }
   };
   
-  // 设置默认项目数据
-  const setDefaultProjects = () => {
-    const defaultProjects = [
-      {
-        id: crypto.randomUUID(),
-        title: 'Personal Website',
-        description: 'A responsive personal portfolio website built with React and Tailwind CSS, featuring dark mode support, responsive design, and smooth animations',
-        technologies: ['React', 'TypeScript', 'Tailwind CSS', 'Vite'],
-        link: 'https://github.com/yourusername/personal-website',
-        image: '/project-images/personal-website.png'
-      },
-      // ... other default projects
-    ];
-    setProjects(defaultProjects);
-    localStorage.setItem('projects', JSON.stringify(defaultProjects));
-  };
-  
-  // 设置默认奖项数据的函数
-  const setDefaultAwards = () => {
-    console.log('设置默认奖项数据');
-    // 默认奖项数据
-    const defaultAwards = [
-      {
-        id: '1',
-        title: 'Dean\'s List',
-        organization: 'Bayes Business School',
-        date: '2023',
-        description: 'Awarded for outstanding academic achievement and maintaining a high GPA throughout the academic year',
-        image: '/project-images/bayes-award.svg'
-      },
-      {
-        id: '2',
-        title: 'LVMH Inside Program Completion',
-        organization: 'LVMH',
-        date: 'Nov 2024',
-        description: 'Successfully completed the exclusive LVMH Inside program, gaining comprehensive insights into luxury retail and digital innovation',
-        image: '/logos/lvmh.svg'
-      },
-      {
-        id: '3',
-        title: 'Bloomberg Market Concepts',
-        organization: 'Bloomberg',
-        date: 'Sep 2021',
-        description: 'Completed advanced financial market analysis certification, covering economics, currencies, fixed income, and equities',
-        image: '/logos/bloomberg.svg'
-      },
-      {
-        id: '4',
-        title: 'Investment Banking Excellence',
-        organization: 'JPMorgan Chase',
-        date: 'Apr 2021',
-        description: 'Recognized for outstanding performance in investment banking simulation program, focusing on M&A analysis and financial modeling',
-        image: '/logos/jpmorgan.svg'
-      }
-    ];
-    setAwards(defaultAwards);
-    localStorage.setItem('awards', JSON.stringify(defaultAwards));
-    console.log('默认奖项数据已设置，数量:', defaultAwards.length);
-  };
-
   // 保存数据到本地存储
   useEffect(() => {
-    // 即使数组为空也保存，以便清除旧数据
+    // A即使数组为空也保存，以便清除旧数据
     localStorage.setItem('projects', JSON.stringify(projects));
     console.log('已更新projects到localStorage，项目数量:', projects.length);
     
@@ -2384,6 +2322,8 @@ export default function ProjectsManager() {
           </div>
         </div>
       </div>
+      {renderExportModal()}
+      {renderImportModal()}
     </div>
   );
 }
