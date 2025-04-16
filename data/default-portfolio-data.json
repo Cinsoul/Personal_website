@@ -1,0 +1,36 @@
+{
+  "projects": [
+    {
+      "id": "project-1",
+      "title": "Personal Website",
+      "description": "A responsive personal portfolio website built with React and Tailwind CSS",
+      "technologies": ["React", "TypeScript", "Tailwind CSS", "Vite"],
+      "link": "https://github.com/yourusername/personal-website"
+    }
+  ],
+  "awards": [
+    {
+      "id": "award-1",
+      "title": "LVMH Inside Program Completion",
+      "organization": "LVMH",
+      "date": "Nov 2024",
+      "description": "Successfully completed the LVMH Inside Program, focusing on luxury brand management and strategy."
+    },
+    {
+      "id": "award-2",
+      "title": "Bloomberg Market Concepts",
+      "organization": "Bloomberg",
+      "date": "Sep 2021",
+      "description": "Certification in Bloomberg Market Concepts, covering economics, currencies, fixed income, and equities."
+    },
+    {
+      "id": "award-3",
+      "title": "Investment Banking Excellence",
+      "organization": "JPMorgan Chase",
+      "date": "Apr 2021",
+      "description": "Recognized for excellence in investment banking programs and financial analysis."
+    }
+  ],
+  "version": "1.0",
+  "lastUpdated": "2024-05-01T00:00:00.000Z"
+} 

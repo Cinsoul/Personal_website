@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>头像测试和修复工具</title>
+  <style>
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+      background-color: #f7f7f7;
+      margin: 0;
+      padding: 20px;
+      color: #333;
+      line-height: 1.6;
+    }
+    
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      background: white;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    
+    h1 {
+      text-align: center;
+      margin-top: 0;
+      color: #2c3e50;
+    }
+    
+    .image-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 20px;
+      margin: 30px 0;
+    }
+    
+    .image-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      border: 1px solid #eee;
+      padding: 15px;
+      border-radius: 8px;
+    }
+    
+    .image-title {
+      font-weight: bold;
+      margin-bottom: 10px;
+      font-size: 18px;
+    }
+    
+    .img-wrapper {
+      width: 200px;
+      height: 200px;
+      border-radius: 50%;
+      overflow: hidden;
+      background-color: black;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .img-wrapper img {
+      max-width: 100%;
+      height: auto;
+      object-fit: cover;
+    }
+    
+    .path-info {
+      margin-top: 10px;
+      font-size: 14px;
+      color: #555;
+      max-width: 300px;
+      overflow-wrap: break-word;
+      text-align: center;
+    }
+    
+    .actions {
+      margin-top: 30px;
+      text-align: center;
+    }
+    
+    button {
+      background-color: #3498db;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 16px;
+      margin: 0 5px;
+    }
+    
+    button:hover {
+      background-color: #2980b9;
+    }
+    
+    .status {
+      margin-top: 20px;
+      padding: 10px;
+      border-radius: 5px;
+      display: none;
+    }
+    
+    .success {
+      background-color: #d4edda;
+      color: #155724;
+      border: 1px solid #c3e6cb;
+    }
+    
+    .error {
+      background-color: #f8d7da;
+      color: #721c24;
+      border: 1px solid #f5c6cb;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>头像测试和修复工具</h1>
+    
+    <div class="image-grid">
+      <div class="image-container">
+        <div class="image-title">抽象头像(abstract-avatar.png)</div>
+        <div class="img-wrapper">
+          <img src="/images/abstract-avatar.png" alt="抽象头像" id="abstractAvatar" />
+        </div>
+        <div class="path-info">/images/abstract-avatar.png</div>
+      </div>
+      
+      <div class="image-container">
+        <div class="image-title">个人照片(personal-photo.png)</div>
+        <div class="img-wrapper">
+          <img src="/images/personal-photo.png" alt="个人照片" id="personalPhoto" />
+        </div>
+        <div class="path-info">/images/personal-photo.png</div>
+      </div>
+    </div>
+    
+    <div class="image-grid">
+      <div class="image-container">
+        <div class="image-title">抽象头像(带基础路径)</div>
+        <div class="img-wrapper">
+          <img id="abstractAvatarWithBase" alt="抽象头像(带基础路径)" />
+        </div>
+        <div class="path-info" id="abstractPathWithBase"></div>
+      </div>
+      
+      <div class="image-container">
+        <div class="image-title">个人照片(带基础路径)</div>
+        <div class="img-wrapper">
+          <img id="personalPhotoWithBase" alt="个人照片(带基础路径)" />
+        </div>
+        <div class="path-info" id="personalPathWithBase"></div>
+      </div>
+    </div>
+    
+    <div class="actions">
+      <button id="testPaths">测试所有路径</button>
+      <button id="forceClearCache">强制清除缓存</button>
+      <button id="reloadImages">重新加载图片</button>
+    </div>
+    
+    <div class="status success" id="successStatus"></div>
+    <div class="status error" id="errorStatus"></div>
+  </div>
+  
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // 获取当前域名的基础路径
+      const hostname = window.location.hostname;
+      let basePath = '';
+      
+      if (hostname === 'localhost' || hostname === '127.0.0.1') {
+        basePath = '';
+      } else if (hostname.includes('github.io')) {
+        basePath = '/Personal_website';
+      }
+      
+      // 设置带基础路径的图片
+      const abstractPathWithBase = `${basePath}/images/abstract-avatar.png?v=${Date.now()}`;
+      const personalPathWithBase = `${basePath}/images/personal-photo.png?v=${Date.now()}`;
+      
+      document.getElementById('abstractAvatarWithBase').src = abstractPathWithBase;
+      document.getElementById('personalPhotoWithBase').src = personalPathWithBase;
+      
+      document.getElementById('abstractPathWithBase').textContent = abstractPathWithBase;
+      document.getElementById('personalPathWithBase').textContent = personalPathWithBase;
+      
+      // 测试路径可访问性
+      document.getElementById('testPaths').addEventListener('click', async function() {
+        const errorStatus = document.getElementById('errorStatus');
+        const successStatus = document.getElementById('successStatus');
+        
+        try {
+          const paths = [
+            '/images/abstract-avatar.png',
+            '/images/personal-photo.png',
+            abstractPathWithBase,
+            personalPathWithBase
+          ];
+          
+          let results = [];
+          
+          for (const path of paths) {
+            try {
+              const response = await fetch(path, { 
+                method: 'HEAD',
+                cache: 'no-cache'
+              });
+              
+              if (response.ok) {
+                results.push(`✅ 成功: ${path}`);
+              } else {
+                results.push(`❌ 失败 (${response.status}): ${path}`);
+              }
+            } catch (err) {
+              results.push(`❌ 错误: ${path} - ${err.message}`);
+            }
+          }
+          
+          successStatus.textContent = results.join('\n');
+          successStatus.style.display = 'block';
+          errorStatus.style.display = 'none';
+        } catch (error) {
+          errorStatus.textContent = `测试出错: ${error.message}`;
+          errorStatus.style.display = 'block';
+          successStatus.style.display = 'none';
+        }
+      });
+      
+      // 强制清除缓存
+      document.getElementById('forceClearCache').addEventListener('click', function() {
+        localStorage.clear();
+        sessionStorage.clear();
+        
+        const successStatus = document.getElementById('successStatus');
+        successStatus.textContent = '缓存已清除，请刷新页面';
+        successStatus.style.display = 'block';
+      });
+      
+      // 重新加载图片
+      document.getElementById('reloadImages').addEventListener('click', function() {
+        const timestamp = Date.now();
+        
+        // 重新加载所有图片并添加时间戳
+        document.getElementById('abstractAvatar').src = `/images/abstract-avatar.png?t=${timestamp}`;
+        document.getElementById('personalPhoto').src = `/images/personal-photo.png?t=${timestamp}`;
+        
+        const newAbstractPathWithBase = `${basePath}/images/abstract-avatar.png?v=${timestamp}`;
+        const newPersonalPathWithBase = `${basePath}/images/personal-photo.png?v=${timestamp}`;
+        
+        document.getElementById('abstractAvatarWithBase').src = newAbstractPathWithBase;
+        document.getElementById('personalPhotoWithBase').src = newPersonalPathWithBase;
+        
+        document.getElementById('abstractPathWithBase').textContent = newAbstractPathWithBase;
+        document.getElementById('personalPathWithBase').textContent = newPersonalPathWithBase;
+        
+        const successStatus = document.getElementById('successStatus');
+        successStatus.textContent = '已重新加载所有图片';
+        successStatus.style.display = 'block';
+      });
+    });
+  </script>
+</body>
+</html> 
