@@ -143,7 +143,13 @@ export default function ProjectsAndAwards() {
     e.stopPropagation();
     // 只有当图片URL存在且不是编辑模式时才显示预览
     if (imageUrl) {
-      setViewingImage(imageUrl);
+      // 处理图片路径，确保在GitHub Pages环境正确处理路径
+      const processedImageUrl = imageUrl.startsWith('http') || imageUrl.startsWith('data:')
+        ? imageUrl
+        : `${getBasePath()}${imageUrl}`;
+      
+      console.log('处理后的图片URL:', processedImageUrl);
+      setViewingImage(processedImageUrl);
       setViewingImageTitle(title);
     }
   };
@@ -161,7 +167,16 @@ export default function ProjectsAndAwards() {
     
     // 验证文档数据URL是否有效
     if (document && document.dataUrl && document.dataUrl.trim() !== '') {
-      setViewingDocument(document);
+      // 添加路径处理逻辑，确保在GitHub Pages环境正确处理路径
+      const processedDocument = {
+        ...document,
+        dataUrl: document.dataUrl.startsWith('http') || document.dataUrl.startsWith('data:') 
+          ? document.dataUrl 
+          : `${getBasePath()}${document.dataUrl}`
+      };
+      
+      console.log('处理后的文档URL:', processedDocument.dataUrl);
+      setViewingDocument(processedDocument);
     } else {
       console.error('文档数据URL为空或无效');
       alert(t('awards.download_error') || '查看失败: 无效的文档数据');
@@ -402,7 +417,11 @@ export default function ProjectsAndAwards() {
                     {isAuthenticated && <EditButton onClick={(e) => handleEditProject(project, e)} />}
                     <div className="h-56 overflow-hidden cursor-pointer" onClick={(e) => handleImageClick(project.image || '/vite.svg', project.title, e)}>
                       <img 
-                        src={project.image || '/vite.svg'} 
+                        src={project.image ? 
+                          (project.image.startsWith('data:') || project.image.startsWith('http') 
+                            ? project.image 
+                            : `${getBasePath()}${project.image}`) 
+                          : `${getBasePath()}/vite.svg`} 
                         alt={project.title} 
                         className="w-full h-full object-cover transition-transform duration-700 hover:scale-105"
                         loading="lazy"
@@ -415,7 +434,7 @@ export default function ProjectsAndAwards() {
                           }
                           
                           // 尝试加载备用图片
-                          e.currentTarget.src = '/vite.svg';
+                          e.currentTarget.src = `${getBasePath()}/vite.svg`;
                           console.log('已切换到备用图片');
                           
                           // 如果默认图也加载失败，则使用内联SVG作为最终备用
@@ -501,7 +520,11 @@ export default function ProjectsAndAwards() {
                     <div className="flex items-center p-8 border-b border-gray-100 dark:border-gray-700">
                       <div className="w-16 h-16 mr-5 flex-shrink-0 cursor-pointer" onClick={(e) => handleImageClick(award.image || '/vite.svg', award.title, e)}>
                         <img 
-                          src={award.image || '/vite.svg'} 
+                          src={award.image ? 
+                            (award.image.startsWith('data:') || award.image.startsWith('http') 
+                              ? award.image 
+                              : `${getBasePath()}${award.image}`) 
+                            : `${getBasePath()}/vite.svg`}
                           alt={award.organization} 
                           className="w-full h-full object-contain transition-transform duration-500 hover:scale-110"
                           loading="lazy"
@@ -514,7 +537,7 @@ export default function ProjectsAndAwards() {
                             }
                             
                             // 尝试加载备用图片
-                            e.currentTarget.src = '/vite.svg';
+                            e.currentTarget.src = `${getBasePath()}/vite.svg`;
                             console.log('已切换到备用图片');
                             
                             // 如果默认图也加载失败，则使用内联SVG作为最终备用

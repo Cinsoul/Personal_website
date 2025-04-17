@@ -44,8 +44,12 @@ const Header = () => {
   
   // 强制刷新内容
   const handleRefreshContent = () => {
-    forceContentRefresh({ hardReload: false }); // 使用正确的对象参数
-    alert('内容已刷新，请等待图片重新加载');
+    forceContentRefresh({ 
+      hardReload: false, 
+      clearCacheFirst: true,
+      clearImageCache: true 
+    });
+    alert('内容已刷新，缓存已清除，请等待图片重新加载');
   };
   
   return (

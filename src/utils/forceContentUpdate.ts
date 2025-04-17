@@ -259,35 +259,78 @@ export const forceContentUpdate = async (): Promise<void> => {
 };
 
 /**
- * 强制刷新页面内容
- * @param options 刷新选项对象，可包含hardReload属性，表示是否硬刷新页面
+ * 强制刷新内容，但提供更多控制选项
+ * @param options 刷新选项
  */
-export const forceContentRefresh = (options: { hardReload?: boolean } = {}): void => {
-  if (!isBrowser()) return;
+export const forceContentRefresh = (options: { 
+  hardReload?: boolean; 
+  clearCacheFirst?: boolean;
+  clearImageCache?: boolean;
+} = {}): void => {
+  const { hardReload = false, clearCacheFirst = true, clearImageCache = true } = options;
   
-  try {
-    // 更新 localStorage 中的时间戳
-    const timestamp = new Date().getTime();
-    localStorage.setItem('lastContentUpdate', timestamp.toString());
-    
-    // 根据选项决定刷新方式
-    if (options.hardReload) {
-      // 硬刷新 - 完全从服务器重新获取
-      window.location.reload();
-    } else {
-      // 软刷新 - the behavior is browser-dependent
-      window.location.reload();
-    }
-  } catch (err) {
-    console.error('强制刷新内容失败:', err);
-    // 尝试最基本的刷新
-    try {
-      window.location.href = window.location.href;
-    } catch {
-      console.warn('基本刷新方式也失败，无法刷新页面');
-    }
+  console.log(`强制刷新内容 [硬重载=${hardReload}, 先清缓存=${clearCacheFirst}, 清除图片缓存=${clearImageCache}]`);
+  
+  // 如果设置了图片缓存清除
+  if (clearImageCache && isBrowserEnvironment()) {
+    // 尝试重新加载所有图片，绕过缓存
+    document.querySelectorAll('img').forEach(img => {
+      if (img.src && !img.src.startsWith('data:')) {
+        const originalSrc = img.src;
+        img.src = '';
+        setTimeout(() => {
+          img.src = getNoCacheUrl(originalSrc);
+          console.log(`图片已重新加载: ${originalSrc}`);
+        }, 50);
+      }
+    });
   }
-};
+  
+  if (hardReload) {
+    // 使用强制更新，包括缓存清除
+    forceContentUpdate().catch(error => {
+      console.error('强制内容更新失败:', error);
+    });
+    return;
+  }
+  
+  // 执行普通刷新
+  if (clearCacheFirst) {
+    clearCache().then(() => {
+      // 清除图片预加载缓存
+      if (clearImageCache && isCacheApiSupported()) {
+        caches.open('image-cache').then(cache => {
+          cache.keys().then(requests => {
+            requests.forEach(request => {
+              cache.delete(request);
+            });
+          });
+        }).catch(err => console.warn('清除图片缓存失败:', err));
+      }
+      
+      // 为当前页面所有图片URL添加时间戳参数
+      if (clearImageCache && isBrowserEnvironment()) {
+        const noCacheTimestamp = new Date().getTime();
+        const imageElements = document.querySelectorAll('img');
+        
+        imageElements.forEach(img => {
+          if (img.src && !img.src.startsWith('data:')) {
+            const srcWithoutCache = img.src.split('?')[0]; // 移除可能存在的查询参数
+            img.src = `${srcWithoutCache}?_noCache=${noCacheTimestamp}`;
+          }
+        });
+        
+        console.log(`已为${imageElements.length}张图片添加缓存控制参数`);
+      }
+      
+      // 不强制重载页面
+      console.log('资源已刷新，无需重载页面');
+    });
+  } else {
+    // 不清除缓存，直接刷新页面状态
+    console.log('刷新页面状态，不清除缓存');
+  }
+}
 
 /**
  * 获取当前内容版本
