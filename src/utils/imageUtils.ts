@@ -8,8 +8,13 @@
  * @returns 基础路径字符串
  */
 export const getBasePath = (): string => {
-  // 固定返回GitHub Pages项目路径
-  return '/Personal_website';
+  // 判断是否在生产环境
+  if (import.meta.env && import.meta.env.PROD) {
+    // 生产环境使用GitHub Pages路径
+    return '/Personal_website';
+  }
+  // 开发环境使用相对路径
+  return '';
 };
 
 /**

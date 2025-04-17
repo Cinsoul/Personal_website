@@ -3,17 +3,10 @@ import { Link } from 'react-router-dom';
 import { useLanguage } from '../contexts/LanguageContext';
 import FlippableAvatar from './FlippableAvatar';
 
-// 使用绝对路径确保图片在任何环境下都能正确加载
+// 使用相对路径确保图片在任何环境下都能正确加载
 const getImagePaths = () => {
-  // 根据当前环境使用不同的路径
-  const isProduction = import.meta.env.PROD;
-  const basePath = isProduction ? '/Personal_website' : '';
-  
-  console.log('环境信息:', { 
-    isProduction, 
-    basePath, 
-    currentUrl: window.location.href 
-  });
+  // 从public/images目录加载图片
+  const basePath = import.meta.env.PROD ? '/Personal_website' : '';
   
   return {
     abstractAvatarPath: `${basePath}/images/abstract-avatar.png`, 
