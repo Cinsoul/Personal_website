@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>证书图片直接保存</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+      background: #f5f5f7;
+      color: #333;
+    }
+    .container {
+      background: white;
+      border-radius: 10px;
+      padding: 20px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
+    h1 {
+      color: #1d1d1f;
+      text-align: center;
+    }
+    .instructions {
+      background: #f8f8f8;
+      padding: 15px;
+      border-left: 4px solid #0066cc;
+      margin-bottom: 20px;
+      border-radius: 0 5px 5px 0;
+    }
+    .certificate-section {
+      margin-bottom: 30px;
+      border-bottom: 1px solid #e5e5e5;
+      padding-bottom: 20px;
+    }
+    .certificate-section:last-child {
+      border-bottom: none;
+    }
+    label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: bold;
+    }
+    .image-container {
+      max-width: 100%;
+      margin: 20px 0;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      overflow: hidden;
+    }
+    .certificate-image {
+      max-width: 100%;
+      display: block;
+    }
+    button {
+      background: #0066cc;
+      color: white;
+      border: none;
+      padding: 10px 15px;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 14px;
+      margin-top: 10px;
+    }
+    button:hover {
+      background: #004499;
+    }
+    .result {
+      margin-top: 20px;
+      padding: 10px;
+      background: #e5f4ff;
+      border-radius: 5px;
+      display: none;
+    }
+    code {
+      background: #f1f1f1;
+      padding: 2px 5px;
+      border-radius: 3px;
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>证书图片直接保存</h1>
+    
+    <div class="instructions">
+      <p>点击"保存"按钮，将图片文件下载并保存到项目的 <code>public/certificates/</code> 目录中。</p>
+    </div>
+    
+    <!-- JPMorgan 证书 -->
+    <div class="certificate-section">
+      <h2>JPMorgan证书</h2>
+      <div class="image-container">
+        <img id="jpmorgan-image" src="../certificates/jpmorgan-certificate.jpg" alt="JPMorgan Investment Banking Certificate" class="certificate-image">
+      </div>
+      <button id="jpmorgan-save">保存JPMorgan证书图片</button>
+      <div id="jpmorgan-result" class="result"></div>
+    </div>
+    
+    <!-- Bloomberg 证书 -->
+    <div class="certificate-section">
+      <h2>Bloomberg证书</h2>
+      <div class="image-container">
+        <img id="bloomberg-image" src="../certificates/bloomberg-certificate.jpg" alt="Bloomberg Market Concepts Certificate" class="certificate-image">
+      </div>
+      <button id="bloomberg-save">保存Bloomberg证书图片</button>
+      <div id="bloomberg-result" class="result"></div>
+    </div>
+    
+    <!-- LVMH 证书 -->
+    <div class="certificate-section">
+      <h2>LVMH证书</h2>
+      <div class="image-container">
+        <img id="lvmh-image" src="../certificates/lvmh-certificate.jpg" alt="LVMH Inside Certificate" class="certificate-image">
+      </div>
+      <button id="lvmh-save">保存LVMH证书图片</button>
+      <div id="lvmh-result" class="result"></div>
+    </div>
+  </div>
+
+  <script>
+    // 保存图片函数
+    function saveImage(imageId, filename, resultId) {
+      const image = document.getElementById(imageId);
+      const result = document.getElementById(resultId);
+      
+      // 创建canvas并绘制图片
+      const canvas = document.createElement('canvas');
+      canvas.width = image.naturalWidth;
+      canvas.height = image.naturalHeight;
+      
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(image, 0, 0);
+      
+      // 将canvas转换为data URL
+      const dataUrl = canvas.toDataURL('image/jpeg', 0.9);
+      
+      // 创建下载链接
+      const link = document.createElement('a');
+      link.download = filename;
+      link.href = dataUrl;
+      link.click();
+      
+      // 显示结果信息
+      result.innerHTML = `
+        <p>图片已准备好下载！</p>
+        <p>请将下载的图片文件保存到 <code>public/certificates/${filename}</code></p>
+      `;
+      result.style.display = 'block';
+    }
+    
+    // 设置按钮事件监听
+    document.addEventListener('DOMContentLoaded', function() {
+      // JPMorgan证书
+      document.getElementById('jpmorgan-save').addEventListener('click', function() {
+        saveImage('jpmorgan-image', 'jpmorgan-certificate.jpg', 'jpmorgan-result');
+      });
+      
+      // Bloomberg证书
+      document.getElementById('bloomberg-save').addEventListener('click', function() {
+        saveImage('bloomberg-image', 'bloomberg-certificate.jpg', 'bloomberg-result');
+      });
+      
+      // LVMH证书
+      document.getElementById('lvmh-save').addEventListener('click', function() {
+        saveImage('lvmh-image', 'lvmh-certificate.jpg', 'lvmh-result');
+      });
+    });
+  </script>
+</body>
+</html> 
