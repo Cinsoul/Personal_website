@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useLanguage } from '../contexts/LanguageContext';
 import { useAdmin } from '../contexts/AdminContext';
-import { triggerGitHubActionsSync, getDefaultGitHubConfig, hasGitHubPAT, GitHubSyncResponse } from '../utils/githubSync';
+import { triggerGitHubActionsSync, getDefaultGitHubConfig, hasGitHubPAT } from '../utils/githubSync';
 
 // 防抖函数，避免频繁触发同步
 const debounce = (func: Function, wait: number) => {
@@ -201,7 +201,7 @@ export default function WorkExperienceManager() {
 
   // 删除工作经验
   const deleteExperience = (id: string) => {
-    if (window.confirm('确定要删除这条工作经验吗？')) {
+    if (window.confirm(t('manager.delete.confirm') || '确定要删除这条工作经验吗？')) {
       const updatedExperiences = experiences.filter(exp => exp.id !== id);
       saveExperiences(updatedExperiences);
     }
@@ -444,7 +444,8 @@ export default function WorkExperienceManager() {
       <div className="max-w-7xl mx-auto">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4">
           <div>
-            <h2 className="text-3xl font-bold text-gray-900 dark:text-white">工作经验管理</h2>
+            <h2 className="text-3xl font-bold text-gray-900 dark:text-white">{t('manager.work.title') || '工作经验管理'}</h2>
+            {isSyncing && <span className="ml-2 inline-block animate-pulse">同步中...</span>}
             {syncMessage && (
               <p className={`mt-2 ${syncMessage.includes('成功') ? 'text-green-500' : 'text-amber-500'}`}>
                 {syncMessage}
@@ -457,21 +458,21 @@ export default function WorkExperienceManager() {
               onClick={createExperience}
               className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
             >
-              添加工作经验
+              {t('work.manager.add_experience') || '添加工作经验'}
             </button>
             
             <button
               onClick={resetToDefault}
               className="px-4 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 transition-colors"
             >
-              重置为默认
+              {t('manager.reset_default') || '重置为默认'}
             </button>
             
             <Link
               to="/work"
               className="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors"
             >
-              返回
+              {t('manager.back') || '返回'}
             </Link>
           </div>
         </div>
