@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>证书展示</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #000;
+      color: #fff;
+      margin: 0;
+      padding: 20px;
+    }
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    .header {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+    .certificate-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 30px;
+    }
+    .certificate-card {
+      background-color: #1a1a1a;
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+      transition: transform 0.3s;
+    }
+    .certificate-card:hover {
+      transform: translateY(-5px);
+    }
+    .certificate-info {
+      padding: 20px;
+    }
+    .certificate-title {
+      font-size: 18px;
+      font-weight: bold;
+      margin-bottom: 5px;
+    }
+    .certificate-org {
+      color: #aaa;
+      margin-bottom: 10px;
+    }
+    .certificate-image {
+      width: 100%;
+      cursor: pointer;
+      border-bottom: 1px solid #333;
+      aspect-ratio: 16/9;
+      object-fit: contain;
+      background: #111;
+    }
+    .fullscreen {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.9);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+      visibility: hidden;
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+    .fullscreen.active {
+      visibility: visible;
+      opacity: 1;
+    }
+    .fullscreen img {
+      max-width: 90%;
+      max-height: 90%;
+      object-fit: contain;
+    }
+    .close-btn {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      background: none;
+      border: none;
+      color: white;
+      font-size: 30px;
+      cursor: pointer;
+    }
+    .back-btn {
+      display: inline-block;
+      margin-bottom: 20px;
+      color: #fff;
+      text-decoration: none;
+      background-color: #333;
+      padding: 10px 15px;
+      border-radius: 5px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <a href="../" class="back-btn">← 返回网站</a>
+    <div class="header">
+      <h1>个人证书展示</h1>
+      <p>点击证书可查看大图</p>
+    </div>
+    
+    <div class="certificate-grid">
+      <!-- LVMH证书 -->
+      <div class="certificate-card">
+        <img src="lvmh-certificate.jpg" alt="LVMH Inside Certificate" class="certificate-image" onclick="showFullscreen('lvmh-certificate.jpg', 'LVMH Inside Certificate')">
+        <div class="certificate-info">
+          <div class="certificate-title">LVMH Inside Program Completion</div>
+          <div class="certificate-org">LVMH</div>
+          <div>Nov 2024</div>
+        </div>
+      </div>
+      
+      <!-- Bloomberg证书 -->
+      <div class="certificate-card">
+        <img src="bloomberg-certificate.png" alt="Bloomberg Market Concepts Certificate" class="certificate-image" onclick="showFullscreen('bloomberg-certificate.png', 'Bloomberg Market Concepts Certificate')">
+        <div class="certificate-info">
+          <div class="certificate-title">Bloomberg Market Concepts</div>
+          <div class="certificate-org">Bloomberg</div>
+          <div>Sep 2021</div>
+        </div>
+      </div>
+      
+      <!-- JPMorgan证书 -->
+      <div class="certificate-card">
+        <img src="jpmorgan-certificate.png" alt="JPMorgan Investment Banking Certificate" class="certificate-image" onclick="showFullscreen('jpmorgan-certificate.png', 'JPMorgan Investment Banking Certificate')">
+        <div class="certificate-info">
+          <div class="certificate-title">Investment Banking Excellence</div>
+          <div class="certificate-org">JPMorgan Chase</div>
+          <div>Apr 2021</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- 全屏查看 -->
+  <div class="fullscreen" id="fullscreen">
+    <button class="close-btn" onclick="hideFullscreen()">×</button>
+    <img id="fullscreen-image" src="" alt="">
+  </div>
+  
+  <script>
+    function showFullscreen(imgSrc, altText) {
+      const fullscreen = document.getElementById('fullscreen');
+      const fullscreenImage = document.getElementById('fullscreen-image');
+      
+      fullscreenImage.src = imgSrc;
+      fullscreenImage.alt = altText;
+      fullscreen.classList.add('active');
+      
+      // 阻止滚动
+      document.body.style.overflow = 'hidden';
+    }
+    
+    function hideFullscreen() {
+      const fullscreen = document.getElementById('fullscreen');
+      fullscreen.classList.remove('active');
+      
+      // 恢复滚动
+      document.body.style.overflow = '';
+    }
+    
+    // 点击外部区域关闭全屏
+    document.getElementById('fullscreen').addEventListener('click', function(e) {
+      if (e.target === this) {
+        hideFullscreen();
+      }
+    });
+    
+    // ESC键关闭全屏
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape' && document.getElementById('fullscreen').classList.contains('active')) {
+        hideFullscreen();
+      }
+    });
+  </script>
+</body>
+</html> 
