@@ -6,7 +6,7 @@
   "homepage": "https://Cinsoul.github.io/Personal_website",
   "scripts": {
     "dev": "vite",
-    "build": "rm -rf dist && tsc --skipLibCheck && vite build && cp -R public/images dist/ && cp public/404.html dist/ && touch dist/.nojekyll",
+    "build": "rm -rf dist && tsc --skipLibCheck && vite build && cp -R public/images dist/ && cp -R public/certificates dist/ && cp -R public/data dist/ && cp public/404.html dist/ && touch dist/.nojekyll",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview",
     "predeploy": "npm run build",
