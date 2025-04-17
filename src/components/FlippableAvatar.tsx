@@ -23,6 +23,12 @@ const FlippableAvatar: React.FC<FlippableAvatarProps> = ({
   const [frontErrorDetails, setFrontErrorDetails] = useState('');
   const [backErrorDetails, setBackErrorDetails] = useState('');
   
+  // 处理翻转
+  const handleFlip = () => {
+    console.log('翻转状态变更:', !isFlipped ? '翻转到个人照片' : '翻转到抽象头像');
+    setIsFlipped(!isFlipped);
+  };
+  
   // 尝试多种路径直到图片加载成功
   useEffect(() => {
     console.log('开始加载图片，路径信息：', {
@@ -96,10 +102,15 @@ const FlippableAvatar: React.FC<FlippableAvatarProps> = ({
     }
   }, [frontImagePath, backImagePath]);
 
+  // 记录当前翻转状态
+  useEffect(() => {
+    console.log('当前翻转状态:', isFlipped ? '显示个人照片' : '显示抽象头像');
+  }, [isFlipped]);
+
   return (
     <div 
       className={`flip-container ${isFlipped ? 'flipped' : ''}`} 
-      onClick={() => setIsFlipped(!isFlipped)}
+      onClick={handleFlip}
       style={{ width: `${size}px`, height: `${size}px` }}
     >
       <div className="flipper">

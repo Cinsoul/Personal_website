@@ -11,6 +11,7 @@
   box-shadow: 0 0 20px rgba(0, 0, 255, 0.3);
   z-index: 1;
   cursor: pointer;
+  transform-style: preserve-3d;
 }
 
 /* 翻转效果 */
@@ -21,10 +22,6 @@
   transition: transform 0.8s;
   transform-style: preserve-3d;
   background-color: #000;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  overflow: hidden;
 }
 
 /* 翻转动画 */
@@ -35,15 +32,18 @@
 /* 正面和背面共同样式 */
 .front, .back {
   position: absolute;
+  top: 0;
+  left: 0;
   width: 100%;
   height: 100%;
+  -webkit-backface-visibility: hidden;
   backface-visibility: hidden;
-  background-color: #000;
   display: flex;
   align-items: center;
   justify-content: center;
   border-radius: 50%;
   overflow: hidden;
+  background-color: #000;
 }
 
 /* 正面样式 - 抽象头像（保持圆形） */
@@ -74,8 +74,6 @@
 .avatar-image {
   width: 100%;
   height: 100%;
-  object-fit: contain;
-  object-position: center;
   background-color: #000;
 }
 
@@ -83,16 +81,12 @@
 .abstract-avatar {
   object-fit: cover;
   background-color: #000 !important;
-  max-height: 100%;
-  max-width: 100%;
 }
 
-/* 个人照片样式 - 确保显示完整身体 */
+/* 个人照片样式 - 确保显示头部 */
 .personal-photo {
   object-fit: cover;
   background-color: #000 !important;
-  max-height: 100%;
-  max-width: 100%;
   object-position: top;
   transform: scale(1.2);
 }
