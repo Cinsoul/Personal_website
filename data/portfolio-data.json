@@ -6,7 +6,7 @@
       "description": "A responsive personal portfolio website built with React and Tailwind CSS, featuring dark mode support, responsive design, and smooth animations",
       "technologies": ["React", "TypeScript", "Tailwind CSS", "Vite"],
       "link": "https://github.com/Cinsoul/personal-website",
-      "image": "/Personal_website/project-images/personal-website.png"
+      "image": "/project-images/personal-website.png"
     }
   ],
   "awards": [
@@ -16,9 +16,9 @@
       "organization": "LVMH",
       "date": "Nov 2024",
       "description": "Successfully completed the exclusive LVMH Inside program, gaining comprehensive insights into luxury retail and digital innovation",
-      "image": "/Personal_website/logos/lvmh.svg",
+      "image": "/logos/lvmh.svg",
       "document": {
-        "dataUrl": "/Personal_website/certificates/lvmh-certificate.jpg",
+        "dataUrl": "/certificates/lvmh-certificate.jpg",
         "fileName": "LVMH Inside Certificate",
         "fileType": "image/jpeg"
       }
@@ -29,9 +29,9 @@
       "organization": "Bloomberg",
       "date": "Sep 2021",
       "description": "Completed advanced financial market analysis certification, covering economics, currencies, fixed income, and equities",
-      "image": "/Personal_website/logos/bloomberg.svg",
+      "image": "/logos/bloomberg.svg",
       "document": {
-        "dataUrl": "/Personal_website/certificates/bloomberg-certificate.jpg",
+        "dataUrl": "/certificates/bloomberg-certificate.jpg",
         "fileName": "Bloomberg Market Concepts Certificate",
         "fileType": "image/jpeg"
       }
@@ -42,9 +42,9 @@
       "organization": "JPMorgan Chase",
       "date": "Apr 2021",
       "description": "Recognized for outstanding performance in investment banking simulation program, focusing on M&A analysis and financial modeling",
-      "image": "/Personal_website/logos/jpmorgan.svg",
+      "image": "/logos/jpmorgan.svg",
       "document": {
-        "dataUrl": "/Personal_website/certificates/jpmorgan-certificate.jpg",
+        "dataUrl": "/certificates/jpmorgan-certificate.jpg",
         "fileName": "JPMorgan Investment Banking Certificate",
         "fileType": "image/jpeg"
       }
