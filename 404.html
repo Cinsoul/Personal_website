@@ -1,26 +1,33 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <meta charset="utf-8">
-  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-  <meta http-equiv="Pragma" content="no-cache">
-  <meta http-equiv="Expires" content="0">
-  <title>单页应用 - 页面重定向</title>
-  <script type="text/javascript">
-    // GitHub Pages的单页应用重定向脚本
-    // 由于GitHub Pages不支持前端路由，添加此脚本进行重定向
-    var pathSegmentsToKeep = 1; // 设置为1因为网站托管在username.github.io/repo-name下
-
-    var l = window.location;
-    // 不使用hash，直接重定向到基础路径
-    l.replace(
-      l.protocol + '//' + l.hostname + (l.port ? ':' + l.port : '') +
-      l.pathname.split('/').slice(0, 1 + pathSegmentsToKeep).join('/')
-    );
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>页面未找到 - 重定向中</title>
+  <script>
+    // GitHub Pages的单页应用重定向处理
+    (function() {
+      var segmentCount = 1; // 在URL中要保留的路径段数，针对项目页面通常是1 (/Personal_website/)
+      var location = window.location;
+      var baseUrl = location.protocol + '//' + location.hostname + 
+        (location.port ? ':' + location.port : '') + 
+        location.pathname.split('/').slice(0, 1 + segmentCount).join('/') + '/';
+      var path = location.pathname.slice(1).split('/').slice(segmentCount).join('/');
+      var search = location.search;
+      var hash = location.hash;
+      
+      // 构建重定向URL
+      var redirectUrl = baseUrl + (path ? '?' + path : '') + 
+        (search ? (path ? '&' : '?') + search.slice(1) : '') + hash;
+      
+      console.log('重定向到:', redirectUrl);
+      window.location.replace(redirectUrl);
+    })();
   </script>
 </head>
 <body>
-  <h1>页面重定向中...</h1>
-  <p>如果您未被自动重定向，请<a href="/Personal_website">点击此处</a>返回首页。</p>
+  <h1>页面加载中...</h1>
+  <p>如果您没有被自动重定向，请<a href="https://cinsoul.github.io/Personal_website/">点击这里</a>返回首页。</p>
 </body>
 </html>
