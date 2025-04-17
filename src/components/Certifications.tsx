@@ -22,7 +22,6 @@ interface Certification {
 }
 
 export default function Certifications() {
-  const [isLoaded, setIsLoaded] = useState(false);
   const { t } = useLanguage();
   const navigate = useNavigate();
   const location = useLocation();
@@ -120,14 +119,12 @@ export default function Certifications() {
       loadCertificationsData();
     } catch (error) {
       console.error('加载证书数据出错:', error);
-      setIsLoaded(true); // 即使出错也设置加载状态为完成
     }
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   // 提取加载数据逻辑到独立函数
   const loadCertificationsData = () => {
     console.log('从localStorage加载证书数据...');
-    setIsLoaded(false);
     
     setTimeout(() => {
       try {
@@ -162,7 +159,6 @@ export default function Certifications() {
         setDefaultCertifications();
       }
       
-      setIsLoaded(true);
       console.log('证书数据加载完成');
     }, 100);
   };

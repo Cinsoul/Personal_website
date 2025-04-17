@@ -137,7 +137,7 @@ const DocumentViewer: React.FC<DocumentViewerProps> = ({
   }, [onClose]);
   
   // 用于window事件监听器的键盘事件处理
-  const handleWindowKeyDown = useCallback((e: KeyboardEvent) => {
+  const handleWindowKeyDown = useCallback((e: globalThis.KeyboardEvent) => {
     if (e.key === 'Escape') {
       onClose();
     }
