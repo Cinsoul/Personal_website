@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useLanguage } from '../contexts/LanguageContext';
 import { useAdmin } from '../contexts/AdminContext';
+import { getBasePath } from '../utils/imageUtils';
 
 interface WorkExperience {
   id?: string;
@@ -42,17 +43,55 @@ export default function WorkExperience() {
   const { isAdminMode } = useAdmin();
   const [workExperiences, setWorkExperiences] = useState<WorkExperience[]>([]);
   const [isLoaded, setIsLoaded] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+
+  // 从JSON文件加载工作经验数据
+  const loadWorkExperienceData = async () => {
+    try {
+      // 首先尝试从localStorage加载数据
+      const savedExperiences = localStorage.getItem('workExperiences');
+      if (savedExperiences) {
+        const parsed = JSON.parse(savedExperiences);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          console.log('从localStorage加载工作经验数据:', parsed.length, '条记录');
+          setWorkExperiences(parsed.sort(sortByDate));
+          setIsLoaded(true);
+          setIsLoading(false);
+          return;
+        }
+      }
+      
+      // 如果localStorage中没有数据，则从文件加载
+      console.log('尝试从JSON文件加载工作经验数据');
+      const basePath = getBasePath();
+      const response = await fetch(`${basePath}/data/work-experience-data.json`);
+      
+      if (response.ok) {
+        const data = await response.json();
+        if (data.workExperiences && Array.isArray(data.workExperiences)) {
+          const sortedExperiences = data.workExperiences.sort(sortByDate);
+          setWorkExperiences(sortedExperiences);
+          
+          // 也保存到localStorage便于后续使用
+          localStorage.setItem('workExperiences', JSON.stringify(sortedExperiences));
+          console.log('从文件加载了工作经验数据:', sortedExperiences.length, '条记录');
+        }
+      } else {
+        // 如果文件不存在或加载失败，使用空数组
+        console.warn('无法加载工作经验数据文件，使用空数组');
+        setWorkExperiences([]);
+      }
+    } catch (error) {
+      console.error('加载工作经验数据出错:', error);
+      setWorkExperiences([]);
+    } finally {
+      setIsLoaded(true);
+      setIsLoading(false);
+    }
+  };
 
   useEffect(() => {
-    setIsLoaded(true);
-    
-    // 从localStorage加载工作经历数据
-    const savedExperiences = localStorage.getItem('workExperiences');
-    if (savedExperiences) {
-      // 加载后自动排序
-      const parsed = JSON.parse(savedExperiences);
-      setWorkExperiences(parsed.sort(sortByDate));
-    }
+    loadWorkExperienceData();
   }, []);
 
   return (
@@ -69,7 +108,11 @@ export default function WorkExperience() {
             )}
           </div>
           
-          {workExperiences.length > 0 ? (
+          {isLoading ? (
+            <div className="flex justify-center items-center py-20">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
+            </div>
+          ) : workExperiences.length > 0 ? (
             workExperiences.map((experience) => (
               <div key={experience.id} className="mb-8 bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
                 <div className="flex justify-between items-start mb-4">
@@ -90,62 +133,9 @@ export default function WorkExperience() {
               </div>
             ))
           ) : (
-            <>
-              {/* Starbucks */}
-              <div className="mb-8 bg-gray-900 dark:bg-gray-900 rounded-lg shadow-lg p-6">
-                <div className="flex justify-between items-start mb-4">
-                  <div>
-                    <h3 className="text-xl font-semibold text-white dark:text-white">Starbucks {t('work.parttime')}</h3>
-                    <p className="text-gray-300 dark:text-gray-300">Barista</p>
-                  </div>
-                  <div className="text-right">
-                    <p className="text-gray-300 dark:text-gray-300">London, UK</p>
-                    <p className="text-gray-300 dark:text-gray-300">Mar 2023 – Aug 2024</p>
-                  </div>
-                </div>
-                <ul className="list-disc list-inside space-y-2 text-gray-300 dark:text-gray-300">
-                  <li>Sales & Operations Support: Promote seasonal new products in the store according to customer needs, improve new product sales, and promote the store's overall revenue growth</li>
-                  <li>Marketing Skills: Successful promotion of seasonal beverage sales, with sales growth of 15%</li>
-                </ul>
-              </div>
-
-              {/* UKpathway Consultancy Group */}
-              <div className="mb-8 bg-gray-900 dark:bg-gray-900 rounded-lg shadow-lg p-6">
-                <div className="flex justify-between items-start mb-4">
-                  <div>
-                    <h3 className="text-xl font-semibold text-white dark:text-white">UKpathway Consultancy Group {t('work.parttime')}</h3>
-                    <p className="text-gray-300 dark:text-gray-300">Marketing Department</p>
-                  </div>
-                  <div className="text-right">
-                    <p className="text-gray-300 dark:text-gray-300">Remote</p>
-                    <p className="text-gray-300 dark:text-gray-300">Dec 2022 – Feb 2023</p>
-                  </div>
-                </div>
-                <ul className="list-disc list-inside space-y-2 text-gray-300 dark:text-gray-300">
-                  <li>Promote Products: Introduce company services on social media</li>
-                  <li>Analyse Services: Analyse and highlight the advantages of services and compare them with other companies services</li>
-                </ul>
-              </div>
-
-              {/* MUJI */}
-              <div className="bg-gray-900 dark:bg-gray-900 rounded-lg shadow-lg p-6">
-                <div className="flex justify-between items-start mb-4">
-                  <div>
-                    <h3 className="text-xl font-semibold text-white dark:text-white">MUJI {t('work.parttime')}</h3>
-                    <p className="text-gray-300 dark:text-gray-300">Sales Consultant</p>
-                  </div>
-                  <div className="text-right">
-                    <p className="text-gray-300 dark:text-gray-300">Fuzhou, China</p>
-                    <p className="text-gray-300 dark:text-gray-300">Oct 2021 – Jun 2022</p>
-                  </div>
-                </div>
-                <ul className="list-disc list-inside space-y-2 text-gray-300 dark:text-gray-300">
-                  <li>Teamwork: Collaborate with the team on promotional activities to increase sales by 10% through effective communication and execution</li>
-                  <li>Personal Achievement: Assist in optimising inventory management processes and increase product turnover efficiency by 15%</li>
-                  <li>Insight: Learn how brands operate globally and understand how they differentiate themselves in their local markets</li>
-                </ul>
-              </div>
-            </>
+            <div className="text-center py-10 text-gray-500 dark:text-gray-400">
+              {t('work.empty')}
+            </div>
           )}
         </div>
       </div>

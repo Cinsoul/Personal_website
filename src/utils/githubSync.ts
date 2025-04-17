@@ -18,6 +18,23 @@ export interface GitHubSyncOptions {
 }
 
 /**
+ * GitHub同步数据接口
+ */
+export interface GitHubSyncData {
+  data: any;             // 要同步的数据
+  filename: string;      // 文件名
+  options: GitHubSyncOptions; // 同步选项
+}
+
+/**
+ * GitHub同步响应接口
+ */
+export interface GitHubSyncResponse {
+  success: boolean;
+  error?: string;
+}
+
+/**
  * 触发GitHub Actions工作流来同步数据
  * 
  * @param data 要同步的数据
@@ -27,21 +44,59 @@ export interface GitHubSyncOptions {
 export async function triggerGitHubActionsSync(
   data: any, 
   options: GitHubSyncOptions
-): Promise<boolean> {
+): Promise<boolean>;
+
+/**
+ * 触发GitHub Actions工作流来同步数据（重载版本）
+ * 
+ * @param syncData 同步数据对象
+ * @returns 包含成功状态和错误信息的响应对象
+ */
+export async function triggerGitHubActionsSync(
+  syncData: GitHubSyncData
+): Promise<GitHubSyncResponse>;
+
+/**
+ * 触发GitHub Actions工作流来同步数据（实现）
+ */
+export async function triggerGitHubActionsSync(
+  dataOrSyncData: any | GitHubSyncData,
+  optionsParam?: GitHubSyncOptions
+): Promise<boolean | GitHubSyncResponse> {
   try {
     console.log('准备触发GitHub Actions同步工作流...');
 
+    // 处理不同的参数格式
+    let data: any;
+    let options: GitHubSyncOptions;
+    let isExtendedFormat = false;
+
+    if (dataOrSyncData && typeof dataOrSyncData === 'object' && 'options' in dataOrSyncData) {
+      // 使用扩展格式
+      data = dataOrSyncData.data;
+      options = dataOrSyncData.options;
+      isExtendedFormat = true;
+    } else {
+      // 使用标准格式
+      data = dataOrSyncData;
+      options = optionsParam as GitHubSyncOptions;
+    }
+
     // 必要参数检查
-    if (!options.owner || !options.repo) {
+    if (!options || !options.owner || !options.repo) {
       console.error('缺少必要参数: owner, repo');
-      return false;
+      return isExtendedFormat 
+        ? { success: false, error: '缺少必要参数: owner, repo' } 
+        : false;
     }
 
     // 获取PAT
     const token = options.token || localStorage.getItem('github_pat');
     if (!token) {
       console.error('未提供GitHub个人访问令牌(PAT)，无法进行同步');
-      return false;
+      return isExtendedFormat 
+        ? { success: false, error: '未提供GitHub个人访问令牌(PAT)，无法进行同步' } 
+        : false;
     }
 
     // 构建API请求URL
@@ -70,15 +125,19 @@ export async function triggerGitHubActionsSync(
     // 检查响应状态
     if (response.status === 204) {
       console.log('成功触发GitHub Actions工作流');
-      return true;
+      return isExtendedFormat ? { success: true } : true;
     } else {
       const responseData = await response.json();
-      console.error('触发GitHub Actions工作流失败:', responseData);
-      return false;
+      const errorMsg = `触发GitHub Actions工作流失败: ${JSON.stringify(responseData)}`;
+      console.error(errorMsg);
+      return isExtendedFormat ? { success: false, error: errorMsg } : false;
     }
   } catch (error) {
-    console.error('触发GitHub Actions工作流出错:', error);
-    return false;
+    const errorMsg = `触发GitHub Actions工作流出错: ${error instanceof Error ? error.message : String(error)}`;
+    console.error(errorMsg);
+    return dataOrSyncData && typeof dataOrSyncData === 'object' && 'options' in dataOrSyncData
+      ? { success: false, error: errorMsg }
+      : false;
   }
 }
 

@@ -1,11 +1,12 @@
-import { useState, useEffect, ChangeEvent, FormEvent } from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState, useEffect, useCallback } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { useLanguage } from '../contexts/LanguageContext';
-import { syncDataToGitHubRepo } from '../utils/fileUtils';
+import { useAdmin } from '../contexts/AdminContext';
+import { triggerGitHubActionsSync, getDefaultGitHubConfig, hasGitHubPAT, GitHubSyncResponse } from '../utils/githubSync';
 
-// 添加防抖工具函数
+// 防抖函数，避免频繁触发同步
 const debounce = (func: Function, wait: number) => {
-  let timeout: number;
+  let timeout: ReturnType<typeof setTimeout>;
   return function executedFunction(...args: any[]) {
     const later = () => {
       clearTimeout(timeout);
@@ -16,8 +17,13 @@ const debounce = (func: Function, wait: number) => {
   };
 };
 
+// 生成唯一ID的函数，替代uuid库
+const generateId = () => {
+  return Date.now().toString() + '-' + Math.random().toString(36).substring(2, 9);
+};
+
 interface WorkExperience {
-  id?: string;
+  id: string;
   company: string;
   position: string;
   location: string;
@@ -29,7 +35,7 @@ interface WorkExperience {
 // 解析日期字符串为时间戳，用于排序
 const parseDate = (dateStr: string): number => {
   // 格式如 "Mar 2023" 或 "Dec 2022"
-  const months = {
+  const months: { [key: string]: number } = {
     'Jan': 0, 'Feb': 1, 'Mar': 2, 'Apr': 3, 'May': 4, 'Jun': 5,
     'Jul': 6, 'Aug': 7, 'Sep': 8, 'Oct': 9, 'Nov': 10, 'Dec': 11
   };
@@ -37,7 +43,7 @@ const parseDate = (dateStr: string): number => {
   const parts = dateStr.split(' ');
   if (parts.length !== 2) return 0;
   
-  const month = months[parts[0] as keyof typeof months] || 0;
+  const month = months[parts[0]] || 0;
   const year = parseInt(parts[1]);
   
   return new Date(year, month).getTime();
@@ -51,408 +57,474 @@ const sortByDate = (a: WorkExperience, b: WorkExperience): number => {
 };
 
 export default function WorkExperienceManager() {
-  // 获取语言上下文
   const { t } = useLanguage();
+  const { isAdminMode } = useAdmin();
+  const navigate = useNavigate();
   
   // 状态管理
   const [experiences, setExperiences] = useState<WorkExperience[]>([]);
+  const [editingExperience, setEditingExperience] = useState<WorkExperience | null>(null);
   const [isEditing, setIsEditing] = useState(false);
-  const [currentExperience, setCurrentExperience] = useState<WorkExperience>({
-    company: '',
-    position: '',
-    location: '',
-    startDate: '',
-    endDate: '',
-    responsibilities: []
-  });
-  const [responsibilityInput, setResponsibilityInput] = useState('');
-  
-  // 添加同步状态
   const [isSyncing, setIsSyncing] = useState(false);
-  const [lastSyncTime, setLastSyncTime] = useState<Date | null>(null);
   const [syncMessage, setSyncMessage] = useState('');
+  const [hasPAT, setHasPAT] = useState(false);
+  
+  // 表单状态
+  const [newResponsibility, setNewResponsibility] = useState('');
 
-  // 从本地存储加载数据
+  // 从localStorage加载工作经验
   useEffect(() => {
-    const savedExperiences = localStorage.getItem('workExperiences');
-    
-    if (savedExperiences) {
-      try {
-        // 加载后自动排序
-        const parsed = JSON.parse(savedExperiences);
-        if (Array.isArray(parsed) && parsed.length > 0) {
-          console.log('从localStorage加载工作经验数据，数量:', parsed.length);
-          setExperiences(parsed.sort(sortByDate));
-          return;
+    const loadExperiences = () => {
+      const savedExperiences = localStorage.getItem('workExperiences');
+      if (savedExperiences) {
+        try {
+          const parsed = JSON.parse(savedExperiences);
+          if (Array.isArray(parsed)) {
+            setExperiences(parsed.sort(sortByDate));
+          }
+        } catch (error) {
+          console.error('解析工作经验数据出错:', error);
+          setExperiences([]);
         }
-      } catch (error) {
-        console.error('解析工作经验数据出错:', error);
       }
-    }
+    };
     
-    console.log('localStorage中没有有效的工作经验数据，将使用空列表');
-    
-    // 使用空数组初始化
-    setExperiences([]);
+    loadExperiences();
+    setHasPAT(hasGitHubPAT());
   }, []);
 
-  // 添加自动同步到GitHub功能
-  const autoSyncToGitHub = async () => {
+  // 自动同步到GitHub
+  const syncToGitHub = useCallback(async (data: WorkExperience[]) => {
     try {
-      // 如果已经在同步中，则跳过
-      if (isSyncing) {
-        console.log('已有同步任务在进行中，跳过此次同步');
-        return;
-      }
-      
       setIsSyncing(true);
-      setSyncMessage('正在同步工作经验数据到GitHub...');
+      setSyncMessage('正在同步到GitHub...');
       
-      const exportObject = {
-        workExperiences: experiences,
-        exportDate: new Date().toISOString(),
-        version: '1.0'
+      const exportDate = new Date().toISOString();
+      const workExperienceData = {
+        exportDate,
+        version: '1.0',
+        workExperiences: data
       };
       
-      const success = await syncDataToGitHubRepo(exportObject, { 
-        targetFile: 'public/data/work-experience-data.json',
-        commitMessage: '自动同步工作经验数据 [自动提交]'
+      const defaultConfig = getDefaultGitHubConfig();
+      const result = await triggerGitHubActionsSync({
+        data: workExperienceData,
+        filename: 'work-experience-data.json',
+        options: {
+          ...defaultConfig,
+          message: `更新工作经验数据 [${exportDate}]`
+        }
       });
       
-      if (success) {
-        const now = new Date();
-        setLastSyncTime(now);
-        setSyncMessage(`上次同步: ${now.toLocaleTimeString()}`);
-        console.log('工作经验数据已自动同步到GitHub', now.toLocaleTimeString());
+      if (result.success) {
+        setSyncMessage('同步成功！');
+        setTimeout(() => setSyncMessage(''), 3000);
       } else {
-        setSyncMessage('同步失败，请检查GitHub配置');
-        console.error('自动同步工作经验到GitHub失败');
+        setSyncMessage(`同步失败: ${result.error}`);
       }
     } catch (error) {
-      console.error('自动同步出错:', error);
-      setSyncMessage('同步出错，请手动同步');
+      console.error('GitHub同步错误:', error);
+      setSyncMessage(`同步错误: ${error instanceof Error ? error.message : String(error)}`);
     } finally {
       setIsSyncing(false);
     }
-  };
+  }, []);
   
-  // 创建防抖版本的同步函数 (5秒防抖)
-  const debouncedAutoSync = debounce(autoSyncToGitHub, 5000);
+  // 使用防抖处理同步，避免频繁触发
+  const debouncedSync = useCallback(debounce(syncToGitHub, 2000), [syncToGitHub]);
 
-  // 保存数据到本地存储
-  useEffect(() => {
-    if (experiences.length > 0) {
-      localStorage.setItem('workExperiences', JSON.stringify(experiences));
-      
-      // 数据变更时触发自动同步
-      debouncedAutoSync();
+  // 保存到localStorage并触发同步
+  const saveExperiences = useCallback((updatedExperiences: WorkExperience[]) => {
+    const sorted = [...updatedExperiences].sort(sortByDate);
+    localStorage.setItem('workExperiences', JSON.stringify(sorted));
+    setExperiences(sorted);
+    
+    if (hasPAT) {
+      debouncedSync(sorted);
     }
-  }, [experiences]);
+  }, [debouncedSync, hasPAT]);
 
-  // 处理表单输入变化
-  const handleExperienceChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  // 处理输入变化
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
-    setCurrentExperience({
-      ...currentExperience,
-      [name]: value
-    });
-  };
-
-  // 处理职责输入
-  const handleResponsibilityInputChange = (e: ChangeEvent<HTMLInputElement>) => {
-    setResponsibilityInput(e.target.value);
-  };
-
-  // 添加职责
-  const addResponsibility = () => {
-    if (responsibilityInput.trim() !== '') {
-      setCurrentExperience({
-        ...currentExperience,
-        responsibilities: [...currentExperience.responsibilities, responsibilityInput.trim()]
+    if (editingExperience) {
+      setEditingExperience({
+        ...editingExperience,
+        [name]: value
       });
-      setResponsibilityInput('');
     }
   };
 
-  // 移除职责
+  // 添加责任条目
+  const addResponsibility = () => {
+    if (newResponsibility.trim() && editingExperience) {
+      setEditingExperience({
+        ...editingExperience,
+        responsibilities: [...editingExperience.responsibilities, newResponsibility.trim()]
+      });
+      setNewResponsibility('');
+    }
+  };
+
+  // 删除责任条目
   const removeResponsibility = (index: number) => {
-    const updatedResponsibilities = [...currentExperience.responsibilities];
-    updatedResponsibilities.splice(index, 1);
-    setCurrentExperience({
-      ...currentExperience,
-      responsibilities: updatedResponsibilities
-    });
-  };
-
-  // 修改保存工作经历函数，添加自动同步
-  const saveExperience = (e: FormEvent) => {
-    e.preventDefault();
-    
-    if (isEditing && currentExperience.id) {
-      // 更新现有经历
-      const updatedExperiences = experiences.map(exp => 
-        exp.id === currentExperience.id ? currentExperience : exp
-      );
-      // 保存时自动排序
-      setExperiences(updatedExperiences.sort(sortByDate));
-    } else {
-      // 添加新经历
-      const newExperience = {
-        ...currentExperience,
-        id: Date.now().toString()
-      };
-      // 保存时自动排序
-      setExperiences([...experiences, newExperience].sort(sortByDate));
-    }
-    
-    resetExperienceForm();
-  };
-
-  // 编辑工作经历
-  const editExperience = (experience: WorkExperience) => {
-    setCurrentExperience(experience);
-    setIsEditing(true);
-  };
-
-  // 修改删除工作经历函数，添加自动同步
-  const deleteExperience = (id: string) => {
-    if (window.confirm(t('manager.work.delete.confirm'))) {
-      setExperiences(experiences.filter(exp => exp.id !== id));
+    if (editingExperience) {
+      const updatedResponsibilities = [...editingExperience.responsibilities];
+      updatedResponsibilities.splice(index, 1);
+      setEditingExperience({
+        ...editingExperience,
+        responsibilities: updatedResponsibilities
+      });
     }
   };
 
-  // 重置表单
-  const resetExperienceForm = () => {
-    setCurrentExperience({
+  // 创建新的工作经验
+  const createExperience = () => {
+    const newExperience: WorkExperience = {
+      id: generateId(), // 使用自定义函数生成ID
       company: '',
       position: '',
       location: '',
       startDate: '',
       endDate: '',
       responsibilities: []
-    });
-    setResponsibilityInput('');
-    setIsEditing(false);
+    };
+    setEditingExperience(newExperience);
+    setIsEditing(true);
   };
 
+  // 编辑已有工作经验
+  const editExperience = (experience: WorkExperience) => {
+    setEditingExperience({ ...experience });
+    setIsEditing(true);
+  };
+
+  // 删除工作经验
+  const deleteExperience = (id: string) => {
+    if (window.confirm('确定要删除这条工作经验吗？')) {
+      const updatedExperiences = experiences.filter(exp => exp.id !== id);
+      saveExperiences(updatedExperiences);
+    }
+  };
+
+  // 保存编辑的工作经验
+  const saveExperience = (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (editingExperience) {
+      // 验证必填字段
+      if (!editingExperience.company || !editingExperience.position || 
+          !editingExperience.location || !editingExperience.startDate || 
+          !editingExperience.endDate || editingExperience.responsibilities.length === 0) {
+        alert('请填写所有必填字段，并至少添加一项职责描述。');
+        return;
+      }
+      
+      const existingIndex = experiences.findIndex(exp => exp.id === editingExperience.id);
+      let updatedExperiences: WorkExperience[];
+      
+      if (existingIndex >= 0) {
+        // 更新现有经验
+        updatedExperiences = [...experiences];
+        updatedExperiences[existingIndex] = editingExperience;
+      } else {
+        // 添加新经验
+        updatedExperiences = [...experiences, editingExperience];
+      }
+      
+      saveExperiences(updatedExperiences);
+      setIsEditing(false);
+      setEditingExperience(null);
+    }
+  };
+
+  // 取消编辑
+  const cancelEdit = () => {
+    if (window.confirm('确定要取消编辑吗？所有未保存的更改将丢失。')) {
+      setIsEditing(false);
+      setEditingExperience(null);
+    }
+  };
+
+  // 重置为初始数据
+  const resetToDefault = async () => {
+    if (window.confirm('确定要重置所有工作经验数据吗？这将加载JSON文件中的默认数据。')) {
+      try {
+        const response = await fetch('/data/work-experience-data.json');
+        if (response.ok) {
+          const data = await response.json();
+          if (data.workExperiences && Array.isArray(data.workExperiences)) {
+            saveExperiences(data.workExperiences);
+          }
+        } else {
+          alert('无法加载默认数据，请稍后再试。');
+        }
+      } catch (error) {
+        console.error('重置数据出错:', error);
+        alert('重置数据出错，请稍后再试。');
+      }
+    }
+  };
+
+  // 如果没有管理员权限，重定向到工作经验页面
+  useEffect(() => {
+    if (!isAdminMode) {
+      navigate('/work');
+    }
+  }, [isAdminMode, navigate]);
+
+  // 如果正在编辑，显示编辑表单
+  if (isEditing && editingExperience) {
+    return (
+      <div className="min-h-screen bg-gray-100 dark:bg-gray-900 py-12 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-3xl mx-auto">
+          <div className="flex justify-between items-center mb-8">
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
+              {editingExperience.id ? '编辑工作经验' : '添加工作经验'}
+            </h2>
+            <button
+              onClick={cancelEdit}
+              className="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors"
+            >
+              取消
+            </button>
+          </div>
+          
+          <form onSubmit={saveExperience} className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
+            <div className="grid grid-cols-1 gap-6">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                  公司名称 *
+                </label>
+                <input
+                  type="text"
+                  name="company"
+                  value={editingExperience.company}
+                  onChange={handleInputChange}
+                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                  required
+                />
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                  职位 *
+                </label>
+                <input
+                  type="text"
+                  name="position"
+                  value={editingExperience.position}
+                  onChange={handleInputChange}
+                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                  required
+                />
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                  地点 *
+                </label>
+                <input
+                  type="text"
+                  name="location"
+                  value={editingExperience.location}
+                  onChange={handleInputChange}
+                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                  required
+                />
+              </div>
+              
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                    开始日期 * (如 Jul 2024)
+                  </label>
+                  <input
+                    type="text"
+                    name="startDate"
+                    value={editingExperience.startDate}
+                    onChange={handleInputChange}
+                    placeholder="如 Jul 2024"
+                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                    required
+                  />
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                    结束日期 * (如 Present)
+                  </label>
+                  <input
+                    type="text"
+                    name="endDate"
+                    value={editingExperience.endDate}
+                    onChange={handleInputChange}
+                    placeholder="如 Present"
+                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                    required
+                  />
+                </div>
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  职责描述 *
+                </label>
+                <div className="space-y-4">
+                  {editingExperience.responsibilities.map((responsibility, index) => (
+                    <div key={index} className="flex items-center">
+                      <input
+                        type="text"
+                        value={responsibility}
+                        onChange={(e) => {
+                          const updatedResponsibilities = [...editingExperience.responsibilities];
+                          updatedResponsibilities[index] = e.target.value;
+                          setEditingExperience({
+                            ...editingExperience,
+                            responsibilities: updatedResponsibilities
+                          });
+                        }}
+                        className="flex-1 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => removeResponsibility(index)}
+                        className="ml-2 p-2 text-red-500 hover:text-red-700"
+                      >
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                          <path fillRule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd" />
+                        </svg>
+                      </button>
+                    </div>
+                  ))}
+                  
+                  <div className="flex items-center">
+                    <input
+                      type="text"
+                      value={newResponsibility}
+                      onChange={(e) => setNewResponsibility(e.target.value)}
+                      placeholder="输入新的职责描述..."
+                      className="flex-1 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                    />
+                    <button
+                      type="button"
+                      onClick={addResponsibility}
+                      className="ml-2 p-2 text-blue-500 hover:text-blue-700"
+                      disabled={!newResponsibility.trim()}
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                        <path fillRule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clipRule="evenodd" />
+                      </svg>
+                    </button>
+                  </div>
+                </div>
+                {editingExperience.responsibilities.length === 0 && (
+                  <p className="text-red-500 text-sm mt-2">请至少添加一项职责描述</p>
+                )}
+              </div>
+              
+              <div className="flex justify-end pt-4">
+                <button
+                  type="submit"
+                  className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                >
+                  保存
+                </button>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    );
+  }
+
+  // 显示工作经验列表
   return (
-    <div className="min-h-screen bg-gray-100 dark:bg-gray-900">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="flex justify-between items-center mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">{t('manager.work.title')}</h1>
-          <div className="flex items-center space-x-4">
-            {/* 添加同步状态指示器 */}
-            {isSyncing && (
-              <span className="text-sm text-blue-600 dark:text-blue-400 flex items-center">
-                <svg className="animate-spin -ml-1 mr-2 h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                </svg>
-                {t('manager.syncing')}
-              </span>
+    <div className="min-h-screen bg-gray-100 dark:bg-gray-900 py-12 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-7xl mx-auto">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4">
+          <div>
+            <h2 className="text-3xl font-bold text-gray-900 dark:text-white">工作经验管理</h2>
+            {syncMessage && (
+              <p className={`mt-2 ${syncMessage.includes('成功') ? 'text-green-500' : 'text-amber-500'}`}>
+                {syncMessage}
+              </p>
             )}
-            {/* 显示上次同步时间 */}
-            {lastSyncTime && !isSyncing && (
-              <span className="text-sm text-gray-600 dark:text-gray-400">
-                {t('manager.lastSync')}: {lastSyncTime.toLocaleString()}
-              </span>
-            )}
-            {syncMessage && !isSyncing && (
-              <span className="text-sm text-gray-600 dark:text-gray-400">{syncMessage}</span>
-            )}
+          </div>
+          
+          <div className="flex flex-wrap gap-2">
+            <button
+              onClick={createExperience}
+              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+            >
+              添加工作经验
+            </button>
             
-            <Link to="/" className="px-4 py-2 bg-gray-200 dark:bg-gray-700 rounded-lg text-gray-800 dark:text-gray-200 hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors">
-              {t('manager.back')}
+            <button
+              onClick={resetToDefault}
+              className="px-4 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 transition-colors"
+            >
+              重置为默认
+            </button>
+            
+            <Link
+              to="/work"
+              className="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors"
+            >
+              返回
             </Link>
           </div>
         </div>
         
-        {/* 工作经历管理部分 */}
-        <section className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 mb-8">
-          <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">{t('manager.work.add_edit')}</h2>
-          
-          {/* 工作经历表单 */}
-          <form onSubmit={saveExperience} className="mb-8">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
-                <label className="block text-gray-700 dark:text-gray-300 mb-2" htmlFor="company">
-                  {t('manager.work.company')}
-                </label>
-                <input
-                  type="text"
-                  id="company"
-                  name="company"
-                  value={currentExperience.company}
-                  onChange={handleExperienceChange}
-                  className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-                  required
-                />
-              </div>
-              
-              <div>
-                <label className="block text-gray-700 dark:text-gray-300 mb-2" htmlFor="position">
-                  {t('manager.work.position')}
-                </label>
-                <input
-                  type="text"
-                  id="position"
-                  name="position"
-                  value={currentExperience.position}
-                  onChange={handleExperienceChange}
-                  className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-                  required
-                />
-              </div>
-            </div>
-            
-            <div className="mt-4">
-              <label className="block text-gray-700 dark:text-gray-300 mb-2" htmlFor="location">
-                {t('manager.work.location')}
-              </label>
-              <input
-                type="text"
-                id="location"
-                name="location"
-                value={currentExperience.location}
-                onChange={handleExperienceChange}
-                className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-                required
-              />
-            </div>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
-              <div>
-                <label className="block text-gray-700 dark:text-gray-300 mb-2" htmlFor="startDate">
-                  {t('manager.work.start_date')}
-                </label>
-                <input
-                  type="text"
-                  id="startDate"
-                  name="startDate"
-                  value={currentExperience.startDate}
-                  onChange={handleExperienceChange}
-                  className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-                  placeholder={t('manager.work.start_date_placeholder')}
-                  required
-                />
-              </div>
-              
-              <div>
-                <label className="block text-gray-700 dark:text-gray-300 mb-2" htmlFor="endDate">
-                  {t('manager.work.end_date')}
-                </label>
-                <input
-                  type="text"
-                  id="endDate"
-                  name="endDate"
-                  value={currentExperience.endDate}
-                  onChange={handleExperienceChange}
-                  className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-                  placeholder={t('manager.work.end_date_placeholder')}
-                  required
-                />
-              </div>
-            </div>
-            
-            <div className="mt-4">
-              <label className="block text-gray-700 dark:text-gray-300 mb-2">
-                {t('manager.work.responsibilities')}
-              </label>
-              <div className="flex items-center">
-                <input
-                  type="text"
-                  value={responsibilityInput}
-                  onChange={handleResponsibilityInputChange}
-                  className="flex-1 px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-                  placeholder={t('manager.work.input_responsibility')}
-                />
-                <button
-                  type="button"
-                  onClick={addResponsibility}
-                  className="ml-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
-                >
-                  {t('manager.work.add')}
-                </button>
-              </div>
-              
-              <div className="mt-2 space-y-2">
-                {currentExperience.responsibilities.map((responsibility, index) => (
-                  <div key={index} className="flex items-start bg-gray-50 dark:bg-gray-700 p-3 rounded-lg">
-                    <span className="flex-1 text-gray-800 dark:text-gray-200">{responsibility}</span>
-                    <button
-                      type="button"
-                      onClick={() => removeResponsibility(index)}
-                      className="ml-2 text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300"
-                    >
-                      {t('manager.work.delete')}
-                    </button>
+        {experiences.length > 0 ? (
+          <div className="space-y-6">
+            {experiences.map((experience) => (
+              <div key={experience.id} className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
+                <div className="flex justify-between items-start mb-4">
+                  <div>
+                    <h3 className="text-xl font-semibold text-gray-900 dark:text-white">{experience.company}</h3>
+                    <p className="text-gray-600 dark:text-gray-300">{experience.position}</p>
                   </div>
-                ))}
-              </div>
-            </div>
-            
-            <div className="mt-6 flex justify-end space-x-4">
-              <button
-                type="button"
-                onClick={resetExperienceForm}
-                className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 dark:text-gray-300 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
-              >
-                {t('manager.work.cancel')}
-              </button>
-              <button
-                type="submit"
-                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-              >
-                {isEditing ? t('manager.work.update') : t('manager.work.add_experience')}
-              </button>
-            </div>
-          </form>
-          
-          {/* 工作经历列表 */}
-          <div className="mt-8">
-            <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">{t('manager.work.existing')}</h3>
-            <div className="space-y-4">
-              {experiences.map((experience) => (
-                <div key={experience.id} className="border dark:border-gray-700 rounded-lg p-4">
-                  <div className="flex justify-between items-start mb-2">
-                    <div>
-                      <h4 className="text-lg font-medium text-gray-900 dark:text-white">{experience.company}</h4>
-                      <p className="text-gray-600 dark:text-gray-400">{experience.position}</p>
-                    </div>
-                    <div className="text-right">
-                      <p className="text-gray-600 dark:text-gray-400">{experience.location}</p>
-                      <p className="text-gray-600 dark:text-gray-400">{experience.startDate} – {experience.endDate}</p>
-                    </div>
-                  </div>
-                  
-                  <div className="mt-2">
-                    <h5 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{t('manager.work.responsibilities')}:</h5>
-                    <ul className="list-disc list-inside space-y-1 text-gray-700 dark:text-gray-300">
-                      {experience.responsibilities.map((responsibility, index) => (
-                        <li key={index}>{responsibility}</li>
-                      ))}
-                    </ul>
-                  </div>
-                  
-                  <div className="mt-4 flex justify-end space-x-2">
-                    <button
-                      onClick={() => editExperience(experience)}
-                      className="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300"
-                    >
-                      {t('manager.work.edit')}
-                    </button>
-                    <button
-                      onClick={() => deleteExperience(experience.id!)}
-                      className="text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300"
-                    >
-                      {t('manager.work.delete')}
-                    </button>
+                  <div className="text-right">
+                    <p className="text-gray-600 dark:text-gray-300">{experience.location}</p>
+                    <p className="text-gray-600 dark:text-gray-300">{experience.startDate} – {experience.endDate}</p>
                   </div>
                 </div>
-              ))}
-            </div>
+                
+                <ul className="list-disc list-inside space-y-2 text-gray-700 dark:text-gray-300 mb-4">
+                  {experience.responsibilities.map((responsibility, index) => (
+                    <li key={index}>{responsibility}</li>
+                  ))}
+                </ul>
+                
+                <div className="flex justify-end space-x-2">
+                  <button
+                    onClick={() => editExperience(experience)}
+                    className="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
+                  >
+                    编辑
+                  </button>
+                  <button
+                    onClick={() => deleteExperience(experience.id)}
+                    className="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600 transition-colors"
+                  >
+                    删除
+                  </button>
+                </div>
+              </div>
+            ))}
           </div>
-        </section>
+        ) : (
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-8 text-center">
+            <p className="text-gray-500 dark:text-gray-400 mb-4">暂无工作经验数据。</p>
+            <button
+              onClick={createExperience}
+              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+            >
+              添加第一条工作经验
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );
