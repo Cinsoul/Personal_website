@@ -21,25 +21,70 @@ const ImageViewer: React.FC<ImageViewerProps> = ({ imageUrl, altText = '', onClo
 
   // 获取完整图片URL
   const getFullImageUrl = useCallback(() => {
+    console.log('处理图片URL:', imageUrl);
     // 检查是否已经是完整URL
     if (imageUrl.startsWith('http') || imageUrl.startsWith('data:')) {
+      console.log('使用原始URL:', imageUrl);
       return imageUrl;
     }
     
     // 添加基础路径
     const basePath = getBasePath();
-    return `${basePath}${imageUrl}`;
+    const fullUrl = imageUrl.startsWith('/') 
+      ? `${basePath}${imageUrl}` 
+      : `${basePath}/${imageUrl}`;
+    console.log('构建完整URL:', fullUrl, '基础路径:', basePath);
+    
+    return fullUrl;
   }, [imageUrl]);
 
   // 处理图片加载
   const handleImageLoad = () => {
+    console.log('图片加载成功:', getFullImageUrl());
     setLoading(false);
   };
 
   // 处理图片加载错误
   const handleImageError = () => {
+    console.error('图片加载失败:', getFullImageUrl());
     setLoading(false);
     setError(true);
+    
+    // 尝试不同的URL格式
+    if (imageRef.current && !imageUrl.startsWith('data:') && !imageUrl.startsWith('http')) {
+      const basePath = getBasePath();
+      // 尝试不带斜杠的路径
+      if (imageUrl.startsWith('/')) {
+        const altUrl = `${basePath}${imageUrl.slice(1)}`;
+        console.log('尝试不带斜杠的路径:', altUrl);
+        imageRef.current.src = altUrl;
+        
+        // 如果还失败，最后尝试使用默认图标
+        imageRef.current.onerror = () => {
+          console.log('备用路径也失败，使用默认图标');
+          imageRef.current!.src = `${basePath}/vite.svg`;
+          // 如果默认图标加载失败，显示错误状态
+          imageRef.current!.onerror = () => setError(true);
+        };
+        return;
+      }
+      
+      // 尝试添加斜杠的路径
+      if (!imageUrl.startsWith('/')) {
+        const altUrl = `${basePath}/${imageUrl}`;
+        console.log('尝试添加斜杠的路径:', altUrl);
+        imageRef.current.src = altUrl;
+        
+        // 如果还失败，最后尝试使用默认图标
+        imageRef.current.onerror = () => {
+          console.log('备用路径也失败，使用默认图标');
+          imageRef.current!.src = `${basePath}/vite.svg`;
+          // 如果默认图标加载失败，显示错误状态
+          imageRef.current!.onerror = () => setError(true);
+        };
+        return;
+      }
+    }
   };
 
   // 重置图片大小和位置

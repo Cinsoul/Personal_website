@@ -548,11 +548,41 @@ export default function ProjectsAndAwards() {
                           className="w-full h-full object-contain transition-transform duration-500 hover:scale-110"
                           loading="lazy"
                           onError={(e) => {
-                            console.error('奖项图片加载失败:', award.title);
+                            console.error('奖项图片加载失败:', award.title, '路径:', award.image);
                             
                             // 检查图片路径是否为dataURL
                             if (award.image && award.image.startsWith('data:')) {
                               console.warn('数据URL图片加载失败，可能数据损坏');
+                            } else if (award.image) {
+                              // 记录完整的尝试加载路径
+                              console.warn('尝试加载的完整路径:', `${getBasePath()}${award.image}`);
+                              
+                              // 尝试使用不同的路径格式加载
+                              const altPath = award.image.startsWith('/') 
+                                ? `${getBasePath()}${award.image}`
+                                : `${getBasePath()}/${award.image}`;
+                              console.log('尝试备用路径:', altPath);
+                              e.currentTarget.src = altPath;
+                              
+                              // 如果备用路径也失败，才使用默认图标
+                              e.currentTarget.onerror = () => {
+                                console.error('备用路径也加载失败，使用默认图标');
+                                e.currentTarget.src = `${getBasePath()}/vite.svg`;
+                                
+                                // 如果默认图也加载失败，则使用内联SVG作为最终备用
+                                e.currentTarget.onerror = () => {
+                                  console.error('默认图标也加载失败，使用内联SVG');
+                                  const parent = e.currentTarget.parentElement;
+                                  if (parent) {
+                                    // 创建简单的占位SVG，显示组织名称
+                                    parent.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid meet">
+                                      <rect width="100%" height="100%" fill="#f0f0f0" />
+                                      <text x="50%" y="50%" font-family="Arial" font-size="12" fill="#888" text-anchor="middle" dominant-baseline="middle">${award.organization}</text>
+                                    </svg>`;
+                                  }
+                                };
+                              };
+                              return;
                             }
                             
                             // 尝试加载备用图片

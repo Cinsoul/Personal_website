@@ -9,12 +9,31 @@
  */
 export const getBasePath = (): string => {
   // 判断是否在生产环境
-  if (import.meta.env && import.meta.env.PROD) {
-    // 生产环境使用GitHub Pages路径
+  const isProd = import.meta.env && import.meta.env.PROD;
+  const basePath = isProd ? '/Personal_website' : '';
+
+  // 打印环境和路径信息（调试用）
+  console.log('环境检查:', { 
+    isProd, 
+    mode: import.meta.env?.MODE || 'unknown', 
+    basePath,
+    fullURL: window.location.href,
+    host: window.location.host
+  });
+
+  // 特殊情况处理：如果是本地预览生产构建，但URL不包含项目路径
+  if (isProd && !window.location.pathname.includes('/Personal_website') && !window.location.host.includes('github.io')) {
+    console.log('本地预览生产构建，不添加项目路径');
+    return '';
+  }
+
+  // 基于主机名的额外检查，确保GitHub Pages环境正确返回路径
+  if (window.location.host.includes('github.io')) {
+    console.log('在github.io域名下，返回项目路径:', '/Personal_website');
     return '/Personal_website';
   }
-  // 开发环境使用相对路径
-  return '';
+
+  return basePath;
 };
 
 /**
