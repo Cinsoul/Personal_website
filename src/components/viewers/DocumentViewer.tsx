@@ -23,13 +23,26 @@ const DocumentViewer: React.FC<DocumentViewerProps> = ({
   const getFullDocumentUrl = useCallback(() => {
     // 检查是否已经是完整URL
     if (documentUrl.startsWith('http') || documentUrl.startsWith('data:')) {
+      console.log('使用完整URL:', documentUrl);
       return documentUrl;
     }
     
     // 添加基础路径
     const basePath = getBasePath();
-    return `${basePath}${documentUrl}`;
-  }, [documentUrl]);
+    const fullUrl = `${basePath}${documentUrl}`;
+    console.log('处理后的文档URL:', fullUrl, '基础路径:', basePath);
+    
+    // 如果是图片类型，确保URL没有特殊字符
+    if (mimeType?.startsWith('image/')) {
+      // 为图片URL添加时间戳，避免缓存问题
+      const timestamp = new Date().getTime();
+      const urlWithTimestamp = `${fullUrl}?t=${timestamp}`;
+      console.log('添加时间戳后的图片URL:', urlWithTimestamp);
+      return urlWithTimestamp;
+    }
+    
+    return fullUrl;
+  }, [documentUrl, mimeType]);
   
   // 判断是否可以在浏览器中预览
   const canPreview = useCallback((): boolean => {
@@ -131,14 +144,29 @@ const DocumentViewer: React.FC<DocumentViewerProps> = ({
         
         {!loading && !error && canPreview() ? (
           <div className="viewer-doc-container">
-            <iframe 
-              src={fullDocumentUrl}
-              title={filename}
-              className="viewer-doc-frame"
-              onLoad={handleLoad}
-              onError={handleError}
-              sandbox="allow-same-origin allow-scripts"
-            />
+            {mimeType?.startsWith('image/') ? (
+              // 对于图片类型，使用img标签而不是iframe
+              <img 
+                src={fullDocumentUrl}
+                alt={filename}
+                className="viewer-img max-w-full max-h-full object-contain"
+                onLoad={handleLoad}
+                onError={handleError}
+                style={{
+                  maxHeight: '80vh',
+                  maxWidth: '90vw',
+                }}
+              />
+            ) : (
+              <iframe 
+                src={fullDocumentUrl}
+                title={filename}
+                className="viewer-doc-frame"
+                onLoad={handleLoad}
+                onError={handleError}
+                sandbox="allow-same-origin allow-scripts"
+              />
+            )}
           </div>
         ) : (
           !loading && (

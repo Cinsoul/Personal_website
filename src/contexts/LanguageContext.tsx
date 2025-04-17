@@ -152,6 +152,10 @@ export const translations: Translations = {
     zh: '文档下载失败，文件可能已损坏或不存在',
     en: 'Document download failed, file may be corrupted or missing',
   },
+  'awards.view_or_download': {
+    zh: '查看或下载证书',
+    en: 'View or Download Certificate',
+  },
   'certifications.view': {
     zh: '查看证书 →',
     en: 'View Certificate →',

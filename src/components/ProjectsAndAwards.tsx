@@ -167,19 +167,38 @@ export default function ProjectsAndAwards() {
     
     // 验证文档数据URL是否有效
     if (document && document.dataUrl && document.dataUrl.trim() !== '') {
+      // 判断是相对路径还是完整URL
+      const isRelativePath = !document.dataUrl.startsWith('http') && !document.dataUrl.startsWith('data:');
+      
+      // 针对本地文件，添加特殊处理
+      if (isRelativePath && document.dataUrl.startsWith('/certificates/')) {
+        console.log('正在处理证书文件路径:', document.dataUrl);
+      }
+      
       // 添加路径处理逻辑，确保在GitHub Pages环境正确处理路径
       const processedDocument = {
         ...document,
-        dataUrl: document.dataUrl.startsWith('http') || document.dataUrl.startsWith('data:') 
-          ? document.dataUrl 
-          : `${getBasePath()}${document.dataUrl}`
+        dataUrl: isRelativePath ? `${getBasePath()}${document.dataUrl}` : document.dataUrl,
+        fileType: document.fileType || (document.dataUrl.endsWith('.jpg') || document.dataUrl.endsWith('.jpeg') ? 'image/jpeg' : 
+                 document.dataUrl.endsWith('.png') ? 'image/png' : 'application/octet-stream')
       };
       
-      console.log('处理后的文档URL:', processedDocument.dataUrl);
+      // 如果文件名不存在，创建默认文件名
+      if (!processedDocument.fileName || processedDocument.fileName.trim() === '') {
+        const parts = processedDocument.dataUrl.split('/');
+        processedDocument.fileName = parts[parts.length - 1] || '未知文件';
+      }
+      
+      console.log('处理后的文档信息:', {
+        url: processedDocument.dataUrl,
+        filename: processedDocument.fileName,
+        type: processedDocument.fileType
+      });
+      
       setViewingDocument(processedDocument);
     } else {
-      console.error('文档数据URL为空或无效');
-      alert(t('awards.download_error') || '查看失败: 无效的文档数据');
+      console.error('文档数据URL为空或无效:', document);
+      alert('查看失败: 文档链接无效。请确保证书文件已上传到正确位置。');
     }
   };
   
@@ -571,7 +590,7 @@ export default function ProjectsAndAwards() {
                           className="flex items-center text-[var(--apple-blue)] hover:text-[var(--apple-blue-hover)] font-medium transition-all duration-300 ease-out hover:translate-x-1 bg-transparent border-0 p-0 cursor-pointer"
                         >
                           <span className="mr-2">{getFileIcon(award.document.fileType)}</span>
-                          {t('awards.view_or_download')} {award.document.fileName}
+                          查看或下载证书 {award.document.fileName || award.title}
                         </button>
                       )}
 
