@@ -82,9 +82,9 @@
 /* 个人照片样式 - 向左偏移并显示全身 */
 .personal-photo {
   object-fit: contain;
-  object-position: -20px center; /* 向左偏移20px */
+  object-position: -40px center; /* 向左偏移40px，增加了偏移量 */
   background-color: #000 !important;
-  transform: scale(1.1); /* 稍微放大一点 */
+  transform: scale(1.15); /* 稍微增加放大比例 */
 }
 
 /* 抽象头像样式 */
@@ -174,7 +174,7 @@
   
   .personal-photo {
     object-fit: contain;
-    object-position: -15px center; /* 在较小屏幕上减小左偏移 */
+    object-position: -30px center; /* 在较小屏幕上调整左偏移 */
     background-color: #000 !important;
   }
 }
@@ -192,7 +192,7 @@
   
   .personal-photo {
     object-fit: contain;
-    object-position: -10px center; /* 在最小屏幕上进一步减小左偏移 */
+    object-position: -20px center; /* 在最小屏幕上调整左偏移 */
     background-color: #000 !important;
   }
 }
