@@ -80,17 +80,17 @@ const FlippableAvatar: React.FC<FlippableAvatarProps> = ({
       <div className="flipper">
         <div className="front">
           <div className="avatar-image-container">
-            {backLoaded ? (
+            {frontLoaded ? (
               <img
-                src={backImagePath}
-                alt={altText + " (个人照片)"}
-                className="avatar-image personal-photo"
+                src={frontImagePath}
+                alt={altText + " (抽象头像)"}
+                className="avatar-image abstract-avatar"
               />
             ) : (
-              backLoadError ? (
+              frontLoadError ? (
                 <div className="avatar-placeholder">
                   图片加载失败
-                  <div className="error-details">{backErrorDetails}</div>
+                  <div className="error-details">{frontErrorDetails}</div>
                 </div>
               ) : (
                 <div className="loading-placeholder">
@@ -103,17 +103,17 @@ const FlippableAvatar: React.FC<FlippableAvatarProps> = ({
         
         <div className="back">
           <div className="avatar-image-container">
-            {frontLoaded ? (
+            {backLoaded ? (
               <img
-                src={frontImagePath}
-                alt={altText + " (抽象头像)"}
-                className="avatar-image abstract-avatar"
+                src={backImagePath}
+                alt={altText + " (个人照片)"}
+                className="avatar-image personal-photo"
               />
             ) : (
-              frontLoadError ? (
+              backLoadError ? (
                 <div className="avatar-placeholder">
                   图片加载失败
-                  <div className="error-details">{frontErrorDetails}</div>
+                  <div className="error-details">{backErrorDetails}</div>
                 </div>
               ) : (
                 <div className="loading-placeholder">
