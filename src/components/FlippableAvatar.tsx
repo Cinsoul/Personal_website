@@ -24,13 +24,19 @@ const FlippableAvatar: React.FC<FlippableAvatarProps> = ({
   
   // 尝试多种路径直到图片加载成功
   useEffect(() => {
-    console.log('尝试加载图片:', frontImagePath, backImagePath);
+    console.log('开始加载图片，路径信息：', {
+      frontImagePath, 
+      backImagePath,
+      absoluteFrontPath: new URL(frontImagePath, window.location.href).href,
+      absoluteBackPath: new URL(backImagePath, window.location.href).href,
+      currentLocation: window.location.href
+    });
     
     const preloadFront = new Image();
     const preloadBack = new Image();
     
     preloadFront.onload = () => {
-      console.log('前面图片加载成功:', frontImagePath);
+      console.log('前面图片加载成功:', frontImagePath, '图片尺寸:', preloadFront.width, 'x', preloadFront.height);
       setFrontLoaded(true);
       setFrontLoadError(false);
     };
@@ -41,10 +47,18 @@ const FlippableAvatar: React.FC<FlippableAvatarProps> = ({
       const errorText = `无法加载图片: ${frontImagePath}`;
       setFrontErrorDetails(errorText);
       setFrontLoadError(true);
+      
+      // 尝试获取更多错误信息
+      console.error('图片加载错误详情:', {
+        event: e,
+        src: preloadFront.src,
+        complete: preloadFront.complete,
+        naturalWidth: preloadFront.naturalWidth
+      });
     };
     
     preloadBack.onload = () => {
-      console.log('背面图片加载成功:', backImagePath);
+      console.log('背面图片加载成功:', backImagePath, '图片尺寸:', preloadBack.width, 'x', preloadBack.height);
       setBackLoaded(true);
       setBackLoadError(false);
     };
@@ -55,6 +69,14 @@ const FlippableAvatar: React.FC<FlippableAvatarProps> = ({
       const errorText = `无法加载图片: ${backImagePath}`;
       setBackErrorDetails(errorText);
       setBackLoadError(true);
+      
+      // 尝试获取更多错误信息
+      console.error('图片加载错误详情:', {
+        event: e,
+        src: preloadBack.src,
+        complete: preloadBack.complete,
+        naturalWidth: preloadBack.naturalWidth
+      });
     };
 
     // 直接设置src会触发加载过程
@@ -63,10 +85,12 @@ const FlippableAvatar: React.FC<FlippableAvatarProps> = ({
     
     // 如果图片已经缓存，onload可能不会触发，所以检查complete属性
     if (preloadFront.complete) {
+      console.log('前面图片已缓存, 直接设置为已加载');
       setFrontLoaded(true);
     }
     
     if (preloadBack.complete) {
+      console.log('背面图片已缓存, 直接设置为已加载');
       setBackLoaded(true);
     }
   }, [frontImagePath, backImagePath]);
@@ -83,7 +107,7 @@ const FlippableAvatar: React.FC<FlippableAvatarProps> = ({
             {frontLoaded ? (
               <img
                 src={frontImagePath}
-                alt={altText + " (抽象头像)"}
+                alt={altText + " (前面)"}
                 className="avatar-image abstract-avatar"
               />
             ) : (
@@ -106,7 +130,7 @@ const FlippableAvatar: React.FC<FlippableAvatarProps> = ({
             {backLoaded ? (
               <img
                 src={backImagePath}
-                alt={altText + " (个人照片)"}
+                alt={altText + " (背面)"}
                 className="avatar-image personal-photo"
               />
             ) : (

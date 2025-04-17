@@ -79,11 +79,18 @@
   background-color: #000;
 }
 
-/* 抽象头像样式和个人照片统一样式 */
-.abstract-avatar, .personal-photo {
+/* 抽象头像样式 */
+.abstract-avatar {
+  object-fit: cover;
+  background-color: #000 !important;
+}
+
+/* 个人照片样式 - 确保显示完整身体 */
+.personal-photo {
   object-fit: contain;
   background-color: #000 !important;
-  transform: scale(1); /* 统一缩放比例 */
+  max-height: 100%;
+  max-width: 100%;
 }
 
 /* 加载中的占位图样式 */
@@ -163,6 +170,10 @@
     width: 200px;
     height: 200px;
   }
+  
+  .personal-photo {
+    max-height: 100%;
+  }
 }
 
 @media (max-width: 480px) {
@@ -174,6 +185,10 @@
   .avatar-glow {
     width: 160px;
     height: 160px;
+  }
+  
+  .personal-photo {
+    max-height: 100%;
   }
 }
 

@@ -3,10 +3,18 @@ import { Link } from 'react-router-dom';
 import { useLanguage } from '../contexts/LanguageContext';
 import FlippableAvatar from './FlippableAvatar';
 
-// 修正图片路径
+// 使用绝对路径确保图片在任何环境下都能正确加载
 const getImagePaths = () => {
-  // 针对GitHub Pages的base路径进行调整
-  const basePath = '/Personal_website'; // 匹配vite.config.ts中的base配置
+  // 根据当前环境使用不同的路径
+  const isProduction = import.meta.env.PROD;
+  const basePath = isProduction ? '/Personal_website' : '';
+  
+  console.log('环境信息:', { 
+    isProduction, 
+    basePath, 
+    currentUrl: window.location.href 
+  });
+  
   return {
     abstractAvatarPath: `${basePath}/images/abstract-avatar.png`, 
     personalPhotoPath: `${basePath}/images/personal-photo.png`
@@ -23,7 +31,9 @@ export default function Home() {
 
   useEffect(() => {
     // 客户端渲染时设置图片路径
-    setImagePaths(getImagePaths());
+    const paths = getImagePaths();
+    console.log('设置图片路径:', paths);
+    setImagePaths(paths);
     setIsLoaded(true);
     
     const handleScroll = () => {
