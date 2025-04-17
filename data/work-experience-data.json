@@ -1,0 +1,55 @@
+{
+  "workExperiences": [
+    {
+      "id": "job-1",
+      "company": "Goldman Sachs",
+      "position": "China Insight Session",
+      "location": "Remote",
+      "startDate": "Jul 2024",
+      "endDate": "Jul 2024",
+      "responsibilities": [
+        "Business Analysis: Master financial modeling and valuation methods through simulated practical projects, and conduct cash flow prediction and sensitivity analysis for a Chinese concept stock IPO case, with an accuracy rate 5% higher than the team benchmark",
+        "Research: Participated in the industry insight conference led by Goldman Sachs China team, systematically learned China's macroeconomic trends, financial market reform and cross-border investment strategies, and completed 10+ hours of thematic discussions and case studies"
+      ]
+    },
+    {
+      "id": "job-2",
+      "company": "Starbucks",
+      "position": "Barista",
+      "location": "London, UK",
+      "startDate": "Mar 2023",
+      "endDate": "Aug 2024",
+      "responsibilities": [
+        "Sales & Operations Support: Promote seasonal new products in the store according to customer needs, improve new product sales, and promote the store's overall revenue growth",
+        "Marketing Skills: Successful promotion of seasonal beverage sales, with sales growth of 15%"
+      ]
+    },
+    {
+      "id": "job-3",
+      "company": "UKpathway Consultancy Group",
+      "position": "Marketing Department",
+      "location": "Remote",
+      "startDate": "Dec 2022",
+      "endDate": "Feb 2023",
+      "responsibilities": [
+        "Promote Products: Introduce company services on social media",
+        "Analyse Services: Analyse and highlight the advantages of services and compare them with other companies services"
+      ]
+    },
+    {
+      "id": "job-4",
+      "company": "MUJI",
+      "position": "Sales Consultant",
+      "location": "Fuzhou, China",
+      "startDate": "Oct 2021",
+      "endDate": "Jun 2022",
+      "responsibilities": [
+        "Teamwork: Collaborate with the team on promotional activities to increase sales by 10% through effective communication and execution",
+        "Personal Achievement: Assist in optimising inventory management processes and increase product turnover efficiency by 15%",
+        "Insight: Learn how brands operate globally and understand how they differentiate themselves in their local markets"
+      ]
+    }
+  ],
+  "exportDate": "2023-10-26T12:00:00.000Z",
+  "version": "1.0"
+} 
