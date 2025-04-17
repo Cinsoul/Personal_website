@@ -1,33 +1,32 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta http-equiv="X-UA-Compatible" content="ie=edge">
-  <title>页面未找到 - 重定向中</title>
-  <script>
-    // GitHub Pages的单页应用重定向处理
-    (function() {
-      var segmentCount = 1; // 在URL中要保留的路径段数，针对项目页面通常是1 (/Personal_website/)
-      var location = window.location;
-      var baseUrl = location.protocol + '//' + location.hostname + 
-        (location.port ? ':' + location.port : '') + 
-        location.pathname.split('/').slice(0, 1 + segmentCount).join('/') + '/';
-      var path = location.pathname.slice(1).split('/').slice(segmentCount).join('/');
-      var search = location.search;
-      var hash = location.hash;
-      
-      // 构建重定向URL
-      var redirectUrl = baseUrl + (path ? '?' + path : '') + 
-        (search ? (path ? '&' : '?') + search.slice(1) : '') + hash;
-      
-      console.log('重定向到:', redirectUrl);
-      window.location.replace(redirectUrl);
-    })();
-  </script>
-</head>
-<body>
-  <h1>页面加载中...</h1>
-  <p>如果您没有被自动重定向，请<a href="https://cinsoul.github.io/Personal_website/">点击这里</a>返回首页。</p>
-</body>
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="./vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Xindi (Arthur) Wang | Personal Website</title>
+    <meta name="description" content="Personal portfolio website of Xindi (Arthur) Wang, BSc Business with Finance Student" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    
+    <!-- 单页应用GitHub Pages重定向处理脚本 -->
+    <script type="text/javascript">
+      // 这段脚本用于处理GitHub Pages的重定向
+      (function(l) {
+        if (l.search[1] === '/' ) {
+          var decoded = l.search.slice(1).split('&').map(function(s) { 
+            return s.replace(/~and~/g, '&')
+          }).join('?');
+          window.history.replaceState(null, null,
+              l.pathname.slice(0, -1) + decoded + l.hash
+          );
+        }
+      }(window.location))
+    </script>
+    <script type="module" crossorigin src="/Personal_website/assets/index-YF7LGz2m.js"></script>
+    <link rel="stylesheet" crossorigin href="/Personal_website/assets/index-BvVBmKhN.css">
+  </head>
+  <body>
+    <div id="root"></div>
+  </body>
 </html>
