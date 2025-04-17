@@ -99,12 +99,14 @@ export default function Certifications() {
     e.preventDefault();
     e.stopPropagation();
     
-    if (document && document.dataUrl && document.dataUrl.trim() !== '') {
-      setViewingDocument(document);
-    } else {
-      console.error('文档数据URL为空或无效');
-      alert(t('certifications.download_error') || '查看失败: 无效的文档数据');
-    }
+    console.log('打开证书页面');
+    
+    // 直接打开证书展示页面，避免使用DocumentViewer组件
+    const basePath = getBasePath();
+    const certificatesUrl = `${basePath}/certificates/view-certificates.html`;
+    console.log('打开证书页面URL:', certificatesUrl);
+    
+    window.open(certificatesUrl, '_blank');
   };
   
   // 处理关闭文档预览

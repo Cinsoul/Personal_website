@@ -165,66 +165,14 @@ export default function ProjectsAndAwards() {
     e.preventDefault();
     e.stopPropagation();
     
-    // 验证文档数据URL是否有效
-    if (document && document.dataUrl && document.dataUrl.trim() !== '') {
-      // 判断是相对路径还是完整URL
-      const isRelativePath = !document.dataUrl.startsWith('http') && !document.dataUrl.startsWith('data:');
-      
-      console.log('处理证书文档:', document.dataUrl, '是否相对路径:', isRelativePath);
-      
-      // 添加路径处理逻辑，确保在GitHub Pages环境正确处理路径
-      const basePath = getBasePath();
-      let processedUrl;
-      
-      if (isRelativePath) {
-        // 避免重复添加基础路径
-        if (document.dataUrl.includes('/Personal_website/')) {
-          console.log('文档URL已包含基础路径，避免重复添加');
-          processedUrl = document.dataUrl;
-        } else {
-          // 标准化路径确保斜杠正确
-          const normalizedPath = document.dataUrl.startsWith('/') 
-            ? document.dataUrl 
-            : `/${document.dataUrl}`;
-          processedUrl = `${basePath}${normalizedPath}`;
-        }
-      } else {
-        processedUrl = document.dataUrl;
-      }
-      
-      // 记录详细的路径信息用于调试
-      console.log('文档路径处理:', {
-        原始路径: document.dataUrl,
-        基础路径: basePath,
-        处理后路径: processedUrl,
-        文件名: document.fileName,
-        文件类型: document.fileType
-      });
-      
-      const processedDocument = {
-        ...document,
-        dataUrl: processedUrl,
-        fileType: document.fileType || (document.dataUrl.endsWith('.jpg') || document.dataUrl.endsWith('.jpeg') ? 'image/jpeg' : 
-                 document.dataUrl.endsWith('.png') ? 'image/png' : 'application/octet-stream')
-      };
-      
-      // 如果文件名不存在，创建默认文件名
-      if (!processedDocument.fileName || processedDocument.fileName.trim() === '') {
-        const parts = processedDocument.dataUrl.split('/');
-        processedDocument.fileName = parts[parts.length - 1] || '未知文件';
-      }
-      
-      console.log('处理后的文档信息:', {
-        url: processedDocument.dataUrl,
-        filename: processedDocument.fileName,
-        type: processedDocument.fileType
-      });
-      
-      setViewingDocument(processedDocument);
-    } else {
-      console.error('文档数据URL为空或无效:', document);
-      alert('查看失败: 文档链接无效。请确保证书文件已上传到正确位置。');
-    }
+    console.log('打开证书页面');
+    
+    // 直接打开证书展示页面，确保使用正确的基础路径
+    const basePath = getBasePath();
+    const certificatesUrl = `${basePath}/certificates/view-certificates.html`;
+    console.log('打开证书页面URL:', certificatesUrl);
+    
+    window.open(certificatesUrl, '_blank');
   };
   
   // 处理关闭文档预览
