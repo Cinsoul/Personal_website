@@ -1,5 +1,6 @@
 import React, { useState, useCallback, useEffect, useRef } from 'react';
 import '../../styles/viewer.css';
+import { getBasePath } from '../../utils/imageUtils';
 
 interface DocumentViewerProps {
   documentUrl: string;
@@ -17,6 +18,18 @@ const DocumentViewer: React.FC<DocumentViewerProps> = ({
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<boolean>(false);
   const containerRef = useRef<HTMLDivElement>(null);
+  
+  // 获取完整文档URL
+  const getFullDocumentUrl = useCallback(() => {
+    // 检查是否已经是完整URL
+    if (documentUrl.startsWith('http') || documentUrl.startsWith('data:')) {
+      return documentUrl;
+    }
+    
+    // 添加基础路径
+    const basePath = getBasePath();
+    return `${basePath}${documentUrl}`;
+  }, [documentUrl]);
   
   // 判断是否可以在浏览器中预览
   const canPreview = useCallback((): boolean => {
@@ -47,12 +60,12 @@ const DocumentViewer: React.FC<DocumentViewerProps> = ({
   // 处理下载
   const handleDownload = useCallback(() => {
     const link = document.createElement('a');
-    link.href = documentUrl;
+    link.href = getFullDocumentUrl();
     link.download = filename;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
-  }, [documentUrl, filename]);
+  }, [getFullDocumentUrl, filename]);
   
   // 处理加载完成
   const handleLoad = useCallback(() => {
@@ -92,6 +105,9 @@ const DocumentViewer: React.FC<DocumentViewerProps> = ({
     return filename.split('.').pop()?.toUpperCase() || '';
   };
 
+  // 完整文档URL
+  const fullDocumentUrl = getFullDocumentUrl();
+
   return (
     <div className="viewer-overlay" onClick={handleBackgroundClick} ref={containerRef}>
       <div className="viewer-header">
@@ -116,7 +132,7 @@ const DocumentViewer: React.FC<DocumentViewerProps> = ({
         {!loading && !error && canPreview() ? (
           <div className="viewer-doc-container">
             <iframe 
-              src={documentUrl}
+              src={fullDocumentUrl}
               title={filename}
               className="viewer-doc-frame"
               onLoad={handleLoad}

@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import '../../styles/viewer.css';
+import { getBasePath } from '../../utils/imageUtils';
 
 interface ImageViewerProps {
   imageUrl: string;
@@ -17,6 +18,18 @@ const ImageViewer: React.FC<ImageViewerProps> = ({ imageUrl, altText = '', onClo
   
   const imageRef = useRef<HTMLImageElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+
+  // 获取完整图片URL
+  const getFullImageUrl = useCallback(() => {
+    // 检查是否已经是完整URL
+    if (imageUrl.startsWith('http') || imageUrl.startsWith('data:')) {
+      return imageUrl;
+    }
+    
+    // 添加基础路径
+    const basePath = getBasePath();
+    return `${basePath}${imageUrl}`;
+  }, [imageUrl]);
 
   // 处理图片加载
   const handleImageLoad = () => {
@@ -100,7 +113,7 @@ const ImageViewer: React.FC<ImageViewerProps> = ({ imageUrl, altText = '', onClo
   // 下载图片
   const downloadImage = () => {
     const link = document.createElement('a');
-    link.href = imageUrl;
+    link.href = getFullImageUrl();
     link.download = altText || 'image';
     document.body.appendChild(link);
     link.click();
@@ -137,6 +150,9 @@ const ImageViewer: React.FC<ImageViewerProps> = ({ imageUrl, altText = '', onClo
     };
   }, [onDrag, handleKeyDown, handleWheel]);
 
+  // 完整图片URL
+  const fullImageUrl = getFullImageUrl();
+
   return (
     <div className="viewer-overlay" ref={containerRef} onClick={handleBackgroundClick}>
       <div className="viewer-header">
@@ -161,7 +177,7 @@ const ImageViewer: React.FC<ImageViewerProps> = ({ imageUrl, altText = '', onClo
             <img
               ref={imageRef}
               className="viewer-img"
-              src={imageUrl}
+              src={fullImageUrl}
               alt={altText}
               onLoad={handleImageLoad}
               onError={handleImageError}
