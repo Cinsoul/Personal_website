@@ -14,7 +14,8 @@ const FlippableAvatar: React.FC<FlippableAvatarProps> = ({
   altText,
   size = 300
 }) => {
-  const [isFlipped, setIsFlipped] = useState(true);
+  // 初始状态设置为未翻转，显示第一面(抽象头像)
+  const [isFlipped, setIsFlipped] = useState(false);
   const [frontLoaded, setFrontLoaded] = useState(false);
   const [backLoaded, setBackLoaded] = useState(false);
   const [frontLoadError, setFrontLoadError] = useState(false);
