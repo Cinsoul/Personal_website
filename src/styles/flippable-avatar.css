@@ -83,14 +83,18 @@
 .abstract-avatar {
   object-fit: cover;
   background-color: #000 !important;
+  max-height: 100%;
+  max-width: 100%;
 }
 
 /* 个人照片样式 - 确保显示完整身体 */
 .personal-photo {
-  object-fit: contain;
+  object-fit: cover;
   background-color: #000 !important;
   max-height: 100%;
   max-width: 100%;
+  object-position: top;
+  transform: scale(1.2);
 }
 
 /* 加载中的占位图样式 */
@@ -173,6 +177,7 @@
   
   .personal-photo {
     max-height: 100%;
+    object-position: top;
   }
 }
 
@@ -189,6 +194,7 @@
   
   .personal-photo {
     max-height: 100%;
+    object-position: top;
   }
 }
 
