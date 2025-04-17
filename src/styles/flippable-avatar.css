@@ -46,13 +46,13 @@
   overflow: hidden;
 }
 
-/* 正面样式 - 抽象头像（保持圆形） */
+/* 正面样式 - 个人照片（保持圆形） */
 .front {
   z-index: 2;
   transform: rotateY(0deg);
 }
 
-/* 背面样式 - 个人照片（也设为圆形） */
+/* 背面样式 - 抽象图像（也设为圆形） */
 .back {
   transform: rotateY(180deg);
   background-color: #000 !important;
@@ -79,13 +79,19 @@
   background-color: #000;
 }
 
-/* 背面图片样式（个人照片 - 显示全身） */
-.back .avatar-image {
+/* 个人照片样式 - 向左偏移并显示全身 */
+.personal-photo {
   object-fit: contain;
+  object-position: -20px center; /* 向左偏移20px */
   background-color: #000 !important;
-  padding: 0;
-  max-width: 100%;
-  max-height: 100%;
+  transform: scale(1.1); /* 稍微放大一点 */
+}
+
+/* 抽象头像样式 */
+.abstract-avatar {
+  object-fit: cover;
+  object-position: center;
+  background-color: #000 !important;
 }
 
 /* 加载中的占位图样式 */
@@ -166,8 +172,9 @@
     height: 200px;
   }
   
-  .back .avatar-image {
+  .personal-photo {
     object-fit: contain;
+    object-position: -15px center; /* 在较小屏幕上减小左偏移 */
     background-color: #000 !important;
   }
 }
@@ -183,8 +190,9 @@
     height: 160px;
   }
   
-  .back .avatar-image {
+  .personal-photo {
     object-fit: contain;
+    object-position: -10px center; /* 在最小屏幕上进一步减小左偏移 */
     background-color: #000 !important;
   }
 }
