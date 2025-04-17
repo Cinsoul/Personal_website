@@ -18,11 +18,13 @@ const DocumentViewer: React.FC<DocumentViewerProps> = ({
 }) => {
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<boolean>(false);
+  const [errorDetails, setErrorDetails] = useState<string>('');
   const containerRef = useRef<HTMLDivElement>(null);
   const imageRef = useRef<HTMLImageElement>(null);
   
   // 获取完整文档URL
   const getFullDocumentUrl = useCallback(() => {
+    console.log('原始文档URL:', documentUrl);
     // 检查是否已经是完整URL
     if (documentUrl.startsWith('http') || documentUrl.startsWith('data:')) {
       console.log('使用完整URL:', documentUrl);
@@ -34,123 +36,99 @@ const DocumentViewer: React.FC<DocumentViewerProps> = ({
     const fullUrl = `${basePath}${documentUrl}`;
     console.log('处理后的文档URL:', fullUrl, '基础路径:', basePath);
     
-    // 如果是图片类型，确保URL没有特殊字符
-    if (mimeType?.startsWith('image/')) {
-      // 为图片URL添加时间戳，避免缓存问题
-      const timestamp = new Date().getTime();
-      const urlWithTimestamp = `${fullUrl}?t=${timestamp}`;
-      console.log('添加时间戳后的图片URL:', urlWithTimestamp);
-      return urlWithTimestamp;
-    }
-    
     return fullUrl;
-  }, [documentUrl, mimeType]);
+  }, [documentUrl]);
   
-  // 判断是否可以在浏览器中预览
-  const canPreview = useCallback((): boolean => {
-    if (!mimeType) return false;
-    
-    // 常见可预览的文档类型
-    const previewableMimeTypes = [
-      'application/pdf',
-      'application/vnd.ms-excel',
-      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-      'application/msword',
-      'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-      'application/vnd.ms-powerpoint',
-      'application/vnd.openxmlformats-officedocument.presentationml.presentation',
-      'image/jpeg',
-      'image/png',
-      'image/gif',
-      'image/webp',
-      'image/svg+xml',
-      'text/plain',
-      'text/html',
-      'text/csv'
-    ];
-    
-    return previewableMimeTypes.includes(mimeType);
-  }, [mimeType]);
+  // 完整文档URL
+  const fullDocumentUrl = getFullDocumentUrl();
   
-  // 处理下载
-  const handleDownload = useCallback(() => {
-    const link = document.createElement('a');
-    link.href = getFullDocumentUrl();
-    link.download = filename;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-  }, [getFullDocumentUrl, filename]);
-  
-  // 处理加载完成
-  const handleLoad = useCallback(() => {
-    setLoading(false);
-  }, []);
-  
-  // 处理加载错误
-  const handleError = useCallback(() => {
-    console.error('文档加载失败:', {
-      url: getFullDocumentUrl(),
-      type: mimeType,
-      filename
-    });
-    
-    // 如果是图片类型，尝试其他扩展名
+  // 预加载图片
+  useEffect(() => {
+    // 只针对图片类型进行预加载
     if (mimeType?.startsWith('image/')) {
-      const currentSrc = getFullDocumentUrl();
+      console.log('开始预加载图片:', fullDocumentUrl);
+      setLoading(true);
+      setError(false);
+      setErrorDetails('');
       
-      // 尝试不同的文件扩展名
-      if (currentSrc.endsWith('.jpg') || currentSrc.endsWith('.jpeg')) {
-        // 尝试PNG格式
-        const pngSrc = currentSrc.replace(/\.jpe?g$/, '.png');
-        console.log('尝试加载PNG格式:', pngSrc);
+      const img = new Image();
+      
+      img.onload = () => {
+        console.log('图片加载成功:', fullDocumentUrl);
+        setLoading(false);
+      };
+      
+      img.onerror = (e) => {
+        console.error('图片加载失败:', fullDocumentUrl, e);
         
-        // 创建新的Image对象预加载
-        const imgTest = new Image();
-        imgTest.onload = () => {
-          console.log('找到可用的PNG格式:', pngSrc);
-          if (imageRef.current) {
-            imageRef.current.src = pngSrc;
-            // 重置错误状态
-            setError(false);
-            return;
+        // 尝试不同的文件扩展名
+        const tryAlternateFormats = () => {
+          if (fullDocumentUrl.endsWith('.jpg') || fullDocumentUrl.endsWith('.jpeg')) {
+            // 尝试PNG格式
+            const pngUrl = fullDocumentUrl.replace(/\.jpe?g$/, '.png');
+            console.log('尝试加载PNG格式:', pngUrl);
+            
+            const pngImg = new Image();
+            pngImg.onload = () => {
+              console.log('PNG格式加载成功:', pngUrl);
+              if (imageRef.current) {
+                imageRef.current.src = pngUrl;
+              }
+              setLoading(false);
+              setError(false);
+            };
+            
+            pngImg.onerror = () => {
+              console.error('PNG格式也加载失败');
+              setLoading(false);
+              setError(true);
+              setErrorDetails(`无法加载图片: ${fullDocumentUrl} 和 ${pngUrl}`);
+            };
+            
+            pngImg.src = pngUrl;
+          } else if (fullDocumentUrl.endsWith('.png')) {
+            // 尝试JPG格式
+            const jpgUrl = fullDocumentUrl.replace(/\.png$/, '.jpg');
+            console.log('尝试加载JPG格式:', jpgUrl);
+            
+            const jpgImg = new Image();
+            jpgImg.onload = () => {
+              console.log('JPG格式加载成功:', jpgUrl);
+              if (imageRef.current) {
+                imageRef.current.src = jpgUrl;
+              }
+              setLoading(false);
+              setError(false);
+            };
+            
+            jpgImg.onerror = () => {
+              console.error('JPG格式也加载失败');
+              setLoading(false);
+              setError(true);
+              setErrorDetails(`无法加载图片: ${fullDocumentUrl} 和 ${jpgUrl}`);
+            };
+            
+            jpgImg.src = jpgUrl;
+          } else {
+            setLoading(false);
+            setError(true);
+            setErrorDetails(`无法加载图片: ${fullDocumentUrl}`);
           }
         };
-        imgTest.onerror = () => {
-          // PNG也不存在，设置错误状态
-          console.error('PNG格式也无法加载');
-          setError(true);
-        };
-        imgTest.src = pngSrc;
-        return; // 等待新图片加载，暂不设置错误状态
-      } else if (currentSrc.endsWith('.png')) {
-        // 尝试JPG格式
-        const jpgSrc = currentSrc.replace(/\.png$/, '.jpg');
-        console.log('尝试加载JPG格式:', jpgSrc);
         
-        const imgTest = new Image();
-        imgTest.onload = () => {
-          console.log('找到可用的JPG格式:', jpgSrc);
-          if (imageRef.current) {
-            imageRef.current.src = jpgSrc;
-            // 重置错误状态
-            setError(false);
-            return;
-          }
-        };
-        imgTest.onerror = () => {
-          console.error('JPG格式也无法加载');
-          setError(true);
-        };
-        imgTest.src = jpgSrc;
-        return; // 等待新图片加载，暂不设置错误状态
-      }
+        tryAlternateFormats();
+      };
+      
+      // 添加时间戳防止缓存问题
+      const timestamp = new Date().getTime();
+      img.src = `${fullDocumentUrl}?t=${timestamp}`;
+      
+    } else {
+      // 对于非图片类型，不进行预加载
+      console.log('非图片类型文档，跳过预加载:', mimeType);
+      setLoading(false);
     }
-    
-    // 无法恢复，设置错误状态
-    setLoading(false);
-    setError(true);
-  }, [getFullDocumentUrl, mimeType, filename]);
+  }, [fullDocumentUrl, mimeType]);
   
   // 用于React组件内的键盘事件处理
   const handleDivKeyDown = useCallback((e: React.KeyboardEvent<HTMLDivElement>) => {
@@ -181,14 +159,6 @@ const DocumentViewer: React.FC<DocumentViewerProps> = ({
     }
   };
 
-  // 获取文件扩展名（用于显示）
-  const getFileExtension = (filename: string): string => {
-    return filename.split('.').pop()?.toUpperCase() || '';
-  };
-
-  // 完整文档URL
-  const fullDocumentUrl = getFullDocumentUrl();
-
   return (
     <div 
       className="document-viewer-wrapper" 
@@ -205,12 +175,14 @@ const DocumentViewer: React.FC<DocumentViewerProps> = ({
           <div className="loading-container">
             <div className="loading-spinner"></div>
             <p>加载中...</p>
+            <p className="loading-details">正在加载: {filename}</p>
           </div>
         ) : error ? (
           <div className="error-container">
             <p>文档加载失败</p>
             <p>文件: {filename || '未指定'}</p>
             <p>类型: {mimeType || '未知'}</p>
+            {errorDetails && <p className="error-details">{errorDetails}</p>}
             <button onClick={onClose} className="close-button">
               关闭
             </button>
@@ -219,14 +191,13 @@ const DocumentViewer: React.FC<DocumentViewerProps> = ({
           // 对图片类型使用img标签直接显示
           <div className="image-viewer">
             <img
-              src={`${fullDocumentUrl}?v=${Date.now()}`} // 添加时间戳防止缓存
+              src={fullDocumentUrl}
               alt={filename || '文档'}
               style={{
                 maxHeight: '80vh',
                 maxWidth: '90vw',
               }}
               ref={imageRef}
-              onError={handleError}
             />
             <div className="document-controls">
               <a 
@@ -242,10 +213,25 @@ const DocumentViewer: React.FC<DocumentViewerProps> = ({
             </div>
           </div>
         ) : (
-          // 其他类型使用PDF查看器
+          // 其他类型使用PDF查看器或提供下载链接
           <div className="pdf-container">
-            {/* 这里使用了react-pdf无需修改 */}
-            {/* ... existing code ... */}
+            <div className="document-placeholder">
+              <p>此文档类型不支持直接预览</p>
+              <p>文件: {filename}</p>
+              <p>类型: {mimeType || '未知'}</p>
+              <div className="document-controls">
+                <a 
+                  href={fullDocumentUrl} 
+                  download={filename}
+                  className="download-button"
+                >
+                  下载
+                </a>
+                <button onClick={onClose} className="close-button">
+                  关闭
+                </button>
+              </div>
+            </div>
           </div>
         )}
       </div>
