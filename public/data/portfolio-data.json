@@ -16,7 +16,12 @@
       "organization": "LVMH",
       "date": "Nov 2024",
       "description": "Successfully completed the exclusive LVMH Inside program, gaining comprehensive insights into luxury retail and digital innovation",
-      "image": "/Personal_website/logos/lvmh.svg"
+      "image": "/Personal_website/logos/lvmh.svg",
+      "document": {
+        "dataUrl": "/Personal_website/certificates/lvmh-certificate.jpg",
+        "fileName": "LVMH Inside Certificate",
+        "fileType": "image/jpeg"
+      }
     },
     {
       "id": "award-3",
@@ -24,7 +29,12 @@
       "organization": "Bloomberg",
       "date": "Sep 2021",
       "description": "Completed advanced financial market analysis certification, covering economics, currencies, fixed income, and equities",
-      "image": "/Personal_website/logos/bloomberg.svg"
+      "image": "/Personal_website/logos/bloomberg.svg",
+      "document": {
+        "dataUrl": "/Personal_website/certificates/bloomberg-certificate.jpg",
+        "fileName": "Bloomberg Market Concepts Certificate",
+        "fileType": "image/jpeg"
+      }
     },
     {
       "id": "award-4",
@@ -32,7 +42,12 @@
       "organization": "JPMorgan Chase",
       "date": "Apr 2021",
       "description": "Recognized for outstanding performance in investment banking simulation program, focusing on M&A analysis and financial modeling",
-      "image": "/Personal_website/logos/jpmorgan.svg"
+      "image": "/Personal_website/logos/jpmorgan.svg",
+      "document": {
+        "dataUrl": "/Personal_website/certificates/jpmorgan-certificate.jpg",
+        "fileName": "JPMorgan Investment Banking Certificate",
+        "fileType": "image/jpeg"
+      }
     }
   ],
   "exportDate": "2023-10-26T12:00:00.000Z",

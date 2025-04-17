@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>证书图片保存工具</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+      background: #f5f5f7;
+      color: #333;
+    }
+    .container {
+      background: white;
+      border-radius: 10px;
+      padding: 20px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
+    h1 {
+      color: #1d1d1f;
+      text-align: center;
+    }
+    .instructions {
+      background: #f8f8f8;
+      padding: 15px;
+      border-left: 4px solid #0066cc;
+      margin-bottom: 20px;
+      border-radius: 0 5px 5px 0;
+    }
+    .certificate-section {
+      margin-bottom: 30px;
+      border-bottom: 1px solid #e5e5e5;
+      padding-bottom: 20px;
+    }
+    .certificate-section:last-child {
+      border-bottom: none;
+    }
+    label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: bold;
+    }
+    .image-preview {
+      max-width: 100%;
+      max-height: 400px;
+      margin: 10px 0;
+      display: none;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+    }
+    button {
+      background: #0066cc;
+      color: white;
+      border: none;
+      padding: 10px 15px;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 14px;
+      margin-top: 10px;
+    }
+    button:hover {
+      background: #004499;
+    }
+    .result {
+      margin-top: 20px;
+      padding: 10px;
+      background: #e5f4ff;
+      border-radius: 5px;
+      display: none;
+    }
+    code {
+      background: #f1f1f1;
+      padding: 2px 5px;
+      border-radius: 3px;
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>证书图片保存工具</h1>
+    
+    <div class="instructions">
+      <p>使用此工具可以将证书图片保存到项目目录。请按照顺序上传证书图片：</p>
+      <ol>
+        <li>JPMorgan证书 - <code>/certificates/jpmorgan-certificate.jpg</code></li>
+        <li>Bloomberg证书 - <code>/certificates/bloomberg-certificate.jpg</code></li>
+        <li>LVMH证书 - <code>/certificates/lvmh-certificate.jpg</code></li>
+      </ol>
+      <p>上传图片后，页面将自动保存图片并提供下载链接。将下载的图片放置在项目的 <code>public/certificates/</code> 目录下。</p>
+    </div>
+    
+    <div class="certificate-section">
+      <h2>JPMorgan证书</h2>
+      <label for="jpmorgan-input">选择JPMorgan证书图片:</label>
+      <input type="file" id="jpmorgan-input" accept="image/*">
+      <img id="jpmorgan-preview" class="image-preview">
+      <button id="jpmorgan-save">保存JPMorgan证书图片</button>
+      <div id="jpmorgan-result" class="result"></div>
+    </div>
+    
+    <div class="certificate-section">
+      <h2>Bloomberg证书</h2>
+      <label for="bloomberg-input">选择Bloomberg证书图片:</label>
+      <input type="file" id="bloomberg-input" accept="image/*">
+      <img id="bloomberg-preview" class="image-preview">
+      <button id="bloomberg-save">保存Bloomberg证书图片</button>
+      <div id="bloomberg-result" class="result"></div>
+    </div>
+    
+    <div class="certificate-section">
+      <h2>LVMH证书</h2>
+      <label for="lvmh-input">选择LVMH证书图片:</label>
+      <input type="file" id="lvmh-input" accept="image/*">
+      <img id="lvmh-preview" class="image-preview">
+      <button id="lvmh-save">保存LVMH证书图片</button>
+      <div id="lvmh-result" class="result"></div>
+    </div>
+  </div>
+
+  <script>
+    // 处理文件输入和预览
+    function setupFileInput(inputId, previewId, saveId, resultId, filename) {
+      const input = document.getElementById(inputId);
+      const preview = document.getElementById(previewId);
+      const saveButton = document.getElementById(saveId);
+      const result = document.getElementById(resultId);
+      
+      // 监听文件输入变化
+      input.addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (file) {
+          const reader = new FileReader();
+          reader.onload = function(event) {
+            preview.src = event.target.result;
+            preview.style.display = 'block';
+          };
+          reader.readAsDataURL(file);
+        }
+      });
+      
+      // 监听保存按钮点击
+      saveButton.addEventListener('click', function() {
+        if (!preview.src || preview.src === '') {
+          alert('请先选择图片');
+          return;
+        }
+        
+        try {
+          // 创建下载链接
+          const link = document.createElement('a');
+          link.download = filename;
+          link.href = preview.src;
+          link.click();
+          
+          result.innerHTML = `
+            <p>图片已准备好下载！</p>
+            <p>请将下载的图片文件重命名为 <code>${filename}</code> 并保存到 <code>public/certificates/</code> 目录下。</p>
+          `;
+          result.style.display = 'block';
+        } catch (error) {
+          alert('保存图片失败: ' + error.message);
+        }
+      });
+    }
+    
+    // 设置三个证书的处理
+    document.addEventListener('DOMContentLoaded', function() {
+      setupFileInput(
+        'jpmorgan-input', 
+        'jpmorgan-preview', 
+        'jpmorgan-save', 
+        'jpmorgan-result', 
+        'jpmorgan-certificate.jpg'
+      );
+      
+      setupFileInput(
+        'bloomberg-input', 
+        'bloomberg-preview', 
+        'bloomberg-save', 
+        'bloomberg-result', 
+        'bloomberg-certificate.jpg'
+      );
+      
+      setupFileInput(
+        'lvmh-input', 
+        'lvmh-preview', 
+        'lvmh-save', 
+        'lvmh-result', 
+        'lvmh-certificate.jpg'
+      );
+    });
+  </script>
+</body>
+</html> 
