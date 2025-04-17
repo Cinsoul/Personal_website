@@ -83,12 +83,11 @@
   background-color: #000 !important;
 }
 
-/* 个人照片样式 - 确保显示头部 */
+/* 个人照片样式 - 确保显示全身 */
 .personal-photo {
-  object-fit: cover;
+  object-fit: contain;
   background-color: #000 !important;
-  object-position: top;
-  transform: scale(1.2);
+  transform: scale(0.9); /* 缩小一点以确保全身都能看到 */
 }
 
 /* 加载中的占位图样式 */
@@ -171,7 +170,6 @@
   
   .personal-photo {
     max-height: 100%;
-    object-position: top;
   }
 }
 
@@ -188,7 +186,6 @@
   
   .personal-photo {
     max-height: 100%;
-    object-position: top;
   }
 }
 
