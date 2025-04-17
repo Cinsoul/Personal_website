@@ -152,7 +152,16 @@
       const fullscreen = document.getElementById('fullscreen');
       const fullscreenImage = document.getElementById('fullscreen-image');
       
-      fullscreenImage.src = imgSrc;
+      // 处理图片路径，确保正确加载
+      let processedSrc = imgSrc;
+      // 如果不是HTTP或data URL，添加相对路径
+      if (!imgSrc.startsWith('http') && !imgSrc.startsWith('data:')) {
+        // 处理潜在的路径问题
+        processedSrc = imgSrc; // 保持相对路径
+      }
+      
+      console.log('显示全屏图片:', processedSrc);
+      fullscreenImage.src = processedSrc;
       fullscreenImage.alt = altText;
       fullscreen.classList.add('active');
       
@@ -180,6 +189,57 @@
       if (e.key === 'Escape' && document.getElementById('fullscreen').classList.contains('active')) {
         hideFullscreen();
       }
+    });
+
+    // 当页面加载时，添加基础路径检测逻辑
+    document.addEventListener('DOMContentLoaded', function() {
+      // 获取当前域名的基础路径
+      const hostname = window.location.hostname;
+      const pathname = window.location.pathname;
+      let basePath = '';
+      
+      // 添加调试信息
+      console.log('当前主机名:', hostname);
+      console.log('当前路径名:', pathname);
+      
+      if (hostname.includes('github.io')) {
+        // 在GitHub Pages上运行时
+        basePath = '/Personal_website';
+        console.log('检测到GitHub Pages环境，基础路径:', basePath);
+      } else {
+        console.log('本地环境，使用空基础路径');
+      }
+      
+      // 对页面上的所有证书图片应用正确的路径
+      const certificateImages = document.querySelectorAll('.certificate-image');
+      certificateImages.forEach(img => {
+        const originalSrc = img.getAttribute('src');
+        const originalOnClick = img.getAttribute('onclick');
+        
+        // 更新图片src
+        if (!originalSrc.startsWith('http') && !originalSrc.startsWith('data:') && !originalSrc.startsWith('/')) {
+          const newSrc = `${basePath}/${originalSrc}`;
+          console.log(`更新图片路径: ${originalSrc} -> ${newSrc}`);
+          img.setAttribute('src', newSrc);
+        }
+        
+        // 更新点击事件，确保传递正确的路径到showFullscreen函数
+        if (originalOnClick && originalOnClick.includes('showFullscreen')) {
+          const match = originalOnClick.match(/showFullscreen\(['"]([^'"]+)['"]/);
+          if (match && match[1]) {
+            const imagePath = match[1];
+            if (!imagePath.startsWith('http') && !imagePath.startsWith('data:') && !imagePath.startsWith('/')) {
+              const newPath = `${basePath}/${imagePath}`;
+              const newOnClick = originalOnClick.replace(
+                `showFullscreen('${imagePath}`, 
+                `showFullscreen('${newPath}`
+              );
+              console.log(`更新点击事件: ${originalOnClick} -> ${newOnClick}`);
+              img.setAttribute('onclick', newOnClick);
+            }
+          }
+        }
+      });
     });
   </script>
 </body>
