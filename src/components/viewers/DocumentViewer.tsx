@@ -24,15 +24,24 @@ const DocumentViewer: React.FC<DocumentViewerProps> = ({
   // 获取完整文档URL
   const getFullDocumentUrl = useCallback(() => {
     console.log('原始文档URL:', documentUrl);
+    
     // 检查是否已经是完整URL
     if (documentUrl.startsWith('http') || documentUrl.startsWith('data:')) {
       console.log('使用完整URL:', documentUrl);
       return documentUrl;
     }
     
-    // 添加基础路径
+    // 检查URL是否已经包含基础路径
     const basePath = getBasePath();
-    const fullUrl = `${basePath}${documentUrl}`;
+    if (documentUrl.includes('/Personal_website/') && basePath.includes('/Personal_website')) {
+      console.log('URL已包含基础路径，避免重复添加:', documentUrl);
+      return documentUrl;
+    }
+    
+    // 确保不重复添加斜杠
+    const normalizedPath = documentUrl.startsWith('/') ? documentUrl : `/${documentUrl}`;
+    const fullUrl = `${basePath}${normalizedPath}`;
+    
     console.log('处理后的文档URL:', fullUrl, '基础路径:', basePath);
     
     return fullUrl;
@@ -59,6 +68,36 @@ const DocumentViewer: React.FC<DocumentViewerProps> = ({
       
       img.onerror = (e) => {
         console.error('图片加载失败:', fullDocumentUrl, e);
+        
+        // 尝试不同的路径格式
+        const tryDifferentPaths = () => {
+          // 检查是否有重复的基础路径
+          if (fullDocumentUrl.includes('/Personal_website/Personal_website/')) {
+            const correctedUrl = fullDocumentUrl.replace('/Personal_website/Personal_website/', '/Personal_website/');
+            console.log('尝试修正重复的基础路径:', correctedUrl);
+            
+            const correctedImg = new Image();
+            correctedImg.onload = () => {
+              console.log('修正路径后加载成功:', correctedUrl);
+              if (imageRef.current) {
+                imageRef.current.src = correctedUrl;
+              }
+              setLoading(false);
+              setError(false);
+            };
+            
+            correctedImg.onerror = () => {
+              console.error('修正路径后仍然失败');
+              tryAlternateFormats(); // 继续尝试其他格式
+            };
+            
+            correctedImg.src = correctedUrl;
+            return;
+          }
+          
+          // 如果没有重复路径问题，尝试不同的文件格式
+          tryAlternateFormats();
+        };
         
         // 尝试不同的文件扩展名
         const tryAlternateFormats = () => {
@@ -115,7 +154,7 @@ const DocumentViewer: React.FC<DocumentViewerProps> = ({
           }
         };
         
-        tryAlternateFormats();
+        tryDifferentPaths();
       };
       
       // 添加时间戳防止缓存问题

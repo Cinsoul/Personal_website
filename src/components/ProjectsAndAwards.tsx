@@ -170,15 +170,40 @@ export default function ProjectsAndAwards() {
       // 判断是相对路径还是完整URL
       const isRelativePath = !document.dataUrl.startsWith('http') && !document.dataUrl.startsWith('data:');
       
-      // 针对本地文件，添加特殊处理
-      if (isRelativePath && document.dataUrl.startsWith('/certificates/')) {
-        console.log('正在处理证书文件路径:', document.dataUrl);
-      }
+      console.log('处理证书文档:', document.dataUrl, '是否相对路径:', isRelativePath);
       
       // 添加路径处理逻辑，确保在GitHub Pages环境正确处理路径
+      const basePath = getBasePath();
+      let processedUrl;
+      
+      if (isRelativePath) {
+        // 避免重复添加基础路径
+        if (document.dataUrl.includes('/Personal_website/')) {
+          console.log('文档URL已包含基础路径，避免重复添加');
+          processedUrl = document.dataUrl;
+        } else {
+          // 标准化路径确保斜杠正确
+          const normalizedPath = document.dataUrl.startsWith('/') 
+            ? document.dataUrl 
+            : `/${document.dataUrl}`;
+          processedUrl = `${basePath}${normalizedPath}`;
+        }
+      } else {
+        processedUrl = document.dataUrl;
+      }
+      
+      // 记录详细的路径信息用于调试
+      console.log('文档路径处理:', {
+        原始路径: document.dataUrl,
+        基础路径: basePath,
+        处理后路径: processedUrl,
+        文件名: document.fileName,
+        文件类型: document.fileType
+      });
+      
       const processedDocument = {
         ...document,
-        dataUrl: isRelativePath ? `${getBasePath()}${document.dataUrl}` : document.dataUrl,
+        dataUrl: processedUrl,
         fileType: document.fileType || (document.dataUrl.endsWith('.jpg') || document.dataUrl.endsWith('.jpeg') ? 'image/jpeg' : 
                  document.dataUrl.endsWith('.png') ? 'image/png' : 'application/octet-stream')
       };
