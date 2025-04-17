@@ -4,6 +4,7 @@ import { useLanguage } from '../contexts/LanguageContext';
 import { getFileIcon } from '../utils/fileUtils';
 import ImageViewer from './viewers/ImageViewer';
 import DocumentViewer from './viewers/DocumentViewer';
+import { getBasePath } from '../utils/imageUtils';
 
 interface Certification {
   id?: string;
@@ -55,6 +56,18 @@ export default function Certifications() {
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
+
+  // 获取完整的图片URL
+  const getFullImageUrl = (url: string): string => {
+    if (!url) return '';
+    // 如果已经是完整URL或数据URL，直接返回
+    if (url.startsWith('http') || url.startsWith('data:')) {
+      return url;
+    }
+    // 添加基础路径
+    const basePath = getBasePath();
+    return `${basePath}${url}`;
+  };
 
   // 处理图片点击
   const handleImageClick = (imageUrl: string, title: string, e: React.MouseEvent) => {
@@ -221,73 +234,41 @@ export default function Certifications() {
   };
 
   return (
-    <div className="min-h-screen bg-black dark:bg-black">
+    <div className="bg-gray-100 dark:bg-gray-900 min-h-screen">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className={`transition-opacity duration-500 ${isLoaded ? 'opacity-100' : 'opacity-0'}`}>
-          <div className="flex justify-between items-center mb-8">
-            <h2 className="text-3xl font-bold text-white dark:text-white">{t('nav.certifications')}</h2>
-            {/* 只在管理员模式激活时显示管理按钮 */}
-            {showAdmin && (
-              <Link to="/certifications-manager" className="px-4 py-2 bg-blue-500 rounded-lg text-white hover:bg-blue-600 transition-colors">
-                {t('certifications.manager.edit')}
-              </Link>
-            )}
-          </div>
+        <div className="flex justify-between items-center mb-8">
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">{t('certifications.title') || '证书与资质'}</h1>
+          
+          {showAdmin && (
+            <Link 
+              to="/certifications/manage" 
+              className="px-4 py-2 bg-blue-500 rounded-lg text-white hover:bg-blue-600 transition-colors"
+            >
+              {t('certifications.manage') || '管理证书'}
+            </Link>
+          )}
+        </div>
+        
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {certifications.length > 0 ? (
-              certifications.map((cert, index) => (
-                <div key={index} className="bg-white dark:bg-gray-800 rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-shadow duration-300">
+              certifications.map((cert) => (
+                <div key={cert.id} className="bg-white dark:bg-gray-800 rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-shadow duration-300">
                   <div className="p-6">
                     <div className="flex items-center mb-4">
-                      <div className="w-12 h-12 mr-4 flex-shrink-0 cursor-pointer" onClick={(e) => handleImageClick(cert.logo, cert.title, e)}>
-                        {cert.logo && cert.logo.startsWith('/') ? (
-                          <img 
-                            src={cert.logo} 
-                            alt={cert.organization} 
-                            className="w-full h-full object-contain" 
-                            onError={(e) => {
-                              // 图片加载失败时显示备用图标
-                              console.error('证书图标加载失败:', cert.logo);
-                              e.currentTarget.src = '/vite.svg';
-                              
-                              // 如果默认图也加载失败，使用组织首字母
-                              e.currentTarget.onerror = () => {
-                                console.error('备用图片也加载失败，使用组织首字母');
-                                const parent = e.currentTarget.parentElement;
-                                if (parent) {
-                                  parent.innerHTML = `<div class="w-full h-full flex items-center justify-center bg-gray-200 dark:bg-gray-700 rounded-full">
-                                    <span class="text-xl font-bold text-gray-500 dark:text-gray-300">
-                                      ${cert.organization.charAt(0)}
-                                    </span>
-                                  </div>`;
-                                }
-                              };
-                            }}
-                          />
-                        ) : cert.logo && cert.logo.startsWith('data:') ? (
-                          <img 
-                            src={cert.logo} 
-                            alt={cert.organization} 
-                            className="w-full h-full object-contain"
-                            onError={(e) => {
-                              console.error('数据URL证书图标加载失败');
-                              const parent = e.currentTarget.parentElement;
-                              if (parent) {
-                                parent.innerHTML = `<div class="w-full h-full flex items-center justify-center bg-gray-200 dark:bg-gray-700 rounded-full">
-                                  <span class="text-xl font-bold text-gray-500 dark:text-gray-300">
-                                    ${cert.organization.charAt(0)}
-                                  </span>
-                                </div>`;
-                              }
-                            }}
-                          />
-                        ) : (
-                          <div className="w-full h-full flex items-center justify-center bg-gray-200 dark:bg-gray-700 rounded-full">
-                            <span className="text-xl font-bold text-gray-500 dark:text-gray-300">
-                              {cert.organization.charAt(0)}
-                            </span>
-                          </div>
-                        )}
+                      <div 
+                        className="w-12 h-12 mr-4 flex-shrink-0 cursor-pointer rounded-full overflow-hidden"
+                        onClick={(e) => handleImageClick(getFullImageUrl(cert.logo), cert.title, e)}
+                      >
+                        <img 
+                          src={getFullImageUrl(cert.logo)} 
+                          alt={cert.organization} 
+                          className="w-full h-full object-contain"
+                          onError={(e) => {
+                            console.error('证书图标加载失败:', cert.logo);
+                            e.currentTarget.src = `${getBasePath()}/vite.svg`;
+                          }}
+                        />
                       </div>
                       <div>
                         <h3 className="text-xl font-semibold text-gray-900 dark:text-white">{cert.title}</h3>
@@ -295,13 +276,13 @@ export default function Certifications() {
                       </div>
                     </div>
                     <div className="text-sm text-gray-500 dark:text-gray-400">
-                      <p>{t('certifications.manager.issued')} {cert.date}</p>
+                      <p>{t('certifications.manager.issued') || '颁发日期'}: {cert.date}</p>
                       {cert.credentialId && (
-                        <p className="mt-1">{t('certifications.manager.credential_id')}: {cert.credentialId}</p>
+                        <p className="mt-1">{t('certifications.manager.credential_id') || '证书编号'}: {cert.credentialId}</p>
                       )}
                       {cert.link && (
                         <a href={cert.link} target="_blank" rel="noopener noreferrer" className="mt-1 text-blue-500 hover:underline">
-                          {t('certifications.manager.link')}
+                          {t('certifications.manager.link') || '查看链接'}
                         </a>
                       )}
                       

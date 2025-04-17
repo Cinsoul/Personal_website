@@ -6,10 +6,12 @@ import Education from './components/Education';
 import WorkExperience from './components/WorkExperience';
 import ProjectsAndAwards from './components/ProjectsAndAwards';
 import Contact from './components/Contact';
+import Certifications from './components/Certifications';
 
 // 导入项目管理器和语言和管理员上下文
 import ProjectsManager from './components/ProjectsManager';
 import WorkExperienceManager from './components/WorkExperienceManager';
+import CertificationsManager from './components/CertificationsManager';
 import { LanguageProvider, useLanguage } from './contexts/LanguageContext';
 import { AdminProvider, useAdmin } from './contexts/AdminContext';
 import { checkAndUpdateContent, forceContentRefresh } from './utils/forceContentUpdate';
@@ -56,6 +58,7 @@ const Header = () => {
           <Link to="/education" onClick={() => setMenuOpen(false)}>{t('nav.education')}</Link>
           <Link to="/work" onClick={() => setMenuOpen(false)}>{t('nav.work')}</Link>
           <Link to="/projects" onClick={() => setMenuOpen(false)}>{t('nav.projects')}</Link>
+          <Link to="/certifications" onClick={() => setMenuOpen(false)}>{t('nav.certifications')}</Link>
           <Link to="/contact" onClick={() => setMenuOpen(false)}>{t('nav.contact')}</Link>
           
           {/* 语言切换按钮 */}
@@ -162,6 +165,8 @@ function App() {
                   <Route path="/work" element={<WorkExperience />} />
                   <Route path="/work/manage" element={<WorkExperienceManager />} />
                   <Route path="/projects" element={<ProjectsAndAwards />} />
+                  <Route path="/certifications" element={<Certifications />} />
+                  <Route path="/certifications/manage" element={<CertificationsManager />} />
                   <Route path="/contact" element={<Contact />} />
                   <Route path="/projects-manager" element={<ProjectsManager />} />
                   <Route path="/test" element={<TestPage />} />
