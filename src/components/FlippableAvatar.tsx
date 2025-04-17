@@ -14,7 +14,7 @@ const FlippableAvatar: React.FC<FlippableAvatarProps> = ({
   altText,
   size = 300
 }) => {
-  const [isFlipped, setIsFlipped] = useState(false);
+  const [isFlipped, setIsFlipped] = useState(true);
   const [frontLoaded, setFrontLoaded] = useState(false);
   const [backLoaded, setBackLoaded] = useState(false);
   const [frontLoadError, setFrontLoadError] = useState(false);

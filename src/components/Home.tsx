@@ -92,11 +92,11 @@ export default function Home() {
           </div>
           <div className="flex-1 flex justify-center">
             <div className="w-80 h-auto md:w-96 md:h-auto transform hover:scale-105 transition-all duration-500 ease-out" style={{ marginRight: '20px' }}>
-              {/* 简化头像组件使用 */}
+              {/* 简化头像组件使用 - 交换图片顺序 */}
               {imagePaths.abstractAvatarPath && (
                 <FlippableAvatar 
-                  frontImagePath={imagePaths.abstractAvatarPath} 
-                  backImagePath={imagePaths.personalPhotoPath}
+                  frontImagePath={imagePaths.personalPhotoPath} 
+                  backImagePath={imagePaths.abstractAvatarPath}
                   altText="Xindi Wang"
                   size={400}
                 />
