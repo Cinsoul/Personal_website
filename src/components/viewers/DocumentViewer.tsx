@@ -31,8 +31,11 @@ const DocumentViewer: React.FC<DocumentViewerProps> = ({
       return documentUrl;
     }
     
-    // 检查URL是否已经包含基础路径
+    // 获取基础路径
     const basePath = getBasePath();
+    console.log('基础路径:', basePath);
+    
+    // 检查URL是否已经包含基础路径
     if (documentUrl.includes('/Personal_website/') && basePath.includes('/Personal_website')) {
       console.log('URL已包含基础路径，避免重复添加:', documentUrl);
       return documentUrl;
@@ -44,7 +47,12 @@ const DocumentViewer: React.FC<DocumentViewerProps> = ({
     
     console.log('处理后的文档URL:', fullUrl, '基础路径:', basePath);
     
-    return fullUrl;
+    // 添加时间戳防止缓存
+    const timestamp = new Date().getTime();
+    const urlWithTimestamp = `${fullUrl}?t=${timestamp}`;
+    
+    console.log('带时间戳的最终URL:', urlWithTimestamp);
+    return urlWithTimestamp;
   }, [documentUrl]);
   
   // 完整文档URL
@@ -95,11 +103,32 @@ const DocumentViewer: React.FC<DocumentViewerProps> = ({
             return;
           }
           
-          // 如果没有重复路径问题，尝试不同的文件格式
-          tryAlternateFormats();
+          // 尝试直接使用相对路径
+          const basePath = getBasePath();
+          const relativeUrl = documentUrl.replace(/^\//, '');
+          const testUrl = `${basePath}/${relativeUrl}?t=${new Date().getTime()}`;
+          
+          console.log('尝试使用相对路径:', testUrl);
+          const relativeImg = new Image();
+          relativeImg.onload = () => {
+            console.log('相对路径加载成功:', testUrl);
+            if (imageRef.current) {
+              imageRef.current.src = testUrl;
+            }
+            setLoading(false);
+            setError(false);
+            return;
+          };
+          
+          relativeImg.onerror = () => {
+            console.error('相对路径也加载失败，尝试其他格式');
+            tryAlternateFormats();
+          };
+          
+          relativeImg.src = testUrl;
         };
         
-        // 尝试不同的文件扩展名
+        // 如果没有重复路径问题，尝试不同的文件格式
         const tryAlternateFormats = () => {
           if (fullDocumentUrl.endsWith('.jpg') || fullDocumentUrl.endsWith('.jpeg')) {
             // 尝试PNG格式
@@ -157,9 +186,7 @@ const DocumentViewer: React.FC<DocumentViewerProps> = ({
         tryDifferentPaths();
       };
       
-      // 添加时间戳防止缓存问题
-      const timestamp = new Date().getTime();
-      img.src = `${fullDocumentUrl}?t=${timestamp}`;
+      img.src = fullDocumentUrl;
       
     } else {
       // 对于非图片类型，不进行预加载

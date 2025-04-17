@@ -63,9 +63,19 @@ export default function Certifications() {
     if (url.startsWith('http') || url.startsWith('data:')) {
       return url;
     }
-    // 添加基础路径
+    
+    // 修正：确保basePath和url之间不会重复或缺少斜杠
     const basePath = getBasePath();
-    return `${basePath}${url}`;
+    const normalizedUrl = url.startsWith('/') ? url : `/${url}`;
+    const fullUrl = `${basePath}${normalizedUrl}`;
+    
+    console.log('处理证书图片URL:', {
+      原始url: url,
+      basePath: basePath,
+      处理后: fullUrl
+    });
+    
+    return fullUrl;
   };
 
   // 处理图片点击
@@ -262,7 +272,9 @@ export default function Certifications() {
                           className="w-full h-full object-contain"
                           onError={(e) => {
                             console.error('证书图标加载失败:', cert.logo);
-                            e.currentTarget.src = `${getBasePath()}/vite.svg`;
+                            const fallbackUrl = `${getBasePath()}/vite.svg`;
+                            console.log('使用备用图片:', fallbackUrl);
+                            e.currentTarget.src = fallbackUrl;
                           }}
                         />
                       </div>

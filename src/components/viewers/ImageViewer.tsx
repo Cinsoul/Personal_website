@@ -30,12 +30,24 @@ const ImageViewer: React.FC<ImageViewerProps> = ({ imageUrl, altText = '', onClo
     
     // 添加基础路径
     const basePath = getBasePath();
-    const fullUrl = imageUrl.startsWith('/') 
-      ? `${basePath}${imageUrl}` 
-      : `${basePath}/${imageUrl}`;
-    console.log('构建完整URL:', fullUrl, '基础路径:', basePath);
     
-    return fullUrl;
+    // 确保路径格式正确
+    const normalizedPath = imageUrl.startsWith('/') ? imageUrl : `/${imageUrl}`;
+    const fullUrl = `${basePath}${normalizedPath}`;
+    
+    // 添加时间戳防止缓存
+    const timestamp = new Date().getTime();
+    const urlWithTimestamp = `${fullUrl}?t=${timestamp}`;
+    
+    console.log('构建完整URL:', {
+      原始URL: imageUrl,
+      basePath: basePath,
+      正规化路径: normalizedPath,
+      完整URL: fullUrl,
+      带时间戳URL: urlWithTimestamp
+    });
+    
+    return urlWithTimestamp;
   }, [imageUrl]);
 
   // 处理图片加载
@@ -53,37 +65,52 @@ const ImageViewer: React.FC<ImageViewerProps> = ({ imageUrl, altText = '', onClo
     // 尝试不同的URL格式
     if (imageRef.current && !imageUrl.startsWith('data:') && !imageUrl.startsWith('http')) {
       const basePath = getBasePath();
-      // 尝试不带斜杠的路径
-      if (imageUrl.startsWith('/')) {
-        const altUrl = `${basePath}${imageUrl.slice(1)}`;
-        console.log('尝试不带斜杠的路径:', altUrl);
-        imageRef.current.src = altUrl;
-        
-        // 如果还失败，最后尝试使用默认图标
-        imageRef.current.onerror = () => {
-          console.log('备用路径也失败，使用默认图标');
-          imageRef.current!.src = `${basePath}/vite.svg`;
-          // 如果默认图标加载失败，显示错误状态
-          imageRef.current!.onerror = () => setError(true);
-        };
-        return;
-      }
       
-      // 尝试添加斜杠的路径
-      if (!imageUrl.startsWith('/')) {
-        const altUrl = `${basePath}/${imageUrl}`;
-        console.log('尝试添加斜杠的路径:', altUrl);
-        imageRef.current.src = altUrl;
+      // 系列化尝试不同路径格式
+      const tryPaths = [
+        // 1. 尝试不带斜杠的路径
+        `${basePath}${imageUrl.replace(/^\//, '')}?t=${new Date().getTime()}`,
+        // 2. 尝试添加斜杠的路径
+        `${basePath}/${imageUrl.replace(/^\//, '')}?t=${new Date().getTime()}`,
+        // 3. 尝试public目录
+        `${basePath}/public/${imageUrl.replace(/^\//, '')}?t=${new Date().getTime()}`,
+        // 4. 尝试移除Personal_website部分（避免重复）
+        ...(imageUrl.includes('/Personal_website/') 
+          ? [`${imageUrl.replace('/Personal_website/', '/')}?t=${new Date().getTime()}`]
+          : []),
+        // 5. 默认回退图标
+        `${basePath}/vite.svg`
+      ];
+      
+      console.log('开始尝试备用路径系列:', tryPaths);
+      
+      // 递归尝试路径
+      const tryNextPath = (index = 0) => {
+        if (index >= tryPaths.length) {
+          console.error('所有备用路径均失败');
+          setError(true);
+          return;
+        }
         
-        // 如果还失败，最后尝试使用默认图标
-        imageRef.current.onerror = () => {
-          console.log('备用路径也失败，使用默认图标');
-          imageRef.current!.src = `${basePath}/vite.svg`;
-          // 如果默认图标加载失败，显示错误状态
-          imageRef.current!.onerror = () => setError(true);
-        };
-        return;
-      }
+        const path = tryPaths[index];
+        console.log(`尝试备用路径 ${index+1}/${tryPaths.length}:`, path);
+        
+        if (imageRef.current) {
+          imageRef.current.onload = () => {
+            console.log('备用路径加载成功:', path);
+            setError(false);
+          };
+          
+          imageRef.current.onerror = () => {
+            console.log('备用路径失败:', path);
+            tryNextPath(index + 1);
+          };
+          
+          imageRef.current.src = path;
+        }
+      };
+      
+      tryNextPath();
     }
   };
 
