@@ -71,7 +71,7 @@ export default function Home() {
       
       {/* Profile Section */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 bg-black">
-        <div className={`flex flex-col md:flex-row items-center justify-between gap-12 transition-all duration-1000 ease-out`}>
+        <div className={`flex flex-col md:flex-row items-center md:items-start justify-between gap-12 transition-all duration-1000 ease-out`}>
           <div className="flex-1 text-center md:text-left">
             <h2 className="text-4xl font-semibold text-white dark:text-white mb-6" style={{ letterSpacing: '-0.025em' }}>About Me</h2>
             <div className="text-xl text-gray-300 dark:text-gray-300 mb-8 space-y-4" style={{ fontWeight: 300, lineHeight: 1.6 }}>
@@ -80,15 +80,15 @@ export default function Home() {
               <p>{t('home.linkedin')} <a href="https://linkedin.com/in/xindi-wang-18b10b24b" target="_blank" rel="noopener noreferrer" className="text-[var(--apple-blue)] hover:text-[var(--apple-blue-hover)]">linkedin.com/in/xindi-wang-18b10b24b</a></p>
             </div>
           </div>
-          <div className="flex-1 flex justify-center md:justify-end">
-            <div className="w-72 h-auto md:w-96 md:h-auto rounded-xl overflow-hidden shadow-2xl transform hover:scale-105 transition-all duration-500 ease-out">
+          <div className="flex-1 flex justify-center">
+            <div className="w-80 h-auto md:w-96 md:h-auto transform hover:scale-105 transition-all duration-500 ease-out" style={{ marginRight: '20px' }}>
               {/* 简化头像组件使用 */}
               {imagePaths.abstractAvatarPath && (
                 <FlippableAvatar 
                   frontImagePath={imagePaths.abstractAvatarPath} 
                   backImagePath={imagePaths.personalPhotoPath}
                   altText="Xindi Wang"
-                  size={480}
+                  size={400}
                 />
               )}
             </div>
