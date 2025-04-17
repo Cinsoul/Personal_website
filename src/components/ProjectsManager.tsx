@@ -435,8 +435,8 @@ export default function ProjectsManager() {
         setProjects(defaultData.projects);
         // 保存到localStorage以便下次使用
         localStorage.setItem('projects', JSON.stringify(defaultData.projects));
-        return;
-      }
+          return;
+        }
     }
     
     setProjects(localProjects);
@@ -1689,8 +1689,8 @@ export default function ProjectsManager() {
           <div className="mb-6">
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               {t('projects.manager.import.selectFile')}
-            </label>
-            <input
+              </label>
+                <input
               type="file"
               accept=".json"
               onChange={handleImportFileSelect}
@@ -1701,24 +1701,24 @@ export default function ProjectsManager() {
           </div>
           
           <div className="flex justify-end space-x-3">
-            <button
-              type="button"
+                <button
+                  type="button"
               onClick={cancelImport}
               className="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-md hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
-            >
+                >
               {t('projects.manager.cancel')}
-            </button>
-            <button
-              type="button"
+                </button>
+                    <button
+                      type="button"
               onClick={importDataFromJson}
               className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
               disabled={!importData}
-            >
+                    >
               {t('projects.manager.import.confirm')}
-            </button>
-          </div>
-        </div>
-      </div>
+                    </button>
+                  </div>
+              </div>
+            </div>
     );
   };
             
@@ -2333,15 +2333,15 @@ export default function ProjectsManager() {
       {successMessage && (
         <div className="fixed top-4 left-1/2 transform -translate-x-1/2 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg z-50 transition-opacity duration-300 ease-in-out">
           {successMessage}
-        </div>
-      )}
+                          </div>
+                        )}
       
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="mb-8 flex justify-between items-center">
-          <div>
+                        <div>
             <h1 className="text-3xl font-semibold text-gray-900 dark:text-white mb-2">{t('projects.manager.title')}</h1>
             <p className="text-gray-600 dark:text-gray-300">{t('projects.manager.subtitle')}</p>
-          </div>
+                        </div>
           <div className="flex space-x-3 items-center">
             {/* 添加同步状态指示器 */}
             {isSyncing && (
@@ -2360,14 +2360,14 @@ export default function ProjectsManager() {
               </span>
             )}
             
-            <button
+                        <button
               type="button"
               onClick={() => handleNavigation('/projects')}
               className="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-md hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
-            >
+                        >
               {t('projects.manager.backToProjects')}
-            </button>
-            <button
+                        </button>
+                        <button
               type="button"
               onClick={() => setShowImportModal(true)}
               className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors"
@@ -2380,9 +2380,9 @@ export default function ProjectsManager() {
               className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
             >
               {t('projects.manager.export.button')}
-            </button>
-          </div>
-        </div>
+                        </button>
+                      </div>
+                    </div>
         
         {/* 主要内容容器 */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
@@ -2392,7 +2392,7 @@ export default function ProjectsManager() {
               
               {/* 项目表单 - 使用新的渲染函数 */}
               {renderProjectForm()}
-            </div>
+                  </div>
             
             {/* 项目列表 */}
             <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-md">
@@ -2406,7 +2406,7 @@ export default function ProjectsManager() {
               
               {/* 奖项表单 - 使用新的渲染函数 */}
               {renderAwardForm()}
-            </div>
+      </div>
               
             {/* 奖项列表 */}
             <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-md">
