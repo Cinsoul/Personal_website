@@ -1,7 +1,6 @@
 import React, { useState, useCallback, useEffect, useRef } from 'react';
 import '../../styles/viewer.css';
 import { getBasePath } from '../../utils/imageUtils';
-import { KeyboardEvent as ReactKeyboardEvent } from 'react';
 
 interface DocumentViewerProps {
   documentUrl: string;
