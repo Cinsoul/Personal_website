@@ -31,9 +31,9 @@
       "description": "Completed advanced financial market analysis certification, covering economics, currencies, fixed income, and equities",
       "image": "/logos/bloomberg.svg",
       "document": {
-        "dataUrl": "/certificates/bloomberg-certificate.jpg",
+        "dataUrl": "/certificates/bloomberg-certificate.png",
         "fileName": "Bloomberg Market Concepts Certificate",
-        "fileType": "image/jpeg"
+        "fileType": "image/png"
       }
     },
     {
@@ -44,9 +44,9 @@
       "description": "Recognized for outstanding performance in investment banking simulation program, focusing on M&A analysis and financial modeling",
       "image": "/logos/jpmorgan.svg",
       "document": {
-        "dataUrl": "/certificates/jpmorgan-certificate.jpg",
+        "dataUrl": "/certificates/jpmorgan-certificate.png",
         "fileName": "JPMorgan Investment Banking Certificate",
-        "fileType": "image/jpeg"
+        "fileType": "image/png"
       }
     }
   ],
