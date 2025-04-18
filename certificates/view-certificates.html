@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-CN">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -98,6 +98,27 @@
       padding: 10px 15px;
       border-radius: 5px;
     }
+    .error-message {
+      text-align: center;
+      padding: 20px;
+      background-color: rgba(255,0,0,0.1);
+      border-radius: 5px;
+      margin-top: 10px;
+    }
+    .logo-container {
+      display: flex;
+      align-items: center;
+      margin-bottom: 15px;
+    }
+    .logo {
+      width: 40px;
+      height: 40px;
+      margin-right: 10px;
+      object-fit: contain;
+      background: #fff;
+      border-radius: 5px;
+      padding: 5px;
+    }
   </style>
 </head>
 <body>
@@ -111,9 +132,12 @@
     <div class="certificate-grid">
       <!-- LVMH证书 -->
       <div class="certificate-card">
+        <div class="logo-container">
+          <img src="../logos/lvmh.svg" alt="LVMH Logo" class="logo">
+          <div class="certificate-title">LVMH Inside Program Completion</div>
+        </div>
         <img src="lvmh-certificate.jpg" alt="LVMH Inside Certificate" class="certificate-image" onclick="showFullscreen('lvmh-certificate.jpg', 'LVMH Inside Certificate')">
         <div class="certificate-info">
-          <div class="certificate-title">LVMH Inside Program Completion</div>
           <div class="certificate-org">LVMH</div>
           <div>Nov 2024</div>
         </div>
@@ -121,9 +145,12 @@
       
       <!-- Bloomberg证书 -->
       <div class="certificate-card">
+        <div class="logo-container">
+          <img src="../logos/bloomberg.svg" alt="Bloomberg Logo" class="logo">
+          <div class="certificate-title">Bloomberg Market Concepts</div>
+        </div>
         <img src="bloomberg-certificate.png" alt="Bloomberg Market Concepts Certificate" class="certificate-image" onclick="showFullscreen('bloomberg-certificate.png', 'Bloomberg Market Concepts Certificate')">
         <div class="certificate-info">
-          <div class="certificate-title">Bloomberg Market Concepts</div>
           <div class="certificate-org">Bloomberg</div>
           <div>Sep 2021</div>
         </div>
@@ -131,9 +158,12 @@
       
       <!-- JPMorgan证书 -->
       <div class="certificate-card">
+        <div class="logo-container">
+          <img src="../logos/jpmorgan.svg" alt="JPMorgan Logo" class="logo">
+          <div class="certificate-title">Investment Banking Excellence</div>
+        </div>
         <img src="jpmorgan-certificate.png" alt="JPMorgan Investment Banking Certificate" class="certificate-image" onclick="showFullscreen('jpmorgan-certificate.png', 'JPMorgan Investment Banking Certificate')">
         <div class="certificate-info">
-          <div class="certificate-title">Investment Banking Excellence</div>
           <div class="certificate-org">JPMorgan Chase</div>
           <div>Apr 2021</div>
         </div>
@@ -148,56 +178,125 @@
   </div>
   
   <script>
-    // 获取基础路径函数
-    function getBasePath() {
+    // 全局变量存储基础路径
+    let basePath = '';
+    
+    // 初始化函数 - 在页面加载时确定基础路径
+    function initializePage() {
       const hostname = window.location.hostname;
-      // 检查是否在GitHub Pages上运行
+      
+      console.log('当前主机名:', hostname);
+      console.log('当前路径:', window.location.pathname);
+      
+      // 确定基础路径
       if (hostname.includes('github.io')) {
-        return '/Personal_website';
-      }
-      return '';
-    }
-
-    // 处理图片路径函数
-    function getCorrectImagePath(imgSrc) {
-      // 如果已经是绝对路径或数据URL，直接返回
-      if (imgSrc.startsWith('http') || imgSrc.startsWith('data:') || imgSrc.startsWith('/')) {
-        return imgSrc;
+        basePath = '/Personal_website';
+        console.log('检测到GitHub Pages环境，基础路径:', basePath);
+      } else {
+        console.log('本地环境，使用空基础路径');
       }
       
-      // 在本地环境中，使用相对路径
-      if (window.location.hostname === 'localhost' || 
-          window.location.hostname === '127.0.0.1') {
-        return imgSrc;
+      // 修复图片路径
+      fixImagePaths();
+    }
+    
+    // 修复所有图片路径
+    function fixImagePaths() {
+      // 处理证书图片
+      document.querySelectorAll('.certificate-image').forEach(img => {
+        const srcValue = img.getAttribute('src');
+        if (!srcValue.startsWith('http') && !srcValue.startsWith('data:') && !srcValue.startsWith('/')) {
+          const newSrc = `${basePath}/certificates/${srcValue}`;
+          console.log(`更新证书图片路径: ${srcValue} -> ${newSrc}`);
+          img.setAttribute('src', newSrc);
+          
+          // 添加错误处理
+          img.onerror = function() {
+            console.error('证书图片加载失败:', newSrc);
+            handleImageError(this);
+          };
+        }
+      });
+      
+      // 处理Logo图片
+      document.querySelectorAll('.logo').forEach(img => {
+        const srcValue = img.getAttribute('src');
+        if (srcValue.startsWith('../')) {
+          const newSrc = `${basePath}${srcValue.substring(2)}`;
+          console.log(`更新Logo路径: ${srcValue} -> ${newSrc}`);
+          img.setAttribute('src', newSrc);
+          
+          // 添加错误处理
+          img.onerror = function() {
+            console.error('Logo加载失败:', newSrc);
+            this.style.display = 'none'; // 隐藏加载失败的Logo
+          };
+        }
+      });
+    }
+    
+    // 处理图片加载错误
+    function handleImageError(imgElement) {
+      const currentSrc = imgElement.src;
+      console.log('尝试处理图片错误:', currentSrc);
+      
+      // 尝试不同的文件扩展名
+      if (currentSrc.endsWith('.jpg') || currentSrc.endsWith('.jpeg')) {
+        const pngSrc = currentSrc.replace(/\.jpe?g$/, '.png');
+        console.log('尝试PNG格式:', pngSrc);
+        imgElement.src = pngSrc;
+      } else if (currentSrc.endsWith('.png')) {
+        const jpgSrc = currentSrc.replace(/\.png$/, '.jpg');
+        console.log('尝试JPG格式:', jpgSrc);
+        imgElement.src = jpgSrc;
+      } else {
+        // 如果已经尝试了所有格式，显示错误信息
+        console.error('所有格式均加载失败');
+        const errorDiv = document.createElement('div');
+        errorDiv.className = 'error-message';
+        errorDiv.textContent = '证书图片加载失败';
+        imgElement.parentNode.replaceChild(errorDiv, imgElement);
       }
       
-      // 在GitHub Pages环境中，添加基础路径
-      return `${getBasePath()}/certificates/${imgSrc}`;
+      // 避免无限递归
+      imgElement.onerror = function() {
+        console.error('替代格式也加载失败');
+        const errorDiv = document.createElement('div');
+        errorDiv.className = 'error-message';
+        errorDiv.textContent = '证书图片加载失败';
+        imgElement.parentNode.replaceChild(errorDiv, imgElement);
+      };
     }
 
+    // 显示全屏图片
     function showFullscreen(imgSrc, altText) {
       const fullscreen = document.getElementById('fullscreen');
       const fullscreenImage = document.getElementById('fullscreen-image');
       
-      // 获取正确的图片路径
-      const correctPath = getCorrectImagePath(imgSrc);
-      console.log('显示全屏图片，原始路径:', imgSrc);
-      console.log('处理后路径:', correctPath);
+      // 处理图片路径
+      if (!imgSrc.startsWith('http') && !imgSrc.startsWith('data:') && !imgSrc.startsWith('/')) {
+        imgSrc = `${basePath}/certificates/${imgSrc}`;
+      }
       
-      // 设置图片来源并显示
-      fullscreenImage.src = correctPath;
+      console.log('显示全屏图片:', imgSrc);
+      fullscreenImage.src = imgSrc;
       fullscreenImage.alt = altText;
       fullscreen.classList.add('active');
+      
+      // 添加错误处理
+      fullscreenImage.onerror = function() {
+        console.error('全屏图片加载失败:', imgSrc);
+        handleImageError(this);
+      };
       
       // 阻止滚动
       document.body.style.overflow = 'hidden';
     }
     
+    // 隐藏全屏图片
     function hideFullscreen() {
       const fullscreen = document.getElementById('fullscreen');
       fullscreen.classList.remove('active');
-      
-      // 恢复滚动
       document.body.style.overflow = '';
     }
     
@@ -215,56 +314,8 @@
       }
     });
 
-    // 当页面加载时，处理所有图片路径
-    document.addEventListener('DOMContentLoaded', function() {
-      console.log('证书页面加载完成，开始处理图片路径');
-      console.log('当前主机名:', window.location.hostname);
-      console.log('当前路径名:', window.location.pathname);
-      
-      // 获取所有证书图片
-      const certificateImages = document.querySelectorAll('.certificate-image');
-      
-      certificateImages.forEach(img => {
-        const originalSrc = img.getAttribute('src');
-        console.log('处理图片:', originalSrc);
-        
-        // 更新图片src为正确路径
-        const correctSrc = getCorrectImagePath(originalSrc);
-        console.log(`更新图片路径: ${originalSrc} -> ${correctSrc}`);
-        img.setAttribute('src', correctSrc);
-        
-        // 更新onclick属性
-        const originalOnClick = img.getAttribute('onclick');
-        if (originalOnClick) {
-          // 我们不改变onclick中的路径参数，因为showFullscreen函数会处理路径
-          console.log('使用正确的onclick处理');
-        }
-      });
-      
-      // 添加错误处理
-      certificateImages.forEach(img => {
-        img.addEventListener('error', function(e) {
-          console.error('图片加载失败:', this.src);
-          // 尝试其他扩展名
-          if (this.src.endsWith('.jpg')) {
-            const pngSrc = this.src.replace('.jpg', '.png');
-            console.log('尝试PNG格式:', pngSrc);
-            this.src = pngSrc;
-          } else if (this.src.endsWith('.png')) {
-            const jpgSrc = this.src.replace('.png', '.jpg');
-            console.log('尝试JPG格式:', jpgSrc);
-            this.src = jpgSrc;
-          }
-          
-          // 如果仍然失败，使用占位符
-          this.onerror = function() {
-            console.error('所有格式都失败，使用占位符');
-            this.src = `${getBasePath()}/vite.svg`;
-            this.onerror = null; // 防止无限循环
-          };
-        });
-      });
-    });
+    // 页面加载完成后初始化
+    document.addEventListener('DOMContentLoaded', initializePage);
   </script>
 </body>
 </html> 
