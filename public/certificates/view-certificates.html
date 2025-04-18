@@ -148,20 +148,44 @@
   </div>
   
   <script>
+    // 获取基础路径函数
+    function getBasePath() {
+      const hostname = window.location.hostname;
+      // 检查是否在GitHub Pages上运行
+      if (hostname.includes('github.io')) {
+        return '/Personal_website';
+      }
+      return '';
+    }
+
+    // 处理图片路径函数
+    function getCorrectImagePath(imgSrc) {
+      // 如果已经是绝对路径或数据URL，直接返回
+      if (imgSrc.startsWith('http') || imgSrc.startsWith('data:') || imgSrc.startsWith('/')) {
+        return imgSrc;
+      }
+      
+      // 在本地环境中，使用相对路径
+      if (window.location.hostname === 'localhost' || 
+          window.location.hostname === '127.0.0.1') {
+        return imgSrc;
+      }
+      
+      // 在GitHub Pages环境中，添加基础路径
+      return `${getBasePath()}/certificates/${imgSrc}`;
+    }
+
     function showFullscreen(imgSrc, altText) {
       const fullscreen = document.getElementById('fullscreen');
       const fullscreenImage = document.getElementById('fullscreen-image');
       
-      // 处理图片路径，确保正确加载
-      let processedSrc = imgSrc;
-      // 如果不是HTTP或data URL，添加相对路径
-      if (!imgSrc.startsWith('http') && !imgSrc.startsWith('data:')) {
-        // 处理潜在的路径问题
-        processedSrc = imgSrc; // 保持相对路径
-      }
+      // 获取正确的图片路径
+      const correctPath = getCorrectImagePath(imgSrc);
+      console.log('显示全屏图片，原始路径:', imgSrc);
+      console.log('处理后路径:', correctPath);
       
-      console.log('显示全屏图片:', processedSrc);
-      fullscreenImage.src = processedSrc;
+      // 设置图片来源并显示
+      fullscreenImage.src = correctPath;
       fullscreenImage.alt = altText;
       fullscreen.classList.add('active');
       
@@ -191,54 +215,54 @@
       }
     });
 
-    // 当页面加载时，添加基础路径检测逻辑
+    // 当页面加载时，处理所有图片路径
     document.addEventListener('DOMContentLoaded', function() {
-      // 获取当前域名的基础路径
-      const hostname = window.location.hostname;
-      const pathname = window.location.pathname;
-      let basePath = '';
+      console.log('证书页面加载完成，开始处理图片路径');
+      console.log('当前主机名:', window.location.hostname);
+      console.log('当前路径名:', window.location.pathname);
       
-      // 添加调试信息
-      console.log('当前主机名:', hostname);
-      console.log('当前路径名:', pathname);
-      
-      if (hostname.includes('github.io')) {
-        // 在GitHub Pages上运行时
-        basePath = '/Personal_website';
-        console.log('检测到GitHub Pages环境，基础路径:', basePath);
-      } else {
-        console.log('本地环境，使用空基础路径');
-      }
-      
-      // 对页面上的所有证书图片应用正确的路径
+      // 获取所有证书图片
       const certificateImages = document.querySelectorAll('.certificate-image');
+      
       certificateImages.forEach(img => {
         const originalSrc = img.getAttribute('src');
+        console.log('处理图片:', originalSrc);
+        
+        // 更新图片src为正确路径
+        const correctSrc = getCorrectImagePath(originalSrc);
+        console.log(`更新图片路径: ${originalSrc} -> ${correctSrc}`);
+        img.setAttribute('src', correctSrc);
+        
+        // 更新onclick属性
         const originalOnClick = img.getAttribute('onclick');
-        
-        // 更新图片src
-        if (!originalSrc.startsWith('http') && !originalSrc.startsWith('data:') && !originalSrc.startsWith('/')) {
-          const newSrc = `${basePath}/${originalSrc}`;
-          console.log(`更新图片路径: ${originalSrc} -> ${newSrc}`);
-          img.setAttribute('src', newSrc);
+        if (originalOnClick) {
+          // 我们不改变onclick中的路径参数，因为showFullscreen函数会处理路径
+          console.log('使用正确的onclick处理');
         }
-        
-        // 更新点击事件，确保传递正确的路径到showFullscreen函数
-        if (originalOnClick && originalOnClick.includes('showFullscreen')) {
-          const match = originalOnClick.match(/showFullscreen\(['"]([^'"]+)['"]/);
-          if (match && match[1]) {
-            const imagePath = match[1];
-            if (!imagePath.startsWith('http') && !imagePath.startsWith('data:') && !imagePath.startsWith('/')) {
-              const newPath = `${basePath}/${imagePath}`;
-              const newOnClick = originalOnClick.replace(
-                `showFullscreen('${imagePath}`, 
-                `showFullscreen('${newPath}`
-              );
-              console.log(`更新点击事件: ${originalOnClick} -> ${newOnClick}`);
-              img.setAttribute('onclick', newOnClick);
-            }
+      });
+      
+      // 添加错误处理
+      certificateImages.forEach(img => {
+        img.addEventListener('error', function(e) {
+          console.error('图片加载失败:', this.src);
+          // 尝试其他扩展名
+          if (this.src.endsWith('.jpg')) {
+            const pngSrc = this.src.replace('.jpg', '.png');
+            console.log('尝试PNG格式:', pngSrc);
+            this.src = pngSrc;
+          } else if (this.src.endsWith('.png')) {
+            const jpgSrc = this.src.replace('.png', '.jpg');
+            console.log('尝试JPG格式:', jpgSrc);
+            this.src = jpgSrc;
           }
-        }
+          
+          // 如果仍然失败，使用占位符
+          this.onerror = function() {
+            console.error('所有格式都失败，使用占位符');
+            this.src = `${getBasePath()}/vite.svg`;
+            this.onerror = null; // 防止无限循环
+          };
+        });
       });
     });
   </script>
